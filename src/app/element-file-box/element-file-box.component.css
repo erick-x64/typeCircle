@@ -1,0 +1,74 @@
+
+.elementFileBox {
+    align-self: stretch;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background-color: #393939;
+    cursor: pointer;
+}
+
+.elementFileBox.select {
+    box-shadow: rgb(80, 111, 158) 0px 0px 0px 1.5px inset;
+}
+
+.elementFileBox:hover {
+    box-shadow: rgb(80, 111, 158) 0px 0px 0px 1.5px inset;
+}
+
+.contentImage_elementFileBox {
+    flex-grow: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 14px;
+    padding: 0;
+}
+
+.image_elementFileBox {
+    width: 18px;
+    height: 30px;
+    flex-grow: 0;
+    object-fit: cover;
+    border-radius: 5px;
+    border: solid 2px #6ca5fa;
+}
+
+.contentImage_elementFileBox h1 {
+    font-size: 14px;
+}
+
+.contentInfo_elementFileBox {
+    flex-grow: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+}
+
+.contentInfo_elementFileBox img {
+    cursor: pointer;
+}
+
+.fileExtension {
+    flex-grow: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    background-color: #595959;
+}
+
+.fileExtension h2 {
+    font-size: 11px;
+}

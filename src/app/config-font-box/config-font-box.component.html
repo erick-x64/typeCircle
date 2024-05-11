@@ -1,0 +1,51 @@
+<h1>Fonte:</h1>
+
+<div id="configFontBox">
+    <div class="row_configFontBox">
+        <div *ngIf="showButtonChoiceFont" style="cursor: pointer;" (click)="listFonts()" class="button_configFont">
+            <h1>Escolha sua fonte</h1>
+        </div>
+
+        <select *ngIf="!showButtonChoiceFont" class="button_configFont" (change)="changeFamilyFont()" [(ngModel)]="familyFont" name="select">
+            <option *ngFor="let font of availableFonts" [value]="font.fullName">{{ font.fullName }}</option>
+        </select>
+
+        <select class="button_configFont" (change)="changeSizeFont()" [(ngModel)]="sizeFont" name="select">
+            <option value=4>4px</option>
+            <option value=6>6px</option>
+            <option value=8>8px</option>
+            <option value=10>10px</option>
+            <option value=12>12px</option>
+            <option value=14 selected>14px</option>
+            <option value=16>16px</option>
+            <option value=18>18px</option>
+        </select>
+    </div>
+
+    <div class="row_configFontBox">
+        <div class="button_configFont">
+            <div [colorPicker]="colorFont" [ngStyle]="{ 'background-color': colorFont }"
+                (colorPickerChange)="onColorChange($event)" class="showColorSelect"></div>
+            <input (change)="changeColorFont()" [(ngModel)]="colorFont" type="text" value="#000000">
+        </div>
+        <div class="button_configFont">
+            <img src="../../assets/icons/10.svg" alt="">
+            <input (change)="changeLineHeightFont()" [(ngModel)]="lineHeightFont" type="number" placeholder="Auto"
+                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" required />
+        </div>
+    </div>
+
+
+    <div class="rowTextAling">
+        <div (click)="selectAling(0)" class="button_configAlingText" [ngClass]="{'select': positionText == 0}">
+            <img src="../../assets/icons/08.svg" alt="">
+        </div>
+        <div (click)="selectAling(1)" class="button_configAlingText" [ngClass]="{'select': positionText == 1}">
+            <img src="../../assets/icons/07.svg" alt="">
+        </div>
+        <div (click)="selectAling(2)" class="button_configAlingText" [ngClass]="{'select': positionText == 2}">
+            <img src="../../assets/icons/09.svg" alt="">
+        </div>
+    </div>
+
+</div>

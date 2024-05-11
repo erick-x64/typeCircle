@@ -1,0 +1,115 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+h1 {
+    font-size: 13px;
+}
+
+.overlay {
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    /* Coloque um valor alto para garantir que esteja na frente */
+}
+
+#configFontBox {
+    align-self: stretch;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 16px;
+    padding: 0;
+}
+
+.row_configFontBox {
+    align-self: stretch;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 0;
+}
+
+.row_configFontBox:first {
+    gap: 10px;
+}
+
+.row_configFontBox:first-child .button_configFont:last-child {
+    max-width: 90px;
+}
+
+.button_configFont {
+    max-width: 212px;
+}
+
+.button_configFont,
+.button_configAlingText {
+    align-self: stretch;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: solid 1px #4b4b4b;
+    background-color: #393939;
+}
+
+.button_configAlingText {
+    cursor: pointer;
+    padding: 14px;
+    width: fit-content;
+    background-color: rgba(57, 57, 57, 0.3);
+    border: solid 1px transparent;
+    align-self: auto;
+    flex-grow: 0;
+    transition: background, border 0.08s ease;
+}
+
+.button_configAlingText:hover {
+    border: solid 1px #4b4b4b;
+    background-color: #393939;
+}
+
+.button_configAlingText.select {
+    border: solid 1px #4b4b4b;
+    background-color: #393939;
+}
+
+.showColorSelect {
+    width: 24px;
+    height: 18px;
+    flex-grow: 0;
+    border-radius: 5px;
+    border: solid 2px #5c5c5c;
+    background-color: #000;
+}
+
+.button_configFont img {
+    width: 18px;
+    height: 18px;
+}
+
+.button_configFont input {
+    width: 100%;
+}
+
+.rowTextAling {
+    display: flex;
+    flex: 1 0 0;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0;
+}

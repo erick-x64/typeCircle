@@ -1,0 +1,13 @@
+<div [ngClass]="{'select': selectFile}" class="elementFileBox">
+    <div class="contentImage_elementFileBox">
+        <img class="image_elementFileBox" src="{{imageFile}}" alt="">
+        <h1>{{nameFile}}</h1>
+    </div>
+    <div class="contentInfo_elementFileBox">
+        <div class="fileExtension">
+            <h2>{{extensionFile}}</h2>
+        </div>
+        <img (click)="downloadFile()" src="../../assets/icons/12.svg" alt="">
+        <img (click)="removeFile()" src="../../assets/icons/13.svg" alt="">
+    </div>
+</div>

@@ -1,0 +1,21 @@
+<div id="contentFileBox">
+    <div id="listFileBox">
+        <ng-container *ngFor="let item of arrayFiles; let i = index">
+            <app-element-file-box (click)="selectFile(i)" (sendRemoveFile)="removeFile(i)" (sendDownloadFile)="downloadFile(i)" [data]="item"></app-element-file-box>
+          </ng-container>
+    </div>
+
+    <div id="actionsWithFile">
+        <div class="button_actionsWithFile">
+            <h1>Baixar tudo</h1>
+            <img src="../../assets/icons/14.svg" alt="">
+        </div>
+        <div (click)="openFileInput()" class="button_actionsWithFile">
+            <h1>Adicionar imagem</h1>
+            <img src="../../assets/icons/12.svg" alt="">
+        </div>
+    </div>
+</div>
+
+<!-- ignore -->
+<input (change)="handleFileInput($event)" style="display: none;" type="file" #openFileImage>

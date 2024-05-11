@@ -1,0 +1,36 @@
+
+.boxEntryText {
+    display: flex;
+    align-self: stretch;
+    align-items: stretch;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background-color: #393939;
+    transition: box-shadow 0.3s ease;
+}
+
+.ellipse{
+    width: 12px;
+    height: 20px;
+    border-radius: 100%;
+    flex-grow: 0;
+    border: solid 2px rgba(108, 165, 250, 0.8);
+    background-color: rgba(108, 165, 250, 0.2);
+}
+
+.boxEntryText input{
+    width: 100%;
+}
+
+.boxEntryText input:focus {
+    outline: solid 1px #565656;
+}
+
+.boxEntryText img {
+    cursor: grab;
+}
