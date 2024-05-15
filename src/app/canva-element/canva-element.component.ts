@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { DataService } from '../data.service';
 import { fabric } from "fabric";
 
@@ -13,6 +13,9 @@ interface Files {
   styleUrl: './canva-element.component.css'
 })
 export class CanvaElementComponent {
+  @ViewChild('downloadLink') downloadLink: ElementRef | undefined;
+
+
   canvas: any;
 
   // values default
@@ -198,6 +201,10 @@ export class CanvaElementComponent {
             this.canvas.bringToFront(currentTextbox);
             this.canvas.renderAll();
 
+            // save textbox
+            const canvasJson = this.canvas.toDatalessJSON();
+            this.files.canvas[this.files.selectFile] = canvasJson;
+
             // sendBoxCreate
             const texto = currentTextbox.text ?? '';
             this.sendBoxCreate(this.textboxes.length - 1, texto);
@@ -209,6 +216,10 @@ export class CanvaElementComponent {
                 const index = this.textboxes.indexOf(obj as fabric.Textbox);
                 const texto_sendBoxChange = obj.text ?? '';
                 this.sendBoxChange(index, texto_sendBoxChange.replace(/\n/g, ' '));
+
+                // save textbox
+                const canvasJson = this.canvas.toDatalessJSON();
+                this.files.canvas[this.files.selectFile] = canvasJson;
               });
 
               obj.on('selected', (event) => {
@@ -246,10 +257,18 @@ export class CanvaElementComponent {
       this.canvas.renderAll();
     });
 
-    this.canvas.on('mouse:up', () => {
+    this.canvas.on('mouse:up', (event: any) => {
       isDrawing = false;
       startPoint = null;
+
+      if (event.target instanceof fabric.Textbox) {
+        // save textbox
+        const canvasJson = this.canvas.toDatalessJSON();
+        this.files.canvas[this.files.selectFile] = canvasJson;
+      }
+
       if (currentTextbox) {
+
         currentTextbox.set({
           backgroundColor: undefined,
         });
@@ -417,6 +436,51 @@ export class CanvaElementComponent {
       this.canvas.renderAll();
 
       this.files.canvas.splice(data.index, 1);
+    });
+
+    this.dataService.downloadFileCanva$.subscribe(data => {
+      let canvas = new fabric.Canvas('baseDownload', {});
+
+      canvas.loadFromJSON(this.files.canvas[data.index], () => {
+        const firstImage = canvas.getObjects().find((obj: any) => obj instanceof fabric.Image) as fabric.Image;
+
+        if (firstImage && firstImage.width && firstImage.height) {
+          const originalImage = firstImage.getElement();
+
+          // revert size original image
+          firstImage.scale(1);
+          canvas.setWidth(originalImage.width);
+          canvas.setHeight(originalImage.height);
+
+          // revert fascaleFactor in Textbox
+          const scaleFactor = 745 / originalImage.height;
+          const scaleX = 1 / scaleFactor;
+          const scaleY = 1 / scaleFactor;
+
+          canvas.getObjects().forEach((obj: any) => {
+            if (obj instanceof fabric.Textbox) {  
+              if (obj.left && obj.top && obj.scaleY && obj.scaleX) {
+                obj.scaleX *= scaleX;
+                obj.scaleY *= scaleY;
+
+                obj.left *= scaleX;
+                obj.top *= scaleY;
+              }
+            }
+          });
+
+          // save
+          const dataURL = canvas.toDataURL({
+            format: 'png',
+            quality: 1,
+          });
+
+          this.downloadLink!.nativeElement.href = dataURL;
+          this.downloadLink!.nativeElement.download = "canvas-image.png";
+          this.downloadLink!.nativeElement.click();
+        }
+      });
+
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { DataService } from './data.service';
 
 declare global {
@@ -14,7 +14,6 @@ declare global {
 })
 
 export class AppComponent {
-
   constructor(private dataService: DataService) { }
 
   title = 'typeSora';
@@ -76,7 +75,7 @@ export class AppComponent {
 
   // html
   selectTopHeader: number = 0;
-  selectBottomHeader: number = 0;
+  selectBottomHeader: number = 1;
 
   changeTopHeader(selectTopHeader: number) {
     this.selectTopHeader = selectTopHeader;
