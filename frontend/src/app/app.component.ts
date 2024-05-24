@@ -61,9 +61,6 @@ export class AppComponent {
   }
 
   deleteBoxEntry(data: { idBox: number }) {
-    console.log(data.idBox);
-    console.log("array " + this.arrayEntry.length);
-
     if (data.idBox >= 0 && data.idBox < this.arrayEntry.length) {
       this.arrayEntry.splice(data.idBox, 1);
     }
@@ -74,7 +71,7 @@ export class AppComponent {
   }
 
   // html
-  selectTopHeader: number = 0;
+  selectTopHeader: number = 2;
   selectBottomHeader: number = 1;
 
   changeTopHeader(selectTopHeader: number) {

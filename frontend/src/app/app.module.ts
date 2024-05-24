@@ -2,6 +2,8 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { HttpClientModule } from '@angular/common/http';
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -10,6 +12,7 @@ import { ConfigFontBoxComponent } from './config-font-box/config-font-box.compon
 import { CanvaElementComponent } from './canva-element/canva-element.component';
 import { FileBoxComponent } from './file-box/file-box.component';
 import { ElementFileBoxComponent } from './element-file-box/element-file-box.component';
+import { BoxAiComponent } from './box-ai/box-ai.component';
 
 @NgModule({
   declarations: [
@@ -19,12 +22,14 @@ import { ElementFileBoxComponent } from './element-file-box/element-file-box.com
     CanvaElementComponent,
     FileBoxComponent,
     ElementFileBoxComponent,
+    BoxAiComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
     AppRoutingModule,
-    ColorPickerModule
+    ColorPickerModule,
+    HttpClientModule
   ],
   providers: [
     provideClientHydration()

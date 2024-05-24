@@ -53,6 +53,13 @@ export class DataService {
     private downloadFileCanvaSubject = new Subject<{ index: number }>();
     downloadFileCanva$ = this.downloadFileCanvaSubject.asObservable();
 
+    // box ai
+    private requestIdentificationSubject = new Subject<{}>();
+    requestIdentification$ = this.requestIdentificationSubject.asObservable();
+
+    private operationIdentificationCompleteSubject = new Subject<{ average_score: number, totalIdentified: number }>();
+    operationIdentificationComplete$ = this.operationIdentificationCompleteSubject.asObservable();
+
     constructor() { }
 
     // Entry changes
@@ -75,7 +82,6 @@ export class DataService {
     sendBoxAllDelete() {
         this.boxDeleteAllSubject.next({});
     }
-
 
     // config font changes
     sendConfigBoxSelect(idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number) {
@@ -110,5 +116,14 @@ export class DataService {
 
     downloadFileCanva(index: number) {
         this.downloadFileCanvaSubject.next({ index });
+    }
+
+    // box ai
+    requestIdentification() {
+        this.requestIdentificationSubject.next({});
+    }
+
+    operationIdentificationComplete(average_score: number, totalIdentified: number) {
+        this.operationIdentificationCompleteSubject.next({average_score, totalIdentified});
     }
 }

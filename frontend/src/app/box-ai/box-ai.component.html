@@ -1,0 +1,27 @@
+<div id="boxAi">
+    <div (click)="requestIdentification()" id="buttonIdentification">
+        <h1>Indetificar caixas com Ai</h1>
+        <img src="../../assets/icons/15.svg" alt="">
+    </div>
+
+    <div id="infos_Identification">
+        <div class="infoAboutIdentification">
+            <div class="element_infoAboutIdentification">
+                <h1>Confiabilidade média:</h1>
+            </div>
+            <div class="element_infoAboutIdentification">
+                <h1>{{average_score}}<span class="blueSpam">%</span></h1>
+            </div>
+        </div>
+
+        <div class="infoAboutIdentification">
+            <div class="element_infoAboutIdentification">
+                <h1>Quantidade identificada:</h1>
+            </div>
+            <div class="element_infoAboutIdentification">
+                <h1><span class="blueSpam">{{quantityFound}}</span></h1>
+            </div>
+        </div>
+    </div>
+
+</div>

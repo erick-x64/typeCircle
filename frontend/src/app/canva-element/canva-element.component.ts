@@ -1,4 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { DataService } from '../data.service';
 import { fabric } from "fabric";
 
@@ -15,7 +16,6 @@ interface Files {
 export class CanvaElementComponent {
   @ViewChild('downloadLink') downloadLink: ElementRef | undefined;
 
-
   canvas: any;
 
   // values default
@@ -31,7 +31,7 @@ export class CanvaElementComponent {
     canvas: [],
   };
 
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService, private http: HttpClient) { }
 
   // canva
   ngAfterViewInit() {
@@ -458,7 +458,7 @@ export class CanvaElementComponent {
           const scaleY = 1 / scaleFactor;
 
           canvas.getObjects().forEach((obj: any) => {
-            if (obj instanceof fabric.Textbox) {  
+            if (obj instanceof fabric.Textbox) {
               if (obj.left && obj.top && obj.scaleY && obj.scaleX) {
                 obj.scaleX *= scaleX;
                 obj.scaleY *= scaleY;
@@ -482,8 +482,56 @@ export class CanvaElementComponent {
       });
 
     });
-  }
 
+    this.dataService.requestIdentification$.subscribe(data => {
+      const dataURL = this.canvas.toDataURL({
+        format: 'png',
+        quality: 1
+      });
+
+      // Enviar a sequência de bytes para o servidor
+      this.http.post<any>('http://localhost:5000/api/process-image', { data_url: dataURL }).subscribe({
+        next: (response) => {
+          response.boxes_list.forEach((box: any) => {
+            // Extrai as coordenadas da caixa
+            const [x, y, w, h] = box;
+
+            // Calcula a posição do centro da caixa
+            const center_x = x + w / 2;
+            const center_y = y + h / 2;
+
+            // Cria um novo objeto fabric.Textbox
+            let textbox = new fabric.Textbox('Digite aqui...', {
+              left: center_x,
+              top: center_y,
+              fontFamily: this.familyFont,
+              fontSize: this.sizeFont,
+              lineHeight: this.lineHeightFont,
+              fill: this.colorFont
+            });
+
+            const offsetX = textbox.width! / 2;
+            const offsetY = textbox.height! / 2;
+
+            const textboxLeft = center_x - offsetX;
+            const textboxTop = center_y - offsetY;
+
+            textbox.set('left', textboxLeft);
+            textbox.set('top', textboxTop);
+
+            // Adiciona o textbox ao canvas
+            this.canvas.add(textbox);
+          });
+          
+          this.dataService.operationIdentificationComplete(response.average_score, response.boxes_list.length);
+        },
+        error: (error) => {
+          console.error('Erro ao enviar imagem para o servidor:', error);
+        }
+      });
+
+    })
+  }
 
   // send app
   sendBoxCreate(idBox: number, text: string) {

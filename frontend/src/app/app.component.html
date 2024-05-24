@@ -21,6 +21,9 @@
         <div class="pass" *ngIf="selectTopHeader == 0">
           <app-box-entry-text *ngFor="let item of arrayEntry" [data]="item"></app-box-entry-text>
         </div>
+        <div class="pass" *ngIf="selectTopHeader == 2">
+          <app-box-ai></app-box-ai>
+        </div>
       </div>
 
     </div>
