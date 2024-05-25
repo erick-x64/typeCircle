@@ -21,11 +21,11 @@ export class FileBoxComponent {
   }
 
   openFileInput() {
-    this.fileInput?.nativeElement.click();
+    // this.fileInput?.nativeElement.click();
 
     // test
-    // this.dataService.addImageCanva("../../assets/teste/teste2.jpg");
-    // this.arrayFiles.push({ pathFile: "../../assets/teste/teste2.jpg", nameFile: "test", extensionFile: "png", select: true });
+    this.dataService.addImageCanva("../../assets/teste/teste2.jpg");
+    this.arrayFiles.push({ pathFile: "../../assets/teste/teste2.jpg", nameFile: "test", extensionFile: "png", select: true });
     // this.dataService.addImageCanva("../../assets/teste/image.png");
     // this.arrayFiles.push({ pathFile: "../../assets/teste/image.png", nameFile: "test3", extensionFile: "png", select: true });
   }

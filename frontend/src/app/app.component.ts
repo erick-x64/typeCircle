@@ -1,5 +1,6 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { DataService } from './data.service';
+
 
 declare global {
   interface Window {
@@ -16,7 +17,7 @@ declare global {
 export class AppComponent {
   constructor(private dataService: DataService) { }
 
-  title = 'typeSora';
+  title = 'typeCircle';
   selectEntry: number = -1;
 
   arrayEntry: { idEntry?: number, text?: string, select?: boolean }[] = [];
@@ -71,8 +72,8 @@ export class AppComponent {
   }
 
   // html
-  selectTopHeader: number = 2;
-  selectBottomHeader: number = 1;
+  selectTopHeader: number = 0;
+  selectBottomHeader: number = 0;
 
   changeTopHeader(selectTopHeader: number) {
     this.selectTopHeader = selectTopHeader;
@@ -82,6 +83,11 @@ export class AppComponent {
     this.selectBottomHeader = selectTopHeader;
   }
 
-
-  // font
+  showHome: boolean = true;
+  changeDashBoard(imageURl: string) {
+    this.showHome = false;
+    setTimeout(() => {
+      this.dataService.addImageCanva(imageURl);
+    });
+  }
 }

@@ -1,4 +1,6 @@
-<div id="main">
+<app-home *ngIf="showHome" (signChangeMenu)="changeDashBoard($event)"></app-home>
+
+<div *ngIf="!showHome" id="main">
   <div id="boxFunctions">
     <div class="element_boxFunctions">
 

@@ -17,6 +17,7 @@ export class CanvaElementComponent {
   @ViewChild('downloadLink') downloadLink: ElementRef | undefined;
 
   canvas: any;
+  twoClick: number = 0;
 
   // values default
   familyFont: string = "Arial";
@@ -24,6 +25,7 @@ export class CanvaElementComponent {
   colorFont: string = "#000000";
   lineHeightFont: number = 1.4;
   positionText: number = 0;
+  
 
   textboxes: fabric.Textbox[] = [];
   files: Files = {
@@ -135,7 +137,6 @@ export class CanvaElementComponent {
     let isDrawing = false;
     let startPoint: fabric.Point | null = null;
     let currentTextbox: fabric.Textbox | null = null;
-    let twoClick = 0;
 
     this.canvas.on('mouse:down', (opt: any) => {
       const img = this.canvas.getObjects()[0];
@@ -144,13 +145,13 @@ export class CanvaElementComponent {
 
       if (!activeObject) {
         if (this.textboxes.length == 0) {
-          twoClick = 0
+          this.twoClick = 0
         } else {
-          twoClick++
+          this.twoClick++
         }
 
-        if (twoClick == 2) {
-          twoClick = 0
+        if (this.twoClick == 2) {
+          this.twoClick = 0
         }
       }
 
@@ -175,7 +176,7 @@ export class CanvaElementComponent {
               textboxRect.left + textboxRect.width >= pointer.x && textboxRect.top + textboxRect.height >= pointer.y;
           });
 
-          if (!overlappingTextbox && !activeObject && twoClick == 0) {
+          if (!overlappingTextbox && !activeObject && this.twoClick == 0) {
             isDrawing = true;
             startPoint = new fabric.Point(pointer.x, pointer.y);
 
@@ -210,28 +211,7 @@ export class CanvaElementComponent {
             this.sendBoxCreate(this.textboxes.length - 1, texto);
 
             // sendBoxCreate
-            let obj = currentTextbox;
-            if (obj !== null) {
-              obj.on('changed', (event) => {
-                const index = this.textboxes.indexOf(obj as fabric.Textbox);
-                const texto_sendBoxChange = obj.text ?? '';
-                this.sendBoxChange(index, texto_sendBoxChange.replace(/\n/g, ' '));
-
-                // save textbox
-                const canvasJson = this.canvas.toDatalessJSON();
-                this.files.canvas[this.files.selectFile] = canvasJson;
-              });
-
-              obj.on('selected', (event) => {
-                const index = this.textboxes.indexOf(obj as fabric.Textbox);
-                this.sendBoxSelect(index, true);
-              });
-
-              obj.on('deselected', (event) => {
-                const index = this.textboxes.indexOf(obj as fabric.Textbox);
-                this.sendBoxSelect(index, false);
-              });
-            }
+            this.setupEventInTextBox(currentTextbox);
           }
         }
       }
@@ -241,7 +221,6 @@ export class CanvaElementComponent {
       if (!isDrawing || !startPoint || !currentTextbox) {
         return;
       }
-
 
       const pointer = this.canvas.getPointer(opt.e);
       const width = Math.abs(pointer.x - startPoint.x);
@@ -296,6 +275,29 @@ export class CanvaElementComponent {
           this.sendBoxDelete(index);
         }
       }
+    });
+  }
+
+  setupEventInTextBox(obj: fabric.Textbox) {
+    obj.on('changed', (event) => {
+      const index = this.textboxes.indexOf(obj as fabric.Textbox);
+      const texto_sendBoxChange = obj.text ?? '';
+      this.sendBoxChange(index, texto_sendBoxChange.replace(/\n/g, ' '));
+
+      // save textbox
+      const canvasJson = this.canvas.toDatalessJSON();
+      this.files.canvas[this.files.selectFile] = canvasJson;
+    });
+
+    obj.on('selected', (event) => {
+      this.twoClick = 0;
+      const index = this.textboxes.indexOf(obj as fabric.Textbox);
+      this.sendBoxSelect(index, true);
+    });
+
+    obj.on('deselected', (event) => {
+      const index = this.textboxes.indexOf(obj as fabric.Textbox);
+      this.sendBoxSelect(index, false);
     });
   }
 
@@ -484,52 +486,61 @@ export class CanvaElementComponent {
     });
 
     this.dataService.requestIdentification$.subscribe(data => {
-      const dataURL = this.canvas.toDataURL({
-        format: 'png',
-        quality: 1
-      });
+      const firstImage = this.canvas.getObjects().find((obj: any) => obj instanceof fabric.Image) as fabric.Image;
+      // if exist image
+      if (firstImage) {
+        const dataURL = this.canvas.toDataURL({
+          format: 'png',
+          quality: 1
+        });
 
-      // Enviar a sequência de bytes para o servidor
-      this.http.post<any>('http://localhost:5000/api/process-image', { data_url: dataURL }).subscribe({
-        next: (response) => {
-          response.boxes_list.forEach((box: any) => {
-            // Extrai as coordenadas da caixa
-            const [x, y, w, h] = box;
+        this.http.post<any>('http://localhost:5000/api/process-image', { data_url: dataURL }).subscribe({
+          next: (response) => {
+            response.boxes_list.forEach((box: any) => {
+              // Extrai as coordenadas da caixa
+              const [x, y, w, h] = box;
 
-            // Calcula a posição do centro da caixa
-            const center_x = x + w / 2;
-            const center_y = y + h / 2;
+              // Calcula a posição do centro da caixa
+              const center_x = x + w / 2;
+              const center_y = y + h / 2;
 
-            // Cria um novo objeto fabric.Textbox
-            let textbox = new fabric.Textbox('Digite aqui...', {
-              left: center_x,
-              top: center_y,
-              fontFamily: this.familyFont,
-              fontSize: this.sizeFont,
-              lineHeight: this.lineHeightFont,
-              fill: this.colorFont
+              // Cria um novo objeto fabric.Textbox
+              let textbox = new fabric.Textbox('Digite aqui...', {
+                left: center_x,
+                top: center_y,
+                fontFamily: this.familyFont,
+                fontSize: this.sizeFont,
+                lineHeight: this.lineHeightFont,
+                fill: this.colorFont
+              });
+
+              const offsetX = textbox.width! / 2;
+              const offsetY = textbox.height! / 2;
+
+              const textboxLeft = center_x - offsetX;
+              const textboxTop = center_y - offsetY;
+
+              textbox.set('left', textboxLeft);
+              textbox.set('top', textboxTop);
+
+              // Adiciona o textbox ao canvas
+              this.canvas.add(textbox);
+              const texto = textbox.text ?? '';
+              this.textboxes.push(textbox);
+              this.sendBoxCreate(this.textboxes.length - 1, texto);
+              this.setupEventInTextBox(textbox);
             });
-
-            const offsetX = textbox.width! / 2;
-            const offsetY = textbox.height! / 2;
-
-            const textboxLeft = center_x - offsetX;
-            const textboxTop = center_y - offsetY;
-
-            textbox.set('left', textboxLeft);
-            textbox.set('top', textboxTop);
-
-            // Adiciona o textbox ao canvas
-            this.canvas.add(textbox);
-          });
-          
-          this.dataService.operationIdentificationComplete(response.average_score, response.boxes_list.length);
-        },
-        error: (error) => {
-          console.error('Erro ao enviar imagem para o servidor:', error);
-        }
-      });
-
+            this.dataService.operationIdentificationComplete(response.average_score, response.boxes_list.length);
+          },
+          error: (error) => {
+            console.error('Erro ao enviar imagem para o servidor:', error);
+          }
+        });
+      } else {
+        setTimeout(() => {
+          this.dataService.operationIdentificationComplete(0, 0);
+        }, 500);
+      }
     })
   }
 

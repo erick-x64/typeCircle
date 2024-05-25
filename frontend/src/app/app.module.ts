@@ -13,6 +13,7 @@ import { CanvaElementComponent } from './canva-element/canva-element.component';
 import { FileBoxComponent } from './file-box/file-box.component';
 import { ElementFileBoxComponent } from './element-file-box/element-file-box.component';
 import { BoxAiComponent } from './box-ai/box-ai.component';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { BoxAiComponent } from './box-ai/box-ai.component';
     FileBoxComponent,
     ElementFileBoxComponent,
     BoxAiComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,

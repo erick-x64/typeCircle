@@ -1,0 +1,36 @@
+<div id="home">
+    <div id="contentHome">
+        <div id="topContentHome">
+            <div id="ellipse"></div>
+            <div id="aboutProjectContent">
+                <h1>TypeCircle</h1>
+                <div id="contentGithub">
+                    <img src="../../assets/icons/16.svg" alt="">
+                    <a href="https://github.com/Nozmer/typeCircle">https://github.com/Nozmer/typeCircle</a>
+                </div>
+            </div>
+            <div id="others_aboutProjectContent">
+                <h2> version:
+                    <span>0.1</span>
+                </h2>
+                <a href="#">What news?</a>
+            </div>
+        </div>
+        <div id="bottomContentHome">
+            <div id="newButton" (click)="openFileInput()">
+                <img src="../../assets/icons/17.svg " alt="">
+            </div>
+            <div id="box_recentlyOpened">
+                <h2>Aberto recentemente:</h2>
+                <div id="wrap_box_recentlyOpened">
+                    <div class="box_wrap_box_recentlyOpened"></div>
+                    <div class="box_wrap_box_recentlyOpened"></div>
+                    <div class="box_wrap_box_recentlyOpened"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ignore -->
+<input (change)="handleFileInput($event)" style="display: none;" type="file" #openFileImage>
