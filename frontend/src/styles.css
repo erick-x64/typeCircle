@@ -99,13 +99,13 @@ input[type=number] {
 /* media */
 
 @media only screen and (max-width: 1150px) {
-    html {
-        padding: 40px 20px;
+    html, body {
+        padding: 20px 20px;
     }
 }
 
-@media only screen and (max-height: 900px) {
-    body {
-        padding: 10px 30px;
+@media only screen and (max-height: 870px) {
+    html, body {
+        padding: 20px 30px;
     }
 }

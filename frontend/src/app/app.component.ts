@@ -43,6 +43,11 @@ export class AppComponent {
     this.dataService.boxAllDelete$.subscribe(() => {
       this.deleteAllBoxEntry();
     });
+
+    // debug only
+    // setTimeout(() => {
+    //   this.dataService.addImageCanva("../../assets/teste/teste3.jpg");
+    // });
   }
 
   // canva

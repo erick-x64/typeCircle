@@ -1,9 +1,9 @@
-<h1>Fonte:</h1>
+<h1>Font:</h1>
 
 <div id="configFontBox">
     <div class="row_configFontBox">
         <div *ngIf="showButtonChoiceFont" style="cursor: pointer;" (click)="listFonts()" class="button_configFont">
-            <h1>Escolha sua fonte</h1>
+            <h1>Choose your font</h1>
         </div>
 
         <select *ngIf="!showButtonChoiceFont" class="button_configFont" (change)="changeFamilyFont()" [(ngModel)]="familyFont" name="select">

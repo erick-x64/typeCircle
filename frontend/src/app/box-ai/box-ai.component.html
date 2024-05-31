@@ -1,13 +1,13 @@
 <div id="boxAi">
     <div (click)="requestIdentification()" id="buttonIdentification">
-        <h1>Indetificar caixas com Ai</h1>
+        <h1>Identify boxes with AI</h1>
         <img src="../../assets/icons/15.svg" alt="">
     </div>
 
     <div id="infos_Identification">
         <div class="infoAboutIdentification">
             <div class="element_infoAboutIdentification">
-                <h1>Confiabilidade média:</h1>
+                <h1>Average reliability:</h1>
             </div>
             <div class="element_infoAboutIdentification">
                 <h1>{{average_score}}<span class="blueSpam">%</span></h1>
@@ -16,12 +16,23 @@
 
         <div class="infoAboutIdentification">
             <div class="element_infoAboutIdentification">
-                <h1>Quantidade identificada:</h1>
+                <h1>Quantity identified:</h1>
             </div>
             <div class="element_infoAboutIdentification">
                 <h1><span class="blueSpam">{{quantityFound}}</span></h1>
             </div>
         </div>
+        <div class="othersButton">
+            <div class="buttonOther" (click)="requestRemoveText()">
+                <h1>Remove text</h1>
+            </div>
+            <div class="buttonOther" (click)="requestAddBoxText()" class="buttonOther">
+                <h1>Add text box</h1>
+            </div>
+        </div>
+        <div class="othersButton" *ngIf="showOptionsRemoveText">
+            <input type="text" [(ngModel)]="offsetCircle" (input)="requestChangeValuesCircle()" placeholder="Offset circle: 10">
+            <input type="text" [(ngModel)]="radiusCircle" (input)="requestChangeValuesCircle()" placeholder="Radius circle: 999">
+        </div>
     </div>
-
 </div>

@@ -37,7 +37,6 @@
 }
 
 .element_boxFunctions {
-    height: 314px;
     align-self: stretch;
     display: flex;
     flex-direction: column;
@@ -91,8 +90,14 @@
     height: 16px;
 }
 
+#topElement{
+    overflow-y: auto;
+    height: 0;
+}
+
 .content_element_boxFunctions {
-    height: 276px;
+    min-height: 270px;
+    height: 100%;
     align-self: stretch;
     flex-grow: 0;
     display: flex;
@@ -107,11 +112,11 @@
 }
 
 .content_element_boxFunctions .pass {
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
     height: 100%;
-
 }
 
 #boxCanva {
@@ -124,4 +129,11 @@
     gap: 10px;
     padding: 9px 10px;
     background-color: #1a1a1a;
+}
+
+
+@media only screen and (max-height: 870px) {
+    .content_element_boxFunctions {
+        min-height: 200px;
+    }
 }

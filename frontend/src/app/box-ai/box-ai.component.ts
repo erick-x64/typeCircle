@@ -14,7 +14,12 @@ export class BoxAiComponent {
   average_score: string = "";
   quantityFound: number = 0;
 
+  showOptionsRemoveText: boolean = true;
+  offsetCircle: number | undefined;
+  radiusCircle: number | undefined;
+
   requestIdentification() {
+    this.showOptionsRemoveText = true;
     this.resetAnimationTopObjects();
     this.startAnimationGradient();
 
@@ -30,6 +35,24 @@ export class BoxAiComponent {
       this.stopAnimationGradient();
       this.startAnimationTopObjects();
     })
+  }
+
+  requestRemoveText() {
+    this.showOptionsRemoveText = false;
+    this.offsetCircle = undefined;
+    this.radiusCircle = undefined;
+    this.dataService.requestRemoveText();
+  }
+
+  requestAddBoxText() {
+    this.dataService.requestAddBoxText();
+  }
+
+  requestChangeValuesCircle() {
+    let offsetCircle: number | undefined = this.offsetCircle === undefined ? 10 : this.offsetCircle;
+    let radiusCircle: number | undefined = this.radiusCircle === undefined ? 999 : this.radiusCircle;
+
+    this.dataService.requestChangeValuesCircle(offsetCircle, radiusCircle);
   }
 
   // animation top objects

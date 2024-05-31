@@ -3,7 +3,6 @@
 <div *ngIf="!showHome" id="main">
   <div id="boxFunctions">
     <div class="element_boxFunctions">
-
       <div class="header_element_boxFunctions">
         <div (click)="changeTopHeader(0)" [ngClass]="{'select': selectTopHeader == 0}"
           class="button_header_element_boxFunctions">
@@ -19,7 +18,7 @@
         </div>
       </div>
 
-      <div class="content_element_boxFunctions">
+      <div id="topElement" class="content_element_boxFunctions">
         <div class="pass" *ngIf="selectTopHeader == 0">
           <app-box-entry-text *ngFor="let item of arrayEntry" [data]="item"></app-box-entry-text>
         </div>

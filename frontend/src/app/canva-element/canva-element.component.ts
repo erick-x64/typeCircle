@@ -25,9 +25,10 @@ export class CanvaElementComponent {
   colorFont: string = "#000000";
   lineHeightFont: number = 1.4;
   positionText: number = 0;
-  
 
+  boxes_list: [number, number, number, number][] = [];
   textboxes: fabric.Textbox[] = [];
+  rects: fabric.Rect[] = [];
   files: Files = {
     selectFile: 0,
     canvas: [],
@@ -181,13 +182,14 @@ export class CanvaElementComponent {
             startPoint = new fabric.Point(pointer.x, pointer.y);
 
             // Criar uma nova caixa de texto
-            currentTextbox = new fabric.Textbox('Digite aqui...', {
+            currentTextbox = new fabric.Textbox('Type here...', {
               left: pointer.x,
               top: pointer.y,
               fontFamily: this.familyFont,
               fontSize: this.sizeFont,
               lineHeight: this.lineHeightFont,
-              fill: this.colorFont
+              fill: this.colorFont,
+              textAlign: this.positionText === 0 ? 'center' : (this.positionText === 1 ? 'left' : 'right')
             });
 
             currentTextbox.setControlsVisibility({
@@ -494,8 +496,12 @@ export class CanvaElementComponent {
           quality: 1
         });
 
+        this.boxes_list = [];
+
         this.http.post<any>('http://localhost:5000/api/process-image', { data_url: dataURL }).subscribe({
           next: (response) => {
+            this.boxes_list = response.boxes_list;
+
             response.boxes_list.forEach((box: any) => {
               // Extrai as coordenadas da caixa
               const [x, y, w, h] = box;
@@ -504,32 +510,30 @@ export class CanvaElementComponent {
               const center_x = x + w / 2;
               const center_y = y + h / 2;
 
-              // Cria um novo objeto fabric.Textbox
-              let textbox = new fabric.Textbox('Digite aqui...', {
-                left: center_x,
-                top: center_y,
-                fontFamily: this.familyFont,
-                fontSize: this.sizeFont,
-                lineHeight: this.lineHeightFont,
-                fill: this.colorFont
+              const offset = 10;
+
+              const rx = (w / 2) - offset;
+              const ry = (h / 2) - offset;
+
+              const width = 2 * rx;
+              const height = 2 * ry;
+    
+              const rect = new fabric.Rect({
+                left: center_x - rx,
+                top: center_y - ry,
+                width: width,
+                height: height,
+                rx: rx,
+                ry: ry,
+                fill: 'rgba(108, 165, 250, 0.2)',
+                stroke: 'rgba(108, 165, 250, 0.8)',
+                strokeWidth: 1.5
               });
 
-              const offsetX = textbox.width! / 2;
-              const offsetY = textbox.height! / 2;
-
-              const textboxLeft = center_x - offsetX;
-              const textboxTop = center_y - offsetY;
-
-              textbox.set('left', textboxLeft);
-              textbox.set('top', textboxTop);
-
-              // Adiciona o textbox ao canvas
-              this.canvas.add(textbox);
-              const texto = textbox.text ?? '';
-              this.textboxes.push(textbox);
-              this.sendBoxCreate(this.textboxes.length - 1, texto);
-              this.setupEventInTextBox(textbox);
-            });
+              this.canvas.add(rect);
+              this.rects.push(rect);
+              this.setupEventInRect(rect, offset);
+            })
             this.dataService.operationIdentificationComplete(response.average_score, response.boxes_list.length);
           },
           error: (error) => {
@@ -541,7 +545,171 @@ export class CanvaElementComponent {
           this.dataService.operationIdentificationComplete(0, 0);
         }, 500);
       }
-    })
+    });
+
+    this.dataService.requestRemoveText$.subscribe(data => {
+      this.canvas.discardActiveObject().renderAll();
+
+      this.rects.forEach(react => {
+        // remove style ellipse
+        react.set('fill', "transparent");
+        react.set('stroke', "transparent");
+        react.set('strokeWidth', 0);
+        react.set('selectable', false);
+      });
+
+      this.canvas.renderAll();
+
+      const context = this.canvas.getContext('2d', { willReadFrequently: true });
+
+      this.rects.forEach(react => {
+        // Obtenha as coordenadas e dimensões do elipse
+        const left = react.left;
+        const top = react.top;
+        const width = react.rx! * 2;
+        const height = react.ry! * 2;
+
+        // Extraia os dados de pixel da área do elipse
+        const imageData = context.getImageData(left, top, width, height);
+
+        // Calcule a cor predominante
+        const dominantColor = this.getDominantColor(imageData);
+
+        // Defina a cor do preenchimento do elipse
+        react.set('fill', dominantColor);
+
+        this.canvas.renderAll();
+      });
+
+      this.rects = [];
+    });
+
+    this.dataService.requestAddBoxText$.subscribe(data => {
+      if (this.boxes_list.length > 0 && this.rects.length == 0) {
+        this.boxes_list.forEach((box: any) => {
+          // Extrai as coordenadas da caixa
+          const [x, y, w, h] = box;
+
+          // Calcula a posição do centro da caixa
+          const center_x = x + w / 2;
+          const center_y = y + h / 2;
+
+          let textbox = new fabric.Textbox('Type here...', {
+            left: center_x,
+            top: center_y,
+            fontFamily: this.familyFont,
+            fontSize: this.sizeFont,
+            lineHeight: this.lineHeightFont,
+            fill: this.colorFont,
+            textAlign: this.positionText === 0 ? 'center' : (this.positionText === 1 ? 'left' : 'right')
+          });
+
+          const offsetX = textbox.width! / 2;
+          const offsetY = textbox.height! / 2;
+
+          const textboxLeft = center_x - offsetX;
+          const textboxTop = center_y - offsetY;
+
+          textbox.set('left', textboxLeft);
+          textbox.set('top', textboxTop);
+
+          // Adiciona o textbox ao canvas
+          this.canvas.add(textbox);
+          const texto = textbox.text ?? '';
+          this.textboxes.push(textbox);
+          this.sendBoxCreate(this.textboxes.length - 1, texto);
+          this.setupEventInTextBox(textbox);
+        });
+
+        this.boxes_list = [];
+      }
+    });
+
+    this.dataService.requestChangeValuesCircle$.subscribe(data => {
+      if (this.rects.length > 0) {
+        this.rects.forEach(react => {
+          this.canvas.remove(react);
+        });
+
+        this.rects = [];
+
+        this.boxes_list.forEach((box: any) => {
+          // Extrai as coordenadas da caixa
+          const [x, y, w, h] = box;
+
+          // Calcula a posição do centro da caixa
+          const center_x = x + w / 2;
+          const center_y = y + h / 2;
+
+          const offset = data.offsetCircle;
+          const radius = data.radiusCircle;
+
+          let rx = (w / 2) - offset;
+          let ry = (h / 2) - offset;
+
+          if (rx < 10) rx = (w / 2) - 10;
+          if (ry < 10) ry = (h / 2) - 10;
+
+          const width = 2 * rx;
+          const height = 2 * ry;
+
+          const rect = new fabric.Rect({
+            left: center_x - rx,
+            top: center_y - ry,
+            width: width,
+            height: height,
+            rx: radius,
+            ry: radius,
+            fill: 'rgba(108, 165, 250, 0.2)',
+            stroke: 'rgba(108, 165, 250, 0.8)',
+            strokeWidth: 1.5
+          });
+
+          this.canvas.add(rect);
+          this.rects.push(rect);
+          this.setupEventInRect(rect, offset);
+        })
+
+        this.canvas.renderAll();
+      }
+    });
+  }
+
+  getDominantColor(imageData: ImageData): string {
+    const data = imageData.data;
+    const colorCounts: { [key: string]: number } = {};
+    let dominantColor = '';
+    let maxCount = 0;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const color = `${data[i]},${data[i + 1]},${data[i + 2]}`;
+      colorCounts[color] = (colorCounts[color] || 0) + 1;
+
+      if (colorCounts[color] > maxCount) {
+        maxCount = colorCounts[color];
+        dominantColor = color;
+      }
+    }
+
+    return `rgb(${dominantColor})`;
+  }
+  
+  setupEventInRect(obj: fabric.Rect, offset: number) {
+    obj.on('moving', (event) => {
+      const index = this.rects.indexOf(obj);
+
+      const w = this.boxes_list[index][2];
+      const h = this.boxes_list[index][2];
+
+      const center_x = obj.left! + (w / 2) - offset;
+      const center_y = obj.top! + (h / 2) - offset;
+
+      const x = center_x - w / 2;
+      const y = center_y - h / 2;
+
+      this.boxes_list[index][0] = x;
+      this.boxes_list[index][1] = y;
+    });
   }
 
   // send app

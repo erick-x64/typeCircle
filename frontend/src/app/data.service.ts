@@ -57,6 +57,15 @@ export class DataService {
     private requestIdentificationSubject = new Subject<{}>();
     requestIdentification$ = this.requestIdentificationSubject.asObservable();
 
+    private requestRemoveTextSubject = new Subject<{}>();
+    requestRemoveText$ = this.requestRemoveTextSubject.asObservable();
+
+    private requestAddBoxTextSubject = new Subject<{}>();
+    requestAddBoxText$ = this.requestAddBoxTextSubject.asObservable();
+
+    private requestChangeValuesCircleSubject = new Subject<{ offsetCircle: number, radiusCircle: number }>();
+    requestChangeValuesCircle$ = this.requestChangeValuesCircleSubject.asObservable();
+
     private operationIdentificationCompleteSubject = new Subject<{ average_score: number, totalIdentified: number }>();
     operationIdentificationComplete$ = this.operationIdentificationCompleteSubject.asObservable();
 
@@ -123,7 +132,19 @@ export class DataService {
         this.requestIdentificationSubject.next({});
     }
 
+    requestRemoveText() {
+        this.requestRemoveTextSubject.next({});
+    }
+
+    requestAddBoxText() {
+        this.requestAddBoxTextSubject.next({});
+    }
+
+    requestChangeValuesCircle(offsetCircle: number, radiusCircle: number) {
+        this.requestChangeValuesCircleSubject.next({offsetCircle, radiusCircle});
+    }
+
     operationIdentificationComplete(average_score: number, totalIdentified: number) {
-        this.operationIdentificationCompleteSubject.next({average_score, totalIdentified});
+        this.operationIdentificationCompleteSubject.next({ average_score, totalIdentified });
     }
 }
