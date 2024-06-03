@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { DataService } from '../data.service';
-import anime from 'animejs/lib/anime.es.js';
+import anime from 'animejs';
 
 @Component({
   selector: 'app-box-ai',
