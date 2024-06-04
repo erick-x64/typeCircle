@@ -29,7 +29,7 @@
             <input (change)="changeColorFont()" [(ngModel)]="colorFont" type="text" value="#000000">
         </div>
         <div class="button_configFont">
-            <img src="../../assets/icons/10.svg" alt="">
+            <img src="/assets/icons/10.svg" alt="">
             <input (change)="changeLineHeightFont()" [(ngModel)]="lineHeightFont" type="number" placeholder="Auto"
                 pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" required />
         </div>
@@ -38,13 +38,13 @@
 
     <div class="rowTextAling">
         <div (click)="selectAling(0)" class="button_configAlingText" [ngClass]="{'select': positionText == 0}">
-            <img src="../../assets/icons/08.svg" alt="">
+            <img src="/assets/icons/08.svg" alt="">
         </div>
         <div (click)="selectAling(1)" class="button_configAlingText" [ngClass]="{'select': positionText == 1}">
-            <img src="../../assets/icons/07.svg" alt="">
+            <img src="/assets/icons/07.svg" alt="">
         </div>
         <div (click)="selectAling(2)" class="button_configAlingText" [ngClass]="{'select': positionText == 2}">
-            <img src="../../assets/icons/09.svg" alt="">
+            <img src="/assets/icons/09.svg" alt="">
         </div>
     </div>
 

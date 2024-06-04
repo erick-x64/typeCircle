@@ -39,7 +39,7 @@ export class CanvaElementComponent {
   // canva
   ngAfterViewInit() {
     this.initializeCanvas();
-    // this.setupImage("../../assets/teste/teste.png");
+    // this.setupImage("/assets/teste/teste.png");
   }
 
   initializeCanvas() {

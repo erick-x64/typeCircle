@@ -46,7 +46,7 @@ export class AppComponent {
 
     // debug only
     // setTimeout(() => {
-    //   this.dataService.addImageCanva("../../assets/teste/teste3.jpg");
+    //   this.dataService.addImageCanva("/assets/teste/teste3.jpg");
     // });
   }
 
