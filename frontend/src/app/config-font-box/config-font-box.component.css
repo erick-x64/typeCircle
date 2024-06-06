@@ -26,6 +26,10 @@ h1 {
     padding: 0;
 }
 
+#configFontBox select{
+    font-size: 13px;
+}
+
 .row_configFontBox {
     align-self: stretch;
     flex-grow: 0;

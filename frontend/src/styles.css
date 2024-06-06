@@ -19,7 +19,8 @@ a,
 h2,
 h3,
 input,
-select {
+select,
+optgroup {
     margin: 0;
     font-family: Poppins;
     line-height: 1.3;

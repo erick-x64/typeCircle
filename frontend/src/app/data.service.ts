@@ -31,10 +31,10 @@ export class DataService {
     // boxCanvaSelect$ = this.boxCanvaSelectSubject.asObservable();
 
     // config font changes
-    private boxFontChangeSubject = new Subject<{ idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>();
+    private boxFontChangeSubject = new Subject<{ idBox: number, familyFont: string, styleFont: string, fontWeight: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>();
     boxFontChange$ = this.boxFontChangeSubject.asObservable();
 
-    private boxFontDefaultChangeSubject = new Subject<{ idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>();
+    private boxFontDefaultChangeSubject = new Subject<{ idBox: number, familyFont: string, styleFont: string, fontWeight: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>();
     boxFontDefaultChange$ = this.boxFontDefaultChangeSubject.asObservable();
 
     private sendConfigBoxSelectSubject = new Subject<{ idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>();
@@ -97,12 +97,12 @@ export class DataService {
         this.sendConfigBoxSelectSubject.next({ idBox, familyFont, sizeFont, colorFont, lineHeightFont, positionText });
     }
 
-    boxFontChange(idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number) {
-        this.boxFontChangeSubject.next({ idBox, familyFont, sizeFont, colorFont, lineHeightFont, positionText });
+    boxFontChange(idBox: number, familyFont: string, styleFont: string, fontWeight: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number) {
+        this.boxFontChangeSubject.next({ idBox, familyFont, styleFont, fontWeight, sizeFont, colorFont, lineHeightFont, positionText });
     }
 
-    boxFontDefaultChange(idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number) {
-        this.boxFontDefaultChangeSubject.next({ idBox, familyFont, sizeFont, colorFont, lineHeightFont, positionText });
+    boxFontDefaultChange(idBox: number, familyFont: string, styleFont: string, fontWeight: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number) {
+        this.boxFontDefaultChangeSubject.next({ idBox, familyFont, styleFont, fontWeight, sizeFont, colorFont, lineHeightFont, positionText });
     }
 
     // Canvas object changes
@@ -141,7 +141,7 @@ export class DataService {
     }
 
     requestChangeValuesCircle(offsetCircle: number, radiusCircle: number) {
-        this.requestChangeValuesCircleSubject.next({offsetCircle, radiusCircle});
+        this.requestChangeValuesCircleSubject.next({ offsetCircle, radiusCircle });
     }
 
     operationIdentificationComplete(average_score: number, totalIdentified: number) {

@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataService } from '../data.service';
-  import { fabric } from "fabric";
+import { fabric } from "fabric";
 
 interface Files {
   selectFile: number;
@@ -21,6 +21,8 @@ export class CanvaElementComponent {
 
   // values default
   familyFont: string = "Arial";
+  styleFont: string | "" | "normal" | "italic" | "oblique" = "";
+  fontWeight: string = "normal";
   sizeFont: number = 14;
   colorFont: string = "#000000";
   lineHeightFont: number = 1.4;
@@ -187,6 +189,8 @@ export class CanvaElementComponent {
               top: pointer.y,
               fontFamily: this.familyFont,
               fontSize: this.sizeFont,
+              fontStyle: this.styleFont as "" | "normal" | "italic" | "oblique",
+              fontWeight: this.fontWeight,
               lineHeight: this.lineHeightFont,
               fill: this.colorFont,
               textAlign: this.positionText === 0 ? 'center' : (this.positionText === 1 ? 'left' : 'right')
@@ -313,16 +317,21 @@ export class CanvaElementComponent {
     this.dataService.boxFontChange$.subscribe(data => {
       // set default values
       this.familyFont = data.familyFont;
+      this.styleFont = data.styleFont;
+      this.fontWeight = data.fontWeight;
       this.sizeFont = data.sizeFont;
       this.colorFont = data.colorFont;
       this.lineHeightFont = data.lineHeightFont;
       this.positionText = data.positionText;
 
-      // set current values in box
+      // set current values in box      
       this.textboxes[data.idBox].fontFamily = data.familyFont;
+      this.textboxes[data.idBox].fontStyle = data.styleFont as "" | "normal" | "italic" | "oblique";
+      this.textboxes[data.idBox].fontWeight = data.fontWeight;
       this.textboxes[data.idBox].fontSize = data.sizeFont;
       this.textboxes[data.idBox].fill = data.colorFont;
       this.textboxes[data.idBox].lineHeight = data.lineHeightFont;
+      this.textboxes[data.idBox].dirty = true;
 
       if (data.positionText == 0) {
         this.textboxes[data.idBox].textAlign = "center";
@@ -338,6 +347,8 @@ export class CanvaElementComponent {
     this.dataService.boxFontDefaultChange$.subscribe(data => {
       // set default values
       this.familyFont = data.familyFont;
+      this.styleFont = data.styleFont;
+      this.fontWeight = data.fontWeight;
       this.sizeFont = data.sizeFont;
       this.colorFont = data.colorFont;
       this.lineHeightFont = data.lineHeightFont;
@@ -346,6 +357,7 @@ export class CanvaElementComponent {
     });
 
     this.dataService.addImageCanva$.subscribe(data => {
+      this.boxes_list = [];
       this.canvas.dispose();
       this.canvas = new fabric.Canvas('myCanvas', {});
       this.setupImage(data.urlImage);
@@ -462,7 +474,7 @@ export class CanvaElementComponent {
           const scaleY = 1 / scaleFactor;
 
           canvas.getObjects().forEach((obj: any) => {
-            if (obj instanceof fabric.Textbox) {
+            if (obj instanceof fabric.Textbox || obj instanceof fabric.Rect) {
               if (obj.left && obj.top && obj.scaleY && obj.scaleX) {
                 obj.scaleX *= scaleX;
                 obj.scaleY *= scaleY;
@@ -488,58 +500,64 @@ export class CanvaElementComponent {
     });
 
     this.dataService.requestIdentification$.subscribe(data => {
-      const firstImage = this.canvas.getObjects().find((obj: any) => obj instanceof fabric.Image) as fabric.Image;
-      // if exist image
-      if (firstImage) {
-        const dataURL = this.canvas.toDataURL({
-          format: 'png',
-          quality: 1
-        });
+      if (this.boxes_list.length == 0) {
+        const firstImage = this.canvas.getObjects().find((obj: any) => obj instanceof fabric.Image) as fabric.Image;
+        // if exist image
+        if (firstImage) {
+          const dataURL = this.canvas.toDataURL({
+            format: 'png',
+            quality: 1
+          });
 
-        this.boxes_list = [];
+          this.boxes_list = [];
 
-        this.http.post<any>('http://localhost:5000/api/process-image', { data_url: dataURL }).subscribe({
-          next: (response) => {
-            this.boxes_list = response.boxes_list;
+          this.http.post<any>('http://localhost:5000/api/process-image', { data_url: dataURL }).subscribe({
+            next: (response) => {
+              this.boxes_list = response.boxes_list;
 
-            response.boxes_list.forEach((box: any) => {
-              // Extrai as coordenadas da caixa
-              const [x, y, w, h] = box;
+              response.boxes_list.forEach((box: any) => {
+                // Extrai as coordenadas da caixa
+                const [x, y, w, h] = box;
 
-              // Calcula a posição do centro da caixa
-              const center_x = x + w / 2;
-              const center_y = y + h / 2;
+                // Calcula a posição do centro da caixa
+                const center_x = x + w / 2;
+                const center_y = y + h / 2;
 
-              const offset = 10;
+                const offset = 10;
 
-              const rx = (w / 2) - offset;
-              const ry = (h / 2) - offset;
+                const rx = (w / 2) - offset;
+                const ry = (h / 2) - offset;
 
-              const width = 2 * rx;
-              const height = 2 * ry;
-    
-              const rect = new fabric.Rect({
-                left: center_x - rx,
-                top: center_y - ry,
-                width: width,
-                height: height,
-                rx: rx,
-                ry: ry,
-                fill: 'rgba(108, 165, 250, 0.2)',
-                stroke: 'rgba(108, 165, 250, 0.8)',
-                strokeWidth: 1.5
-              });
+                const width = 2 * rx;
+                const height = 2 * ry;
 
-              this.canvas.add(rect);
-              this.rects.push(rect);
-              this.setupEventInRect(rect, offset);
-            })
-            this.dataService.operationIdentificationComplete(response.average_score, response.boxes_list.length);
-          },
-          error: (error) => {
-            console.error('Erro ao enviar imagem para o servidor:', error);
-          }
-        });
+                const rect = new fabric.Rect({
+                  left: center_x - rx,
+                  top: center_y - ry,
+                  width: width,
+                  height: height,
+                  rx: rx,
+                  ry: ry,
+                  fill: 'rgba(108, 165, 250, 0.2)',
+                  stroke: 'rgba(108, 165, 250, 0.8)',
+                  strokeWidth: 1.5
+                });
+
+                this.canvas.add(rect);
+                this.rects.push(rect);
+                this.setupEventInRect(rect, offset);
+              })
+              this.dataService.operationIdentificationComplete(response.average_score, response.boxes_list.length);
+            },
+            error: (error) => {
+              console.error('Erro ao enviar imagem para o servidor:', error);
+            }
+          });
+        } else {
+          setTimeout(() => {
+            this.dataService.operationIdentificationComplete(0, 0);
+          }, 500);
+        }
       } else {
         setTimeout(() => {
           this.dataService.operationIdentificationComplete(0, 0);
@@ -580,8 +598,12 @@ export class CanvaElementComponent {
 
         this.canvas.renderAll();
       });
-
       this.rects = [];
+
+      // ensure that all text boxes are at the front
+      this.textboxes.forEach(textbox => {
+        textbox.bringToFront();
+      });
     });
 
     this.dataService.requestAddBoxText$.subscribe(data => {
@@ -602,6 +624,12 @@ export class CanvaElementComponent {
             lineHeight: this.lineHeightFont,
             fill: this.colorFont,
             textAlign: this.positionText === 0 ? 'center' : (this.positionText === 1 ? 'left' : 'right')
+          });
+
+          textbox.setControlsVisibility({
+            mt: false,
+            mb: false,
+            mtr: false
           });
 
           const offsetX = textbox.width! / 2;
@@ -693,7 +721,7 @@ export class CanvaElementComponent {
 
     return `rgb(${dominantColor})`;
   }
-  
+
   setupEventInRect(obj: fabric.Rect, offset: number) {
     obj.on('moving', (event) => {
       const index = this.rects.indexOf(obj);

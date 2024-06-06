@@ -44,7 +44,7 @@ export class AppComponent {
       this.deleteAllBoxEntry();
     });
 
-    // debug only
+    // test only
     // setTimeout(() => {
     //   this.dataService.addImageCanva("/assets/teste/teste3.jpg");
     // });

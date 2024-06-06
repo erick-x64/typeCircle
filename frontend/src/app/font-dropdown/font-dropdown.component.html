@@ -1,0 +1,21 @@
+<div class="dropdown-container">
+
+    <div class="dropdown-selected" [ngClass]="{'dropdown-selected-noStyle': dropdownOpen}" (click)="toggleDropdown()">
+        <input type="text" [(ngModel)]="filterText" placeholder="Choose your font" (input)="filterFonts()" />
+    </div>
+
+    <div class="dropdown-options" *ngIf="dropdownOpen">
+        <div class="list-options" *ngFor="let family of filteredFontFamilies">
+            <div class="dropdown-family" (click)="selectFamily(family)">
+                <h1>{{ family }}</h1>
+            </div>
+
+            <div *ngIf="selectedFamily === family" class="dropdown-fonts">
+                <div *ngFor="let font of fontMap[family]" (click)="selectFont(font)">
+                    <h1>{{ font.fullName }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

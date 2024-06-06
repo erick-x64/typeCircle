@@ -15,26 +15,31 @@ export class BoxAiComponent {
   quantityFound: number = 0;
 
   showOptionsRemoveText: boolean = true;
+  inProcessRequest: boolean = false;
   offsetCircle: number | undefined;
   radiusCircle: number | undefined;
 
   requestIdentification() {
-    this.showOptionsRemoveText = true;
-    this.resetAnimationTopObjects();
-    this.startAnimationGradient();
+    if (!this.inProcessRequest) {
+      this.inProcessRequest = true;
+      this.showOptionsRemoveText = true;
+      this.resetAnimationTopObjects();
+      this.startAnimationGradient();
 
-    this.dataService.requestIdentification();
+      this.dataService.requestIdentification();
 
-    // operation identification complete
-    this.dataService.operationIdentificationComplete$.subscribe((data) => {
-      const primeirosDoisDigitos = data.average_score.toString().slice(0, 2);
-      this.average_score = primeirosDoisDigitos;
+      // operation identification complete
+      this.dataService.operationIdentificationComplete$.subscribe((data) => {
+        this.inProcessRequest = false;
+        const primeirosDoisDigitos = data.average_score.toString().slice(0, 2);
+        this.average_score = primeirosDoisDigitos;
 
-      this.quantityFound = data.totalIdentified;
+        this.quantityFound = data.totalIdentified;
 
-      this.stopAnimationGradient();
-      this.startAnimationTopObjects();
-    })
+        this.stopAnimationGradient();
+        this.startAnimationTopObjects();
+      })
+    };
   }
 
   requestRemoveText() {
