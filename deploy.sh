@@ -1,8 +1,12 @@
 #!/bin/bash
 
 # deploy.sh used to send build files to the server
-
 set -e
+
+# Get updates from repo
+echo "Getting updates from the repository..."
+git reset --hard HEAD
+git pull
 
 # Build the Angular project
 echo "Building the Angular project..."
