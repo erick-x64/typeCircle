@@ -85,4 +85,8 @@ export class FileBoxComponent {
   downloadFile(index: number) {
     this.dataService.downloadFileCanva(index);
   }
+
+  saveAllFiles() {
+    this.dataService.saveAllFiles();
+  }
 }

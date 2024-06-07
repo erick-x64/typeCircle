@@ -88,7 +88,7 @@ export class AppComponent {
     this.selectBottomHeader = selectTopHeader;
   }
 
-  showHome: boolean = true;
+  showHome: boolean = false;
   changeDashBoard(imageURl: string) {
     this.showHome = false;
     setTimeout(() => {

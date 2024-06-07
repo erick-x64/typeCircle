@@ -53,6 +53,9 @@ export class DataService {
     private downloadFileCanvaSubject = new Subject<{ index: number }>();
     downloadFileCanva$ = this.downloadFileCanvaSubject.asObservable();
 
+    private saveAllFilesSubject = new Subject<{ }>();
+    saveAllFiles$ = this.saveAllFilesSubject.asObservable();
+
     // box ai
     private requestIdentificationSubject = new Subject<{}>();
     requestIdentification$ = this.requestIdentificationSubject.asObservable();
@@ -125,6 +128,10 @@ export class DataService {
 
     downloadFileCanva(index: number) {
         this.downloadFileCanvaSubject.next({ index });
+    }
+
+    saveAllFiles() {
+        this.saveAllFilesSubject.next({ });
     }
 
     // box ai
