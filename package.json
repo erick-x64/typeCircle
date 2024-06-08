@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "concurrently \"ng serve\" \"cd backend/rust-image-service && cargo run\"",
+    "start": "concurrently \"ng serve --host 0.0.0.0\" \"cd backend/rust-image-service && cargo run\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

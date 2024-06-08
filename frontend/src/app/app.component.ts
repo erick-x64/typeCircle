@@ -77,7 +77,7 @@ export class AppComponent {
   }
 
   // html
-  selectTopHeader: number = 0;
+  selectTopHeader: number = 1;
   selectBottomHeader: number = 0;
 
   changeTopHeader(selectTopHeader: number) {

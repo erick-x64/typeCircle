@@ -10,24 +10,6 @@
         <app-font-dropdown (selectionChanged)="handleSelectionChanged($event)" *ngIf="!showButtonChoiceFont" [fontFamilies]="fontFamilies" [fontMap]="fontMap">
         </app-font-dropdown>
 
-        <!-- <select class="button_configFont" (change)="onFamilyChange($event)" [(ngModel)]="selectedStyle"
-            *ngIf="!showButtonChoiceFont">
-            <option [ngValue]="null" disabled selected>Choose your font</option>
-
-            <ng-container *ngFor="let family of fontFamilies">
-                <ng-container *ngIf="selectedFamily !== family">
-                    <option [value]="family">{{ family }}</option>
-                </ng-container>
-
-                <ng-container *ngIf="selectedFamily === family">
-                    <optgroup [label]="family">
-                        <option *ngFor="let font of fontMap[family]" [ngValue]="font">{{ font.fullName }}</option>
-                    </optgroup>
-                </ng-container>
-            </ng-container>
-
-        </select> -->
-
         <select class="button_configFont" (change)="changeSizeFont()" [(ngModel)]="sizeFont" name="select">
             <option value=4>4px</option>
             <option value=6>6px</option>

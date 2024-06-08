@@ -1,0 +1,69 @@
+#toolErase {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+#toolErase h1 {
+    font-size: 13px;
+}
+
+#toolErase h2 {
+    font-size: 12px;
+    color: #737373;
+    -webkit-line-clamp: 3;
+}
+
+#toolErase_info {
+    align-self: stretch;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 5px;
+    padding: 0;
+}
+
+#buttonsActions {
+    align-self: stretch;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.button-action{
+    cursor: pointer;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 5px;
+    border: solid 2px #383838;
+}
+
+.button-action input {
+    display: flex;
+    flex-grow: 0;
+}
+
+.button-action.select {
+    background-color: #2f2f2f;
+}
+
+#boxColor{
+    width: 14px;
+    height: 14px;
+    flex-grow: 0;
+    border-radius: 5px;
+    border: solid 2px #5c5c5c;
+    background-color: #000;
+}

@@ -600,7 +600,7 @@ export class CanvaElementComponent {
           quality: 1
         });
         this.boxesList = [];
-        this.http.post<any>('http://localhost:5000/api/process-image', { data_url: dataURL }).subscribe({
+        this.http.post<any>('http://0.0.0.0:5000/api/process-image', { data_url: dataURL }).subscribe({
           next: (response) => {
             this.boxesList = response.boxes_list;
 

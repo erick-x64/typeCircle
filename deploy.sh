@@ -8,9 +8,17 @@ echo "Getting updates from the repository..."
 git reset --hard HEAD
 git pull
 
+# Update packages from node
+echo "Uploading packages from node..."
+npm install
+
 # Build the Angular project
 echo "Building the Angular project..."
 ng build
+
+# Removing previous files
+echo "Removing previous files from typecircle.com..."
+sudo rm -r /var/www/typecircle.com/*
 
 # Copy files to destination directory
 echo "Copying files to typecircle.com ..."

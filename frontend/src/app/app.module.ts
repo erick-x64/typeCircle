@@ -15,6 +15,7 @@ import { ElementFileBoxComponent } from './element-file-box/element-file-box.com
 import { BoxAiComponent } from './box-ai/box-ai.component';
 import { HomeComponent } from './home/home.component';
 import { FontDropdownComponent } from './font-dropdown/font-dropdown.component';
+import { OtherToolsComponent } from './other-tools/other-tools.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { FontDropdownComponent } from './font-dropdown/font-dropdown.component';
     BoxAiComponent,
     HomeComponent,
     FontDropdownComponent,
+    OtherToolsComponent,
   ],
   imports: [
     BrowserModule,
