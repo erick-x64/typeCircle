@@ -45,9 +45,9 @@ export class AppComponent {
     });
 
     // test only
-    // setTimeout(() => {
-    //   this.dataService.addImageCanva("/assets/teste/teste3.jpg");
-    // });
+    setTimeout(() => {
+      this.dataService.addImageCanva("/assets/teste/teste3.jpg");
+    });
   }
 
   // canva

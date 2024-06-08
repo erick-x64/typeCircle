@@ -14,8 +14,6 @@ interface FontData {
   styleUrl: './config-font-box.component.css'
 })
 export class ConfigFontBoxComponent {
-  constructor(private dataService: DataService) { }
-
   @Input() selectEntry: number = 0;
 
   familyFont: string = "Arial";
@@ -26,14 +24,17 @@ export class ConfigFontBoxComponent {
   lineHeightFont: number = 1.4;
   positionText: number = 0;
 
-  ngOnInit() {
-    // this.dataService.sendConfigBoxSelect$.subscribe(data => {
-    //   this.familyFont = data.familyFont;
-    //   this.sizeFont = data.sizeFont;
-    //   this.colorFont = data.colorFont;
-    //   this.lineHeightFont = data.lineHeightFont;
-    //   this.positionText = data.positionText;
-    // });
+  showButtonChoiceFont: boolean = true;
+  availableFonts: any = [];
+  selectedFamily: string = "";
+  selectedStyle: any;
+  fontFamilies: string[] = [];
+  fontMap: { [key: string]: any[] } = {};
+
+  private debouncedSendVarsToCanva: () => void;
+
+  constructor(private dataService: DataService) {
+    this.debouncedSendVarsToCanva = this.debounce(this.sendVarsToCanva.bind(this), 300);
   }
 
   changeSizeFont() {
@@ -42,16 +43,14 @@ export class ConfigFontBoxComponent {
 
   onColorChange(color: string) {
     this.colorFont = color;
-    this.sendVarsToCanva();
+    this.debouncedSendVarsToCanva();
   }
 
   changeColorFont() {
-    let hexRegex = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
-
+    const hexRegex = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
     if (!hexRegex.test(this.colorFont)) {
       this.colorFont = "#000000";
-    };
-
+    }
     this.sendVarsToCanva();
   }
 
@@ -60,10 +59,28 @@ export class ConfigFontBoxComponent {
   }
 
   sendVarsToCanva() {
-    if (this.selectEntry != -1) {
-      this.dataService.boxFontChange(this.selectEntry, this.familyFont, this.styleFont, this.fontWeight, this.sizeFont, this.colorFont, this.lineHeightFont, this.positionText);
+    if (this.selectEntry !== -1) {
+      this.dataService.boxFontChange(
+        this.selectEntry,
+        this.familyFont,
+        this.styleFont,
+        this.fontWeight,
+        this.sizeFont,
+        this.colorFont,
+        this.lineHeightFont,
+        this.positionText
+      );
     } else {
-      this.dataService.boxFontDefaultChange(this.selectEntry, this.familyFont, this.styleFont, this.fontWeight, this.sizeFont, this.colorFont, this.lineHeightFont, this.positionText);
+      this.dataService.boxFontDefaultChange(
+        this.selectEntry,
+        this.familyFont,
+        this.styleFont,
+        this.fontWeight,
+        this.sizeFont,
+        this.colorFont,
+        this.lineHeightFont,
+        this.positionText
+      );
     }
   }
 
@@ -72,13 +89,13 @@ export class ConfigFontBoxComponent {
     this.sendVarsToCanva();
   }
 
-  // font
-  showButtonChoiceFont: boolean = true;
-  availableFonts: any = [];
-  selectedFamily: string = "";
-  selectedStyle: any;
-  fontFamilies: string[] = [];
-  fontMap: { [key: string]: any[] } = {};
+  debounce(func: (...args: any[]) => void, wait: number) {
+    let timeout: number | undefined;
+    return (...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = window.setTimeout(() => func.apply(this, args), wait);
+    };
+  }
 
   async listFonts() {
     if (this.availableFonts.length === 0) {
@@ -114,12 +131,11 @@ export class ConfigFontBoxComponent {
     this.showButtonChoiceFont = false;
   }
 
-  handleSelectionChanged(event: { selectedFamily: string, selectedOption: FontData }) {
+  handleSelectionChanged(event: { selectedFamily: string, selectedOption: any }) {
     const { fontStyle, fontWeight } = this.mapFontStyle(event.selectedOption.fullName);
     this.familyFont = event.selectedFamily;
     this.styleFont = fontStyle;
     this.fontWeight = fontWeight;
-
     this.sendVarsToCanva();
   }
 

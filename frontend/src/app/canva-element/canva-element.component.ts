@@ -254,13 +254,23 @@ export class CanvaElementComponent {
   private setupEventListeners() {
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Delete') {
-        const activeObject = this.canvas.getActiveObject();
-        if (activeObject instanceof fabric.Textbox) {
-          this.deleteTextbox(activeObject);
+        const activeObjects = this.canvas.getActiveObjects();
+
+        if (activeObjects.length > 0) {
+          activeObjects.forEach((obj: fabric.Object) => {
+            if (obj instanceof fabric.Textbox) {
+              this.deleteTextbox(obj);
+            }
+          });
         }
+
+        setTimeout(() => {
+          this.canvas.discardActiveObject().renderAll();
+        }, 0);
       }
     });
   }
+
 
   private deleteTextbox(textbox: fabric.Textbox) {
     this.canvas.remove(textbox);
@@ -304,7 +314,7 @@ export class CanvaElementComponent {
       mtr: false
     });
   }
-
+  
   // Receiving from (app) data service
   ngOnInit() {
     this.subscribeToBoxCanvaChange();
@@ -413,26 +423,39 @@ export class CanvaElementComponent {
   }
 
   private updateTextboxFont(data: any) {
-    this.textboxes[data.idBox].fontFamily = data.familyFont;
-    this.textboxes[data.idBox].fontStyle = data.styleFont as "" | "normal" | "italic" | "oblique";
-    this.textboxes[data.idBox].fontWeight = data.fontWeight;
-    this.textboxes[data.idBox].fontSize = data.sizeFont;
-    this.textboxes[data.idBox].fill = data.colorFont;
-    this.textboxes[data.idBox].lineHeight = data.lineHeightFont;
-    this.textboxes[data.idBox].dirty = true;
+    const activeObjects = this.canvas.getActiveObjects();
 
-    switch (data.positionText) {
-      case 0:
-        this.textboxes[data.idBox].textAlign = "center";
-        break;
-      case 1:
-        this.textboxes[data.idBox].textAlign = "left";
-        break;
-      default:
-        this.textboxes[data.idBox].textAlign = "right";
+    if (activeObjects.length > 0) {
+      activeObjects.forEach((obj: fabric.Object) => {
+        if (obj.type === 'textbox') {
+          const textbox = obj as fabric.Textbox;
+
+          textbox.set({
+            fontFamily: data.familyFont,
+            fontStyle: data.styleFont as "" | "normal" | "italic" | "oblique",
+            fontWeight: data.fontWeight,
+            fontSize: data.sizeFont,
+            fill: data.colorFont,
+            lineHeight: data.lineHeightFont
+          });
+
+          switch (data.positionText) {
+            case 0:
+              textbox.set({ textAlign: 'center' });
+              break;
+            case 1:
+              textbox.set({ textAlign: 'left' });
+              break;
+            default:
+              textbox.set({ textAlign: 'right' });
+          }
+
+          textbox.set({ dirty: true });
+        }
+      });
+
+      this.canvas.renderAll();
     }
-
-    this.canvas.renderAll();
   }
 
   private resetCanvas(urlImage: string) {
