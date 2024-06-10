@@ -19,9 +19,14 @@ interface Files {
 export class CanvaElementComponent {
   @ViewChild('downloadLink') downloadLink: ElementRef | undefined;
 
+  // modified image scale
+  scaleFactor: number = 0;
+
   // Canvas and state management
   canvas: fabric.Canvas | any;
   twoClick: number = 0;
+  enableDrawingRect: boolean = false;
+  colorReplace: string = "";
 
   // Default font values
   familyFont: string = "Arial";
@@ -57,9 +62,18 @@ export class CanvaElementComponent {
   // Image setup and controls
   private setupImage(pathImage: string) {
     fabric.Image.fromURL(pathImage, (img: any) => {
-      const newHeight = 745;
-      const scaleFactor = newHeight / img.height;
-      const newWidth = img.width * scaleFactor;
+      let newHeight = 745;
+      let scaleFactor = newHeight / img.height;
+      let newWidth = img.width * scaleFactor;
+
+      if (newWidth > 1200) {
+        newWidth = 800;
+        scaleFactor = newWidth / img.width;
+        newHeight = img.height * scaleFactor;
+      }
+
+      this.scaleFactor = scaleFactor;
+
       img.scale(scaleFactor);
 
       const existingImage = this.canvas.getObjects('image');
@@ -148,6 +162,7 @@ export class CanvaElementComponent {
     let isDrawing = false;
     let startPoint: fabric.Point | null = null;
     let currentTextbox: fabric.Textbox | null = null;
+    let currentRect: fabric.Rect | null = null;
 
     this.canvas.on('mouse:down', (opt: any) => {
       const pointer = this.canvas.getPointer(opt.e);
@@ -163,33 +178,62 @@ export class CanvaElementComponent {
         const img = this.canvas.getObjects()[0];
         if (img && this.isPointerInsideImage(pointer, img)) {
           if (!this.isPointerOverlappingTextbox(pointer)) {
+            this.canvas.selection = false;
             isDrawing = true;
             startPoint = new fabric.Point(pointer.x, pointer.y);
-            currentTextbox = this.createTextbox(pointer);
 
-            this.textboxes.push(currentTextbox);
-            this.canvas.add(currentTextbox);
-            this.canvas.bringToFront(currentTextbox);
+            if (this.enableDrawingRect) {
+              currentRect = new fabric.Rect({
+                left: pointer.x,
+                top: pointer.y,
+                fill: 'rgba(108, 165, 250, 0.2)',
+                stroke: 'rgba(108, 165, 250, 0.8)',
+                strokeWidth: 1.5,
+                rx: 999,
+                ry: 999,
+                width: 0,
+                height: 0,
+                selectable: false,
+              });
+              this.rects.push(currentRect);
+              this.canvas.add(currentRect);
+              this.setControlsVisibilityInObj(currentRect);
+            } else {
+              currentTextbox = this.createTextbox(pointer);
+              this.textboxes.push(currentTextbox);
+              this.canvas.add(currentTextbox);
+              this.canvas.bringToFront(currentTextbox);
+              this.setControlsVisibilityInObj(currentTextbox);
+              this.setupEventInTextBox(currentTextbox);
+            }
+
             this.canvas.renderAll();
-
-            this.setControlsVisibilityInTextBox(currentTextbox);
             this.saveCanvasState();
-            this.sendBoxCreate(this.textboxes.length - 1, currentTextbox.text ?? '');
-            this.setupEventInTextBox(currentTextbox);
+
+            if (currentTextbox) {
+              this.sendBoxCreate(this.textboxes.length - 1, currentTextbox.text ?? '');
+            }
           }
         }
       }
     });
 
     this.canvas.on('mouse:move', (opt: any) => {
-      if (!isDrawing || !startPoint || !currentTextbox) return;
+      if (!isDrawing || !startPoint) return;
 
       const pointer = this.canvas.getPointer(opt.e);
-      this.updateTextboxDimensions(startPoint, pointer, currentTextbox);
+
+      if (this.enableDrawingRect && currentRect) {
+        this.updateRectDimensions(startPoint, pointer, currentRect);
+      } else if (!this.enableDrawingRect && currentTextbox) {
+        this.updateTextboxDimensions(startPoint, pointer, currentTextbox);
+      }
+
       this.canvas.renderAll();
     });
 
     this.canvas.on('mouse:up', (event: any) => {
+      this.canvas.selection = false;
       isDrawing = false;
       startPoint = null;
 
@@ -200,6 +244,12 @@ export class CanvaElementComponent {
       if (currentTextbox) {
         currentTextbox.set({ backgroundColor: undefined });
         currentTextbox = null;
+      }
+
+      if (currentRect) {
+        currentRect.set({ selectable: true });
+        currentRect = null;
+        this.saveCanvasState();
       }
     });
   }
@@ -238,6 +288,19 @@ export class CanvaElementComponent {
     });
   }
 
+  private updateRectDimensions(startPoint: fabric.Point, pointer: fabric.Point, rect: fabric.Rect) {
+    const width = Math.abs(startPoint.x - pointer.x);
+    const height = Math.abs(startPoint.y - pointer.y);
+
+    rect.set({
+      width,
+      height,
+      left: Math.min(startPoint.x, pointer.x),
+      top: Math.min(startPoint.y, pointer.y),
+    });
+    rect.setCoords(); // Update coordinates
+  }
+
   private updateTextboxDimensions(startPoint: fabric.Point, pointer: fabric.Point, textbox: fabric.Textbox) {
     const width = Math.abs(pointer.x - startPoint.x);
     const height = Math.abs(pointer.y - startPoint.y);
@@ -261,6 +324,9 @@ export class CanvaElementComponent {
             if (obj instanceof fabric.Textbox) {
               this.deleteTextbox(obj);
             }
+            if (obj instanceof fabric.Rect) {
+              this.deleteRect(obj);
+            }
           });
         }
 
@@ -271,6 +337,13 @@ export class CanvaElementComponent {
     });
   }
 
+  private deleteRect(rect: fabric.Rect) {
+    this.canvas.remove(rect);
+    const index = this.rects.indexOf(rect);
+    if (index !== -1) {
+      this.rects.splice(index, 1);
+    }
+  }
 
   private deleteTextbox(textbox: fabric.Textbox) {
     this.canvas.remove(textbox);
@@ -307,14 +380,12 @@ export class CanvaElementComponent {
     this.files.canvas[this.files.selectFile] = canvasJson;
   }
 
-  private setControlsVisibilityInTextBox(textbox: fabric.Textbox) {
-    textbox.setControlsVisibility({
-      mt: false,
-      mb: false,
+  private setControlsVisibilityInObj(obj: fabric.Object) {
+    obj.setControlsVisibility({
       mtr: false
     });
   }
-  
+
   // Receiving from (app) data service
   ngOnInit() {
     this.subscribeToBoxCanvaChange();
@@ -329,6 +400,9 @@ export class CanvaElementComponent {
     this.subscribeToRequestRemoveText();
     this.subscribeToRequestAddBoxText();
     this.subscribeToRequestChangeValuesCircle();
+    this.subscribeToEnableDrawingRect();
+    this.subscribeToRemoveAreaSelect();
+    this.subscribeToBackAreaSelect();
   }
 
   // Subscriptions
@@ -403,6 +477,24 @@ export class CanvaElementComponent {
   private subscribeToRequestChangeValuesCircle() {
     this.dataService.requestChangeValuesCircle$.subscribe(data => {
       this.requestChangeValuesCircle(data);
+    });
+  }
+
+  private subscribeToEnableDrawingRect() {
+    this.dataService.enableDrawingRect$.subscribe(data => {
+      this.setEnableDrawingRect(data);
+    });
+  }
+
+  private subscribeToRemoveAreaSelect() {
+    this.dataService.sendRemoveAreaSelect$.subscribe(data => {
+      this.removeAreaSelect();
+    });
+  }
+
+  private subscribeToBackAreaSelect() {
+    this.dataService.sendBackAreaSelect$.subscribe(data => {
+      this.backAreaSelect();
     });
   }
 
@@ -555,9 +647,10 @@ export class CanvaElementComponent {
         firstImage.scale(1);
         canvas.setWidth(originalImage.width);
         canvas.setHeight(originalImage.height);
-        const scaleFactor = 745 / originalImage.height;
-        const scaleX = 1 / scaleFactor;
-        const scaleY = 1 / scaleFactor;
+
+        const scaleX = 1 / this.scaleFactor;
+        const scaleY = 1 / this.scaleFactor;
+
         canvas.getObjects().forEach((obj: any) => {
           if (obj instanceof fabric.Textbox || obj instanceof fabric.Rect) {
             if (obj.left && obj.top && obj.scaleY && obj.scaleX) {
@@ -600,7 +693,7 @@ export class CanvaElementComponent {
           quality: 1
         });
         this.boxesList = [];
-        this.http.post<any>('http://0.0.0.0:5000/api/process-image', { data_url: dataURL }).subscribe({
+        this.http.post<any>('http://127.0.0.1:5000/api/process-image', { data_url: dataURL }).subscribe({
           next: (response) => {
             this.boxesList = response.boxes_list;
 
@@ -659,11 +752,17 @@ export class CanvaElementComponent {
     this.rects.forEach(react => {
       const left = react.left;
       const top = react.top;
-      const width = react.rx! * 2;
-      const height = react.ry! * 2;
-      const imageData = context.getImageData(left, top, width, height);
-      const dominantColor = this.getDominantColor(imageData);
-      react.set('fill', dominantColor);
+      const width = react.width;
+      const height = react.height;
+
+      if (this.colorReplace != "") {
+        react.set('fill', this.colorReplace);
+      } else {
+        const imageData = context.getImageData(left, top, width, height);
+        const dominantColor = this.getDominantColor(imageData);
+        react.set('fill', dominantColor);
+      }
+
       this.canvas.renderAll();
     });
     this.rects = [];
@@ -703,7 +802,7 @@ export class CanvaElementComponent {
         this.textboxes.push(textbox);
         this.sendBoxCreate(this.textboxes.length - 1, texto);
         this.setupEventInTextBox(textbox);
-        this.setControlsVisibilityInTextBox(textbox);
+        this.setControlsVisibilityInObj(textbox);
       });
       this.boxesList = [];
     }
@@ -745,6 +844,33 @@ export class CanvaElementComponent {
       this.canvas.renderAll();
     }
   }
+
+  private setEnableDrawingRect(data: any) {
+    this.enableDrawingRect = data.isEnable;
+    this.colorReplace = data.colorReplace;
+  }
+
+  private removeAreaSelect() {
+    this.requestRemoveText();
+  }
+
+  private backAreaSelect() {
+    const activeObjects = this.canvas.getObjects();
+
+    if (activeObjects.length > 0) {
+      activeObjects.forEach((obj: fabric.Object) => {
+        if (obj instanceof fabric.Rect) {
+          obj.set('fill', "rgba(108, 165, 250, 0.2)");
+          obj.set('stroke', "rgba(108, 165, 250, 0.8)");
+          obj.set('strokeWidth', 1.5);
+          obj.set('selectable', true);
+          this.rects.push(obj);
+        };
+      });
+
+      this.canvas.renderAll();
+    }
+  };
 
   // Handlers functions
   private getDominantColor(imageData: ImageData): string {
@@ -799,9 +925,8 @@ export class CanvaElementComponent {
           canvas.setWidth(originalImage.width);
           canvas.setHeight(originalImage.height);
 
-          const scaleFactor = 745 / originalImage.height;
-          const scaleX = 1 / scaleFactor;
-          const scaleY = 1 / scaleFactor;
+          const scaleX = 1 / this.scaleFactor;
+          const scaleY = 1 / this.scaleFactor;
 
           canvas.getObjects().forEach((obj: any) => {
             if (obj instanceof fabric.Textbox || obj instanceof fabric.Rect) {

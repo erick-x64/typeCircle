@@ -6,9 +6,6 @@
     justify-content: flex-start;
     align-items: stretch;
     gap: 14px;
-    padding: 10px 18px 20px 18px;
-    border-radius: 10px;
-    border: solid 1px #383838;
 }
 
 #buttonIdentification {
@@ -69,7 +66,7 @@
     justify-content: flex-start;
     align-items: center;
     gap: 10px;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-radius: 5px;
     background-color: #383838;
 }
@@ -83,7 +80,7 @@
     gap: 10px;
 }
 
-.buttonOther{
+.buttonOther {
     cursor: pointer;
     display: flex;
     width: 100%;
@@ -94,7 +91,12 @@
     align-items: center;
     padding: 8px 12px;
     border-radius: 5px;
-    background-color: #383838;
+    border: solid 2px #383838;
+    transition: background 0.08s ease;
+}
+
+.buttonOther:hover {
+    background-color: #2f2f2f;
 }
 
 .buttonOther h1 {

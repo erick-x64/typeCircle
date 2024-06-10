@@ -53,8 +53,18 @@ export class DataService {
     private downloadFileCanvaSubject = new Subject<{ index: number }>();
     downloadFileCanva$ = this.downloadFileCanvaSubject.asObservable();
 
-    private saveAllFilesSubject = new Subject<{ }>();
+    private saveAllFilesSubject = new Subject<{}>();
     saveAllFiles$ = this.saveAllFilesSubject.asObservable();
+
+    // other tools
+    private enableDrawingRectSubject = new Subject<{ isEnable: boolean, colorReplace: string }>();
+    enableDrawingRect$ = this.enableDrawingRectSubject.asObservable();
+
+    private sendRemoveAreaSelectSubject = new Subject<{}>();
+    sendRemoveAreaSelect$ = this.sendRemoveAreaSelectSubject.asObservable();
+
+    private sendBackAreaSelectSubject = new Subject<{}>();
+    sendBackAreaSelect$ = this.sendBackAreaSelectSubject.asObservable();
 
     // box ai
     private requestIdentificationSubject = new Subject<{}>();
@@ -113,6 +123,19 @@ export class DataService {
         this.boxCanvaChangeSubject.next({ idBox, text });
     }
 
+    // other tools
+    enableDrawingRect(isEnable: boolean, colorReplace: string) {
+        this.enableDrawingRectSubject.next({ isEnable, colorReplace });
+    }
+
+    sendRemoveAreaSelect() {
+        this.sendRemoveAreaSelectSubject.next({});
+    }
+
+    sendBackAreaSelect() {
+        this.sendBackAreaSelectSubject.next({});
+    }
+
     // file box
     addImageCanva(urlImage: string) {
         this.addImageCanvaSubject.next({ urlImage });
@@ -131,7 +154,7 @@ export class DataService {
     }
 
     saveAllFiles() {
-        this.saveAllFilesSubject.next({ });
+        this.saveAllFilesSubject.next({});
     }
 
     // box ai

@@ -45,9 +45,9 @@ export class AppComponent {
     });
 
     // test only
-    setTimeout(() => {
-      this.dataService.addImageCanva("/assets/teste/teste3.jpg");
-    });
+    // setTimeout(() => {
+    //   this.dataService.addImageCanva("/assets/teste/teste3.jpg");
+    // });
   }
 
   // canva
@@ -77,7 +77,7 @@ export class AppComponent {
   }
 
   // html
-  selectTopHeader: number = 1;
+  selectTopHeader: number = 0;
   selectBottomHeader: number = 0;
 
   changeTopHeader(selectTopHeader: number) {
@@ -88,7 +88,7 @@ export class AppComponent {
     this.selectBottomHeader = selectTopHeader;
   }
 
-  showHome: boolean = false;
+  showHome: boolean = true;
   changeDashBoard(imageURl: string) {
     this.showHome = false;
     setTimeout(() => {
