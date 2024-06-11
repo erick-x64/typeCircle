@@ -14,7 +14,10 @@ npm install
 
 # Build the Angular project
 echo "Building the Angular project..."
-./build.sh 
+FILE="angular.json"
+sed -i '41 i\ "externalDependencies": ["jsdom"],' $FILE
+ng build
+sed -i '41d' $FILE
 
 # Removing previous files
 echo "Removing previous files from typecircle.com..."
