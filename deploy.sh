@@ -14,7 +14,7 @@ npm install
 
 # Build the Angular project
 echo "Building the Angular project..."
-ng build
+./build.sh 
 
 # Removing previous files
 echo "Removing previous files from typecircle.com..."
