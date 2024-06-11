@@ -148,7 +148,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .service(web::resource("/api/process-image").route(web::post().to(process_image)))
     })
-    .bind("0.0.0.0:5000")?
+    .bind("127.0.0.1:5000")?
     .run()
     .await
 }

@@ -1,27 +1,72 @@
-# TypeCircle
+## TypeCircle Web Application
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.1.
+![TypeCircle](frontend/src/assets/readme/typecircle.png)
 
-## Development server
+TypeCircle is a web application designed for adding text, editing, and identifying text boxes on manga images. This project is built using Angular for the frontend and Rust for the backend.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+The project is also available online at [TypeCircle](http://typecircle.com). You can access the website to use the application without setting it up locally.
 
-## Code scaffolding
+### Prerequisites
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Before running the project, ensure you have the following dependencies installed:
 
-## Build
+- [Rust](https://www.rust-lang.org/tools/install)
+- [libclang-dev](https://apt.llvm.org/)
+- Node.js and npm
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Installation
 
-## Running unit tests
+1. Clone the repository:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```
+git clone https://github.com/nozmer/typecircle.git
 
-## Running end-to-end tests
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+2. Install Angular dependencies:
 
-## Further help
+```
+cd typecircle
+npm install
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+```
+
+3. Install Rust dependencies:
+
+```
+cd backend/rust-image-service
+cargo build
+
+```
+
+### Configuration
+
+To configure the project for development, follow these steps:
+
+1. Open the file `/frontend/src/config.ts`.
+2. Set the `development` variable to `true` to enable development mode:
+
+```
+export const development = true;
+
+```
+
+### Running the Project
+
+To start the application, run the following command:
+```
+npm start
+
+```
+
+### Usage
+
+Once the project is running, you can access the application in your web browser at [http://localhost:4200](http://localhost:4200). The application allows you to add text, edit, and identify text boxes on manga images.
+
+### Contributing
+
+If you would like to contribute to this project, please fork the repository and submit a pull request with your changes. You can also open an issue to report bugs or suggest new features.
+
+### License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

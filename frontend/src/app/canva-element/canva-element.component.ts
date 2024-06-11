@@ -4,7 +4,7 @@ import { DataService } from '../data.service';
 import { fabric } from "fabric";
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-
+import { API_BASE_URL } from '../../config';
 
 interface Files {
   selectFile: number;
@@ -18,6 +18,9 @@ interface Files {
 })
 export class CanvaElementComponent {
   @ViewChild('downloadLink') downloadLink: ElementRef | undefined;
+
+  // config.ts
+  apiUrl: string = `${API_BASE_URL}/api/process-image`;
 
   // modified image scale
   scaleFactor: number = 0;
@@ -693,7 +696,7 @@ export class CanvaElementComponent {
           quality: 1
         });
         this.boxesList = [];
-        this.http.post<any>('http://127.0.0.1:5000/api/process-image', { data_url: dataURL }).subscribe({
+        this.http.post<any>(this.apiUrl, { data_url: dataURL }).subscribe({
           next: (response) => {
             this.boxesList = response.boxes_list;
 
