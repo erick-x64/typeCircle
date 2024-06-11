@@ -20,7 +20,6 @@ Before running the project, ensure you have the following dependencies installed
 
 ```
 git clone https://github.com/nozmer/typecircle.git
-
 ```
 
 2. Install Angular dependencies:
@@ -28,7 +27,6 @@ git clone https://github.com/nozmer/typecircle.git
 ```
 cd typecircle
 npm install
-
 ```
 
 3. Install Rust dependencies:
@@ -36,7 +34,6 @@ npm install
 ```
 cd backend/rust-image-service
 cargo build
-
 ```
 
 ### Configuration
@@ -48,7 +45,6 @@ To configure the project for development, follow these steps:
 
 ```
 export const development = true;
-
 ```
 
 ### Running the Project
@@ -56,7 +52,6 @@ export const development = true;
 To start the application, run the following command:
 ```
 npm start
-
 ```
 
 ### Usage
