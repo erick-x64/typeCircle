@@ -20,7 +20,7 @@ export class CanvaElementComponent {
   @ViewChild('downloadLink') downloadLink: ElementRef | undefined;
 
   // config.ts
-  apiUrl: string = `${API_BASE_URL}/api/process-image`;
+  apiUrl: string = `${API_BASE_URL}`;
 
   // modified image scale
   scaleFactor: number = 0;
@@ -699,7 +699,6 @@ export class CanvaElementComponent {
         this.http.post<any>(this.apiUrl, { data_url: dataURL }).subscribe({
           next: (response) => {
             this.boxesList = response.boxes_list;
-
             response.boxes_list.forEach((box: any) => {
               const [x, y, w, h] = box;
               const center_x = x + w / 2;
