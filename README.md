@@ -58,7 +58,7 @@ npm start
 
 ### Usage
 
-Once the project is running, you can access the application in your web browser at [http://localhost:4200](http://localhost:4200). The application allows you to add text, edit, and identify text boxes on manga images.
+Once the project is running, you can access the application in your web browser at [http://localhost:4200](http://localhost:4200).
 
 ### Contributing
 
