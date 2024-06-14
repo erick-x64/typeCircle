@@ -6,9 +6,11 @@ TypeCircle is a web application designed for adding text, editing, and identifyi
 
 The project is also available online at [TypeCircle](http://typecircle.com). You can access the website to use the application without setting it up locally.
 
+## Running Locally
+
 ### Prerequisites
 
-Before running the project, ensure you have the following dependencies installed:
+Before running Locally the project, ensure you have the following dependencies installed:
 
 - [Rust](https://www.rust-lang.org/tools/install)
 - [libclang-dev](https://apt.llvm.org/)
