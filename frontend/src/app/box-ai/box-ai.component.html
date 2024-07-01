@@ -1,38 +1,76 @@
 <div id="boxAi">
-    <div (click)="requestIdentification()" id="buttonIdentification">
-        <h1>Identify boxes with AI</h1>
-        <img src="/assets/icons/15.svg" alt="">
-    </div>
+    <!-- <div id="changeTool">
+        <div class="button_changeTool select" (click)="changeTool(0)" [ngClass]="{'select': changeTo == 0}">
+            <img src="/assets/icons/15.svg" alt="">
+        </div>
+        <div class="button_changeTool" (click)="changeTool(1)" [ngClass]="{'select': changeTo == 1}">
+            <img src="/assets/icons/20.svg" alt="">
+        </div>
+    </div> -->
 
-    <div id="infos_Identification">
-        <div class="infoAboutIdentification">
-            <div class="element_infoAboutIdentification">
-                <h1>Average reliability:</h1>
-            </div>
-            <div class="element_infoAboutIdentification">
-                <h1>{{average_score}}<span class="blueSpam">%</span></h1>
-            </div>
+    <div class="tool" *ngIf="changeTo == 0">
+        <div (click)="requestIdentification()" id="buttonIdentification">
+            <h1>Identify boxes with AI</h1>
+            <img src="/assets/icons/15.svg" alt="">
         </div>
 
-        <div class="infoAboutIdentification">
-            <div class="element_infoAboutIdentification">
-                <h1>Quantity identified:</h1>
+        <div id="infos_Identification">
+            <div class="infoAboutIdentification">
+                <div class="element_infoAboutIdentification">
+                    <h1>Average reliability:</h1>
+                </div>
+                <div class="element_infoAboutIdentification">
+                    <h1>{{average_score}}<span class="blueSpam">%</span></h1>
+                </div>
             </div>
-            <div class="element_infoAboutIdentification">
-                <h1><span class="blueSpam">{{quantityFound}}</span></h1>
+
+            <div class="infoAboutIdentification">
+                <div class="element_infoAboutIdentification">
+                    <h1>Quantity identified:</h1>
+                </div>
+                <div class="element_infoAboutIdentification">
+                    <h1><span class="blueSpam">{{quantityFound}}</span></h1>
+                </div>
             </div>
-        </div>
-        <div class="othersButton">
-            <div class="buttonOther" (click)="requestRemoveText()">
-                <h1>Remove text</h1>
+            <div class="othersButton">
+                <div class="buttonOther" (click)="requestRemoveText()">
+                    <h1>Remove text</h1>
+                </div>
+                <div class="buttonOther" (click)="requestAddBoxText()">
+                    <h1>Add text box</h1>
+                </div>
             </div>
-            <div class="buttonOther" (click)="requestAddBoxText()" class="buttonOther">
-                <h1>Add text box</h1>
-            </div>
-        </div>
-        <!-- <div class="othersButton" *ngIf="showOptionsRemoveText">
+            <!-- <div class="othersButton" *ngIf="showOptionsRemoveText">
             <input type="text" [(ngModel)]="offsetCircle" (input)="requestChangeValuesCircle()" placeholder="Offset circle: 10">
             <input type="text" [(ngModel)]="radiusCircle" (input)="requestChangeValuesCircle()" placeholder="Radius circle: 999">
         </div> -->
+        </div>
     </div>
+
+    <!-- <div class="tool" *ngIf="changeTo == 1">
+        <div (click)="requestIdentificationRecognition()" id="buttonRecognition">
+            <h1>Text recognition</h1>
+            <img src="/assets/icons/20.svg" alt="">
+        </div>
+        <div id="info_recognition">
+            <div class="boxViewTextRecognition">
+                <div *ngFor="let text of recognizedText; let i = index" class="rowText">
+                    <div class="numberIndicator">
+                        <h2>{{ i + 1 }}</h2>
+                    </div>
+                    <input type="text" class="source-code-pro" [placeholder]="text === '[empty]' ? '[empty]' : ''"
+                        [ngModel]="text === '[empty]' ? '' : text" name="" id="">
+                </div>
+            </div>
+
+            <div class="othersButton">
+                <div class="buttonOther">
+                    <h1>Insert in textbox</h1>
+                </div>
+                <div class="buttonOther">
+                    <h1>Download in file</h1>
+                </div>
+            </div>
+        </div>
+    </div> -->
 </div>

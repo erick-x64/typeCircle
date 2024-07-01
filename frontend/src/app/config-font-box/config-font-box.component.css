@@ -1,7 +1,7 @@
 :host {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
 }
 
 h1 {
@@ -22,7 +22,7 @@ h1 {
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
-    gap: 16px;
+    gap: 20px;
     padding: 0;
 }
 
@@ -66,7 +66,7 @@ h1 {
     padding: 12px 18px;
     border-radius: 10px;
     border: solid 1px #4b4b4b;
-    background-color: #393939;
+    background-color: #2d2d2d;
 }
 
 .button_configAlingText {

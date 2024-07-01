@@ -5,8 +5,11 @@ import { fabric } from "fabric";
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { API_BASE_URL } from '../../config';
+import { LocalStorageService } from '../local-storage.service';
+import { SaveService } from '../save.service';
 
 interface Files {
+  base64Image: string[];
   selectFile: number;
   canvas: any[];
 }
@@ -18,15 +21,17 @@ interface Files {
 })
 export class CanvaElementComponent {
   @ViewChild('downloadLink') downloadLink: ElementRef | undefined;
+  @ViewChild('myCanvas') myCanvas: ElementRef | undefined;
 
   // config.ts
-  apiUrl: string = `${API_BASE_URL}`;
+  apiUrl_imageProcessing: string = `${API_BASE_URL}/api/process-image`;
+  apiUrl_textRecognition: string = `${API_BASE_URL}/api/recognize-text`;
 
   // modified image scale
   scaleFactor: number = 0;
 
   // Canvas and state management
-  canvas: fabric.Canvas | any;
+  canvas: fabric.Canvas | any = new fabric.Canvas('myCanvas', {});
   twoClick: number = 0;
   enableDrawingRect: boolean = false;
   colorReplace: string = "";
@@ -42,61 +47,92 @@ export class CanvaElementComponent {
 
   // Canvas objects
   boxesList: [number, number, number, number][] = [];
+  listDataUrlToText: string[] = [];
   textboxes: fabric.Textbox[] = [];
   rects: fabric.Rect[] = [];
+  originalViewportTransform: any;
 
   // File management
   files: Files = {
+    base64Image: [],
     selectFile: 0,
     canvas: [],
   };
 
-  constructor(private dataService: DataService, private http: HttpClient) { }
+  constructor(private dataService: DataService, private http: HttpClient, private saveService: SaveService, private localStorageService: LocalStorageService) { }
 
-  // canva
-  ngAfterViewInit() {
-    this.initializeCanvas();
-  }
+  // key controls
+  private manageKeyListeners(add: boolean): void {
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.ctrlKey) {
+        fabric.Object.prototype.set({
+          hoverCursor: 'move',
+        });
+      }
+    }
 
-  private initializeCanvas() {
-    this.canvas = new fabric.Canvas('myCanvas', {});
+    const onKeyUp = (event: KeyboardEvent): void => {
+      fabric.Object.prototype.set({
+        hoverCursor: 'crosshair',
+      });
+    }
+
+    if (add) {
+      window.addEventListener('keydown', onKeyDown);
+      window.addEventListener('keyup', onKeyUp);
+    } else {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    }
   }
 
   // Image setup and controls
-  private setupImage(pathImage: string) {
-    fabric.Image.fromURL(pathImage, (img: any) => {
-      let newHeight = 745;
-      let scaleFactor = newHeight / img.height;
-      let newWidth = img.width * scaleFactor;
+  private setupImage(file: File) {
+    const reader = new FileReader();
 
-      if (newWidth > 1200) {
-        newWidth = 800;
-        scaleFactor = newWidth / img.width;
-        newHeight = img.height * scaleFactor;
-      }
+    reader.onload = (e: any) => {
+      const base64Image = reader.result as string;
+      this.files.base64Image.push(base64Image);
 
-      this.scaleFactor = scaleFactor;
+      const dataUrl = e.target.result;
 
-      img.scale(scaleFactor);
+      fabric.Image.fromURL(dataUrl, (img: any) => {
+        let newHeight = this.myCanvas?.nativeElement.parentElement.parentElement.offsetHeight;
+        let maxWidth = this.myCanvas?.nativeElement.parentElement.parentElement.offsetWidth;
+        let scaleFactor = newHeight / img.height;
+        let newWidth = img.width * scaleFactor;
 
-      const existingImage = this.canvas.getObjects('image');
-      if (existingImage.length > 0) {
-        const existingImg = existingImage[0];
-        existingImg.setElement(img.getElement());
-        existingImg.scale(scaleFactor);
-        this.canvas.renderAll();
-      } else {
-        this.canvas.setWidth(newWidth);
-        this.canvas.setHeight(newHeight);
-        this.canvas.add(img);
-      }
+        if (newWidth > maxWidth) {
+          newWidth = maxWidth - 50;
+          scaleFactor = newWidth / img.width;
+          newHeight = img.height * scaleFactor;
+        };
 
-      this.setupImageControls(img);
+        this.scaleFactor = scaleFactor;
 
-      const canvasJson = this.canvas.toDatalessJSON();
-      this.files.canvas.push(canvasJson);
-      this.files.selectFile = this.files.canvas.length - 1;
-    });
+        img.scale(scaleFactor);
+
+        const existingImage = this.canvas.getObjects('image');
+        if (existingImage.length > 0) {
+          const existingImg = existingImage[0];
+          existingImg.setElement(img.getElement());
+          existingImg.scale(scaleFactor);
+          this.canvas.renderAll();
+        } else {
+          this.canvas.setWidth(newWidth);
+          this.canvas.setHeight(newHeight);
+          this.canvas.add(img);
+        }
+
+        this.setupImageControls(img);
+
+        const canvasJson = this.canvas.toDatalessJSON();
+        this.files.canvas.push(canvasJson);
+        this.files.selectFile = this.files.canvas.length - 1;
+      });
+    };
+
+    reader.readAsDataURL(file);
   }
 
   private setupImageControls(img: fabric.Image) {
@@ -113,7 +149,12 @@ export class CanvaElementComponent {
     });
     img.selectable = false;
 
-    fabric.Object.prototype.set({
+    fabric.Object.prototype.setControlsVisibility({
+      mtr: false
+    });
+
+    fabric.Textbox.prototype.set({
+      hoverCursor: 'crosshair',
       transparentCorners: false,
       borderColor: 'rgba(108, 165, 250)',
       cornerColor: 'rgba(108, 165, 250)',
@@ -123,15 +164,37 @@ export class CanvaElementComponent {
       strokeWidth: 0,
       padding: 8,
     });
+
+    fabric.Rect.prototype.set({
+      hoverCursor: 'crosshair',
+      transparentCorners: false,
+      borderColor: 'rgba(108, 165, 250)',
+      cornerColor: 'rgba(108, 165, 250)',
+      cornerStrokeColor: '#FCFCFC',
+      cornerStyle: 'rect',
+      cornerSize: 9,
+      strokeWidth: 0,
+      padding: 0,
+    });
+
+    this.canvas.hoverCursor = 'crosshair';
   }
 
   // Zoom functionality
   private setupZoom() {
     let lastZoomPoint: { x: number, y: number } | null = null;
+    let originalViewportTransform: number[] | null = null;
+    let originalZoom: number = 1;
+    let zoom = this.canvas.getZoom();
+
+    if (!originalViewportTransform) {
+      originalViewportTransform = this.canvas.viewportTransform.slice(0);
+      originalZoom = zoom;
+    }
 
     this.canvas.on('mouse:wheel', (opt: any) => {
       const delta = opt.e.deltaY;
-      let zoom = this.canvas.getZoom();
+      zoom = this.canvas.getZoom();
 
       if (!lastZoomPoint) {
         lastZoomPoint = { x: opt.e.offsetX, y: opt.e.offsetY };
@@ -143,7 +206,13 @@ export class CanvaElementComponent {
       if (zoom === 1) {
         this.canvas.zoomToPoint(lastZoomPoint, zoom);
         lastZoomPoint = null;
-        this.centerImage();
+
+        // Restaurar o estado original do viewportTransform
+        if (originalViewportTransform) {
+          this.canvas.viewportTransform = originalViewportTransform.slice(0);
+          this.canvas.setZoom(originalZoom);
+          this.canvas.requestRenderAll();
+        }
       } else {
         this.canvas.zoomToPoint(lastZoomPoint, zoom);
       }
@@ -151,13 +220,58 @@ export class CanvaElementComponent {
       opt.e.preventDefault();
       opt.e.stopPropagation();
     });
+
+    this.setupImageDrag();
   }
 
-  private centerImage() {
-    const img = this.canvas.getObjects()[0];
-    if (img) {
-      img.center();
-    }
+  // Image drag functionality
+  private setupImageDrag() {
+    let isDragging = false;
+    let lastPosX: number;
+    let lastPosY: number;
+
+    this.canvas.on('mouse:down', (opt: any) => {
+      if (opt.e.ctrlKey && this.canvas.getZoom() > 1) {
+        isDragging = true;
+        const pointer = this.canvas.getPointer(opt.e);
+        lastPosX = pointer.x;
+        lastPosY = pointer.y;
+        this.canvas.selection = false;
+      }
+    });
+
+    this.canvas.on('mouse:move', (opt: any) => {
+      if (isDragging && opt.e.ctrlKey && this.canvas.getZoom() > 1) {
+        const pointer = this.canvas.getPointer(opt.e);
+        const zoom = this.canvas.getZoom();
+        const deltaX = (pointer.x - lastPosX) * (2 * (zoom / 2.2));
+        const deltaY = (pointer.y - lastPosY) * (2 * (zoom / 2.2));
+
+        if (!this.originalViewportTransform) {
+          this.originalViewportTransform = this.canvas.viewportTransform.slice(0);
+        }
+
+        let viewportTransform = this.canvas.viewportTransform.slice(0);
+
+        viewportTransform[4] += deltaX;
+        viewportTransform[5] += deltaY;
+
+        this.canvas.viewportTransform = viewportTransform;
+
+        lastPosX = pointer.x;
+        lastPosY = pointer.y;
+
+        this.canvas.requestRenderAll();
+      }
+    });
+
+
+    this.canvas.on('mouse:up', () => {
+      this.canvas.hoverCursor = 'crosshair';
+
+      isDragging = false;
+      this.canvas.selection = true;
+    });
   }
 
   // Drawing functionality
@@ -168,53 +282,52 @@ export class CanvaElementComponent {
     let currentRect: fabric.Rect | null = null;
 
     this.canvas.on('mouse:down', (opt: any) => {
-      const pointer = this.canvas.getPointer(opt.e);
-      const activeObject = this.canvas.getActiveObject();
+      if (!opt.e.ctrlKey) {
 
-      this.twoClick = activeObject ? this.twoClick + 1 : 0;
+        const pointer = this.canvas.getPointer(opt.e);
+        const activeObject = this.canvas.getActiveObject();
 
-      if (this.twoClick === 2) {
-        this.twoClick = 0;
-      }
+        this.twoClick = activeObject ? this.twoClick + 1 : 0;
 
-      if (!activeObject && this.twoClick === 0) {
-        const img = this.canvas.getObjects()[0];
-        if (img && this.isPointerInsideImage(pointer, img)) {
-          if (!this.isPointerOverlappingTextbox(pointer)) {
-            this.canvas.selection = false;
-            isDrawing = true;
-            startPoint = new fabric.Point(pointer.x, pointer.y);
+        if (this.twoClick === 2) {
+          this.twoClick = 0;
+        }
 
-            if (this.enableDrawingRect) {
-              currentRect = new fabric.Rect({
-                left: pointer.x,
-                top: pointer.y,
-                fill: 'rgba(108, 165, 250, 0.2)',
-                stroke: 'rgba(108, 165, 250, 0.8)',
-                strokeWidth: 1.5,
-                rx: 999,
-                ry: 999,
-                width: 0,
-                height: 0,
-                selectable: false,
-              });
-              this.rects.push(currentRect);
-              this.canvas.add(currentRect);
-              this.setControlsVisibilityInObj(currentRect);
-            } else {
-              currentTextbox = this.createTextbox(pointer);
-              this.textboxes.push(currentTextbox);
-              this.canvas.add(currentTextbox);
-              this.canvas.bringToFront(currentTextbox);
-              this.setControlsVisibilityInObj(currentTextbox);
-              this.setupEventInTextBox(currentTextbox);
-            }
+        if (!activeObject && this.twoClick === 0) {
+          const img = this.canvas.getObjects()[0];
+          if (img && this.isPointerInsideImage(pointer, img)) {
+            if (!this.isPointerOverlappingTextbox(pointer)) {
+              this.canvas.selection = false;
+              isDrawing = true;
+              startPoint = new fabric.Point(pointer.x, pointer.y);
 
-            this.canvas.renderAll();
-            this.saveCanvasState();
+              if (this.enableDrawingRect) {
+                currentRect = new fabric.Rect({
+                  left: pointer.x,
+                  top: pointer.y,
+                  fill: 'rgba(108, 165, 250, 0.2)',
+                  stroke: 'rgba(108, 165, 250, 0.8)',
+                  strokeWidth: 1.5,
+                  width: 0,
+                  height: 0,
+                  selectable: false,
+                });
+                this.rects.push(currentRect);
+                this.canvas.add(currentRect);
+              } else {
+                currentTextbox = this.createTextbox(pointer);
+                this.textboxes.push(currentTextbox);
+                this.canvas.add(currentTextbox);
+                this.canvas.bringToFront(currentTextbox);
+                this.setupEventInTextBox(currentTextbox);
+              }
 
-            if (currentTextbox) {
-              this.sendBoxCreate(this.textboxes.length - 1, currentTextbox.text ?? '');
+              this.canvas.renderAll();
+              this.saveCanvasState();
+
+              if (currentTextbox) {
+                this.sendBoxCreate(this.textboxes.length - 1, currentTextbox.text ?? '');
+              }
             }
           }
         }
@@ -345,6 +458,7 @@ export class CanvaElementComponent {
     const index = this.rects.indexOf(rect);
     if (index !== -1) {
       this.rects.splice(index, 1);
+      this.boxesList.splice(index, 1);
     }
   }
 
@@ -383,14 +497,8 @@ export class CanvaElementComponent {
     this.files.canvas[this.files.selectFile] = canvasJson;
   }
 
-  private setControlsVisibilityInObj(obj: fabric.Object) {
-    obj.setControlsVisibility({
-      mtr: false
-    });
-  }
-
   // Receiving from (app) data service
-  ngOnInit() {
+  ngOnInit(): void {
     this.subscribeToBoxCanvaChange();
     this.subscribeToBoxFontChange();
     this.subscribeToBoxFontDefaultChange();
@@ -406,6 +514,13 @@ export class CanvaElementComponent {
     this.subscribeToEnableDrawingRect();
     this.subscribeToRemoveAreaSelect();
     this.subscribeToBackAreaSelect();
+    this.subscribeToRequestAddTextFromImage();
+    this.subscribeToOpenProject();
+    this.manageKeyListeners(true);
+  }
+
+  ngOnDestroy(): void {
+    this.manageKeyListeners(false);
   }
 
   // Subscriptions
@@ -501,6 +616,18 @@ export class CanvaElementComponent {
     });
   }
 
+  private subscribeToRequestAddTextFromImage() {
+    this.dataService.requestrequestIdentificationRecognition$.subscribe(data => {
+      this.requestrequestIdentificationRecognition();
+    });
+  }
+
+  private subscribeToOpenProject() {
+    this.dataService.openProject$.subscribe(data => {
+      this.openProject();
+    });
+  }
+
   // Handlers
   private updateTextboxText(idBox: number, text: string) {
     this.textboxes[idBox].text = text;
@@ -553,11 +680,15 @@ export class CanvaElementComponent {
     }
   }
 
-  private resetCanvas(urlImage: string) {
+  private resetCanvas(urlImage: File) {
     this.sendBoxAllDelete();
+    this.textboxes = [];
     this.boxesList = [];
     this.canvas.dispose();
     this.canvas = new fabric.Canvas('myCanvas', {});
+    this.canvas.on('object:added', () => this.saveChangesInLocal());
+    this.canvas.on('object:modified', () => this.saveChangesInLocal());
+    this.canvas.on('object:moved', () => this.saveChangesInLocal());
     this.setupImage(urlImage);
     this.setupZoom();
     this.setupDrawing();
@@ -565,18 +696,46 @@ export class CanvaElementComponent {
     this.canvas.renderAll();
   }
 
-  private selectFileCanvas(data: any) {
-    const canvasJson = this.canvas.toDatalessJSON();
-    this.files.canvas[this.files.selectFile] = canvasJson;
+  private selectFileCanvas(data: any, isOpenProject?: boolean) {
+    if (isOpenProject == undefined) {
+      const canvasJson = this.canvas.toDatalessJSON();
+      this.files.canvas[this.files.selectFile] = canvasJson;
+    };
+
     this.files.selectFile = data.index;
     this.sendBoxAllDelete();
     this.textboxes = [];
+    this.boxesList = [];
     this.canvas.dispose();
     this.canvas = new fabric.Canvas('myCanvas', {});
+    this.canvas.on('object:added', () => this.saveChangesInLocal());
+    this.canvas.on('object:modified', () => this.saveChangesInLocal());
+    this.canvas.on('object:moved', () => this.saveChangesInLocal());
     this.canvas.loadFromJSON(this.files.canvas[data.index], () => {
       this.canvas.getObjects().forEach((obj: any) => {
         if (obj instanceof fabric.Image) {
-          this.setupImageControls(obj);
+          if (obj.height && obj.width) {
+            const parentElement = this.myCanvas?.nativeElement.parentElement?.parentElement;
+            let newHeight = parentElement.offsetHeight;
+            const maxWidth = parentElement.offsetWidth;
+
+            let scaleFactor = newHeight / obj.height;
+            let newWidth = obj.width * scaleFactor;
+
+            if (newWidth > maxWidth) {
+              newWidth = maxWidth;
+              scaleFactor = newWidth / obj.width;
+              newHeight = obj.height * scaleFactor;
+            }
+
+            this.scaleFactor = scaleFactor;
+            obj.scale(scaleFactor);
+
+            this.canvas.setWidth(newWidth);
+            this.canvas.setHeight(newHeight);
+
+            this.setupImageControls(obj);
+          }
         }
 
         if (obj instanceof fabric.Textbox) {
@@ -615,6 +774,9 @@ export class CanvaElementComponent {
       this.textboxes = [];
       this.canvas.dispose();
       this.canvas = new fabric.Canvas('myCanvas', {});
+      this.canvas.on('object:added', () => this.saveChangesInLocal());
+      this.canvas.on('object:modified', () => this.saveChangesInLocal());
+      this.canvas.on('object:moved', () => this.saveChangesInLocal());
       this.canvas.loadFromJSON(canvasElement, () => {
         this.canvas.getObjects().forEach((obj: any) => {
           if (obj instanceof fabric.Image) {
@@ -635,10 +797,14 @@ export class CanvaElementComponent {
     } else {
       this.canvas.dispose();
       this.canvas = new fabric.Canvas('myCanvas', {});
+      this.canvas.on('object:added', () => this.saveChangesInLocal());
+      this.canvas.on('object:modified', () => this.saveChangesInLocal());
+      this.canvas.on('object:moved', () => this.saveChangesInLocal());
     }
 
     this.canvas.renderAll();
     this.files.canvas.splice(data.index, 1);
+    this.files.base64Image.splice(data.index, 1);
   }
 
   private downloadFileCanvas(data: any) {
@@ -696,11 +862,13 @@ export class CanvaElementComponent {
           quality: 1
         });
         this.boxesList = [];
-        this.http.post<any>(this.apiUrl, { data_url: dataURL }).subscribe({
+        this.http.post<any>(this.apiUrl_imageProcessing, { data_url: dataURL }).subscribe({
           next: (response) => {
             this.boxesList = response.boxes_list;
             response.boxes_list.forEach((box: any) => {
               const [x, y, w, h] = box;
+
+              // add rects
               const center_x = x + w / 2;
               const center_y = y + h / 2;
               const offset = 10;
@@ -713,8 +881,6 @@ export class CanvaElementComponent {
                 top: center_y - ry,
                 width: width,
                 height: height,
-                rx: rx,
-                ry: ry,
                 fill: 'rgba(108, 165, 250, 0.2)',
                 stroke: 'rgba(108, 165, 250, 0.8)',
                 strokeWidth: 1.5
@@ -727,6 +893,9 @@ export class CanvaElementComponent {
           },
           error: (error) => {
             console.error('Erro ao enviar imagem para o servidor:', error);
+            setTimeout(() => {
+              this.dataService.operationIdentificationComplete(0, 0);
+            }, 500);
           }
         });
       } else {
@@ -804,7 +973,6 @@ export class CanvaElementComponent {
         this.textboxes.push(textbox);
         this.sendBoxCreate(this.textboxes.length - 1, texto);
         this.setupEventInTextBox(textbox);
-        this.setControlsVisibilityInObj(textbox);
       });
       this.boxesList = [];
     }
@@ -873,6 +1041,86 @@ export class CanvaElementComponent {
       this.canvas.renderAll();
     }
   };
+
+  private requestrequestIdentificationRecognition() {
+    const firstImage = this.canvas.getObjects().find((obj: any) => obj instanceof fabric.Image) as fabric.Image;
+
+    this.boxesList.forEach(box => {
+      const [x, y, w, h] = box;
+
+      // transform positions box in images
+      const tempCanvas = document.createElement('canvas');
+
+      const adjustedX = x * (1 / this.scaleFactor);
+      const adjustedY = y * (1 / this.scaleFactor);
+      const adjustedW = w * (1 / this.scaleFactor);
+      const adjustedH = h * (1 / this.scaleFactor);
+
+      tempCanvas.width = adjustedW;
+      tempCanvas.height = adjustedH;
+      const tempContext = tempCanvas.getContext('2d');
+
+      if (tempContext) {
+        tempContext.drawImage(
+          firstImage.getElement(),
+          adjustedX, adjustedY, adjustedW, adjustedH,
+          0, 0, adjustedW, adjustedH
+        );
+
+        const dataURL = tempCanvas.toDataURL('image/png', 1.0);
+        this.listDataUrlToText.push(dataURL);
+      }
+    });
+
+    if (this.listDataUrlToText.length > 0) {
+      this.http.post<any>(this.apiUrl_textRecognition, { data_urls: this.listDataUrlToText }).subscribe({
+        next: (response) => {
+          setTimeout(() => {
+            this.dataService.operationIdentificationRecognitionComplete(response.recognized_text);
+          }, 500);
+        },
+        error: (error) => {
+          console.error('Erro ao enviar imagem para o servidor:', error);
+          setTimeout(() => {
+            this.dataService.operationIdentificationRecognitionComplete([]);
+          }, 500);
+        }
+      });
+    } else {
+      setTimeout(() => {
+        this.dataService.operationIdentificationRecognitionComplete([]);
+      }, 500);
+    }
+  }
+
+  private openProject() {
+    const indexProject = this.localStorageService.getSelectedProjectIndex();
+    const clonedProject = JSON.parse(JSON.stringify(this.localStorageService.getProjects()[indexProject].canvaFile));
+    const getProject = clonedProject as Files;
+
+    this.files = getProject;
+
+    const data = {
+      index: this.files.selectFile
+    };
+    this.selectFileCanvas(data, true);
+
+    // send to file-box
+    let count = 0;
+    for (let i = 0; i < getProject.base64Image.length; i++) {
+      count++;
+      const mimeType = getProject.base64Image[i].substring(getProject.base64Image[i].indexOf(":") + 1, getProject.base64Image[i].indexOf(";"));
+      const extension = mimeType.split("/")[1];
+
+      const nameFile = "image-" + count;
+
+      if (getProject.selectFile == i) {
+        this.saveService.arrayFiles.push({ pathFile: getProject.base64Image[i], nameFile: nameFile, extensionFile: extension, select: true });
+      } else {
+        this.saveService.arrayFiles.push({ pathFile: getProject.base64Image[i], nameFile: nameFile, extensionFile: extension, select: false });
+      }
+    }
+  }
 
   // Handlers functions
   private getDominantColor(imageData: ImageData): string {
@@ -994,5 +1242,29 @@ export class CanvaElementComponent {
 
   private sendBoxAllDelete() {
     this.dataService.sendBoxAllDelete();
+  }
+
+  // localStorage
+  saveChangesInLocal() {
+    // get files
+    let filesLocalStorage: Files = {
+      base64Image: this.files.base64Image.slice(),
+      selectFile: this.files.selectFile,
+      canvas: [...this.files.canvas],
+    };
+
+    // update changes in canva select
+    const canvasJson = this.canvas.toDatalessJSON();
+    filesLocalStorage.canvas[filesLocalStorage.selectFile] = canvasJson;
+
+    this.addFileToProject(this.localStorageService.getSelectedProjectIndex(), filesLocalStorage);
+  }
+
+  addFileToProject(index: number, file: any) {
+    this.localStorageService.addCanvasToProject(index, file);
+  }
+
+  updateProjectModificationDate(index: number) {
+    this.localStorageService.updateModificationDate(index);
   }
 }

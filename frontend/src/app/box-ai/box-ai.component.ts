@@ -5,21 +5,33 @@ import anime from 'animejs';
 @Component({
   selector: 'app-box-ai',
   templateUrl: './box-ai.component.html',
-  styleUrl: './box-ai.component.css'
+  styleUrls: ['./box-ai.component.css']
 })
 export class BoxAiComponent {
-  constructor(private dataService: DataService) { }
   private animation: any;
 
-  average_score: string = "";
-  quantityFound: number = 0;
+  average_score = "";
+  quantityFound = 0;
+  recognizedText: string[] = [];
 
-  showOptionsRemoveText: boolean = true;
-  inProcessRequest: boolean = false;
-  offsetCircle: number | undefined;
-  radiusCircle: number | undefined;
+  isChangeToolEnabled = true;
+  showOptionsRemoveText = true;
+  inProcessRequest = false;
+  offsetCircle?: number;
+  radiusCircle?: number;
 
-  requestIdentification() {
+  changeTo = 0;
+
+  constructor(private dataService: DataService) { }
+
+  changeTool(number: number): void {
+    if (!this.isChangeToolEnabled) {
+      return;
+    }
+    this.changeTo = number;
+  }
+
+  requestIdentification(): void {
     if (!this.inProcessRequest) {
       this.inProcessRequest = true;
       this.showOptionsRemoveText = true;
@@ -28,7 +40,6 @@ export class BoxAiComponent {
 
       this.dataService.requestIdentification();
 
-      // operation identification complete
       this.dataService.operationIdentificationComplete$.subscribe((data) => {
         this.inProcessRequest = false;
         const primeirosDoisDigitos = data.average_score.toString().slice(0, 2);
@@ -38,69 +49,93 @@ export class BoxAiComponent {
 
         this.stopAnimationGradient();
         this.startAnimationTopObjects();
-      })
-    };
+      });
+    }
   }
 
-  requestRemoveText() {
+  requestRemoveText(): void {
     this.showOptionsRemoveText = false;
     this.offsetCircle = undefined;
     this.radiusCircle = undefined;
     this.dataService.requestRemoveText();
   }
 
-  requestAddBoxText() {
+  requestAddBoxText(): void {
     this.dataService.requestAddBoxText();
   }
 
-  requestChangeValuesCircle() {
-    let offsetCircle: number | undefined = this.offsetCircle === undefined ? 10 : this.offsetCircle;
-    let radiusCircle: number | undefined = this.radiusCircle === undefined ? 999 : this.radiusCircle;
+  requestChangeValuesCircle(): void {
+    const offsetCircle = this.offsetCircle ?? 10;
+    const radiusCircle = this.radiusCircle ?? 999;
 
     this.dataService.requestChangeValuesCircle(offsetCircle, radiusCircle);
   }
 
-  // animation top objects
-  startAnimationTopObjects() {
-    anime({
-      targets: '#infos_Identification',
-      top: ['10px', '0px'],
-      opacity: [0, 1],
-      duration: 300,
-      easing: 'easeInOutQuad'
-    });
-  };
+  requestIdentificationRecognition(): void {
+    this.startAnimationGradient();
+    this.resetAnimationTopObjects();
 
-  resetAnimationTopObjects() {
-    anime({
-      targets: '#infos_Identification',
-      top: '10px',
-      opacity: 0,
-      duration: 300,
-      easing: 'easeInOutQuad'
+    this.dataService.requestIdentificationRecognition();
+
+    this.dataService.operationIdentificationCompleteRecognition$.subscribe((data) => {
+      this.recognizedText = data.recognizedText.map(text => text.trim() === '' ? '[empty]' : text.trim());
+
+      this.startAnimationTopObjects();
+      this.stopAnimationGradient();
     });
   }
 
-  // animation gradient
-  startAnimationGradient() {
+  private startAnimationTopObjects(): void {
+    const targetSelector = this.changeTo === 0 ? '#infos_Identification' : '#info_recognition';
+
+    this.animateTarget(targetSelector, ['10px', '0px'], [0, 1]);
+  }
+
+  private resetAnimationTopObjects(): void {
+    const targetSelector = this.changeTo === 0 ? '#infos_Identification' : '#info_recognition';
+
+    this.animateTarget(targetSelector, '10px', 0);
+  }
+
+  private startAnimationGradient(): void {
+    this.isChangeToolEnabled = false;
+    const targetSelector = this.changeTo === 0 ? '#buttonIdentification' : '#buttonRecognition';
+
     this.animation = anime({
-      targets: '#buttonIdentification',
+      targets: targetSelector,
       easing: 'easeInOutQuad',
       loop: true,
       update: (anim) => {
         const progress = anim.progress / 100;
-        const newGradientPosition = 50 + 50 * Math.sin(progress * Math.PI * 2); // Multiplied by 2 for a full wave
-        (document.querySelector('#buttonIdentification') as HTMLElement).style.backgroundImage =
-          `linear-gradient(to right, #292929, #393939 ${newGradientPosition}%, #292929)`;
+        const newGradientPosition = 50 + 50 * Math.sin(progress * Math.PI * 2);
+        this.setGradientBackground(targetSelector, newGradientPosition);
       }
     });
   }
 
-  stopAnimationGradient() {
+  private stopAnimationGradient(): void {
+    const targetSelector = this.changeTo === 0 ? '#buttonIdentification' : '#buttonRecognition';
+
     if (this.animation) {
       this.animation.pause();
-      (document.querySelector('#buttonIdentification') as HTMLElement).style.backgroundImage =
-        `linear-gradient(to right, #292929, #393939 50%, #292929)`;
+      this.setGradientBackground(targetSelector, 50);
     }
+
+    this.isChangeToolEnabled = true;
+  }
+
+  private animateTarget(target: string, property: string | string[], value: any): void {
+    anime({
+      targets: target,
+      top: property,
+      opacity: value,
+      duration: 300,
+      easing: 'easeInOutQuad'
+    });
+  }
+
+  private setGradientBackground(target: string, position: number): void {
+    (document.querySelector(target) as HTMLElement).style.backgroundImage =
+      `linear-gradient(to right, #292929, #393939 ${position}%, #292929)`;
   }
 }

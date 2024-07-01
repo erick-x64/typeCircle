@@ -1,0 +1,21 @@
+<div class="box-recent-in-list" #boxRecentList (click)="onBoxClick()">
+    <div class="image-caption">
+        <img [src]="imageSrc" alt="image-project" />
+        <div class="content-caption-title" (click)="onTitleClick($event)" [ngClass]="{'focus-shadow': isFocusedInput}">
+            <input class="caption-title" [value]="nameProject" (input)="changeInput($event)" type="text" (focus)="onFocusInput()"
+                (blur)="onBlurInput()">
+        </div>
+    </div>
+    <a class="image-number">{{totalImage}}</a>
+    <div class="image-content">
+        <a class="image-details">{{modificationOnlyDate}}</a>
+        <a class="image-time">{{modificationOnlyHour}}</a>
+    </div>
+    <div class="image-content content-delete">
+        <div class="image-detail">
+            <b class="detail-date">{{creationOnlyDate}}</b>
+            <b class="detail-time">{{creationOnlyHour}}</b>
+        </div>
+        <img (click)="onDeleteClick($event)" src="/assets/icons/30.svg" alt="delete" />
+    </div>
+</div>

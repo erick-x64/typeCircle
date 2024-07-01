@@ -110,6 +110,7 @@ export class ConfigFontBoxComponent {
 
   queryLocalFonts() {
     return new Promise((resolve, reject) => {
+      // @ts-ignore
       window.queryLocalFonts().then((fonts: any[]) => {
         resolve(fonts);
       }).catch((err: any) => {

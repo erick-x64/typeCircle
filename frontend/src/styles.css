@@ -1,17 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,600;1,500&display=swap');
 
 html,
 body {
-    width: 100%;
     height: 100%;
+}
+
+body {
     margin: 0;
     display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+    flex-direction: column;
+    justify-content: stretch;
     align-items: stretch;
+    gap: 24px;
     box-sizing: border-box;
-    padding: 50px 30px;
-    background-color: #292929;
+    padding: 60px 180px 0;
+    background-color: #1b1b1b;
 }
 
 h1,
@@ -68,7 +72,19 @@ input::-webkit-inner-spin-button {
 }
 
 input[type=number] {
+    appearance: textfield;
     -moz-appearance: textfield;
+}
+
+.source-code-pro {
+    font-family: "Source Code Pro", monospace;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.hidden {
+    display: none !important;
 }
 
 /* scrollbar */
@@ -99,14 +115,18 @@ input[type=number] {
 
 /* media */
 
-@media only screen and (max-width: 1150px) {
-    html, body {
+@media only screen and (max-width: 1350px) {
+
+    html,
+    body {
         padding: 20px 20px;
     }
 }
 
 @media only screen and (max-height: 870px) {
-    html, body {
+
+    html,
+    body {
         padding: 20px 30px;
     }
 }

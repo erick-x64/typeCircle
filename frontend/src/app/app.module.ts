@@ -16,6 +16,8 @@ import { BoxAiComponent } from './box-ai/box-ai.component';
 import { HomeComponent } from './home/home.component';
 import { FontDropdownComponent } from './font-dropdown/font-dropdown.component';
 import { OtherToolsComponent } from './other-tools/other-tools.component';
+import { BoxRecentComponent } from './box-recent/box-recent.component';
+import { BoxRecentInListComponent } from './box-recent-in-list/box-recent-in-list.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,8 @@ import { OtherToolsComponent } from './other-tools/other-tools.component';
     HomeComponent,
     FontDropdownComponent,
     OtherToolsComponent,
+    BoxRecentComponent,
+    BoxRecentInListComponent,
   ],
   imports: [
     BrowserModule,

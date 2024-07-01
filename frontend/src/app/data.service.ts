@@ -41,7 +41,7 @@ export class DataService {
     sendConfigBoxSelect$ = this.sendConfigBoxSelectSubject.asObservable();
 
     // file box
-    private addImageCanvaSubject = new Subject<{ urlImage: string }>();
+    private addImageCanvaSubject = new Subject<{ urlImage: File }>();
     addImageCanva$ = this.addImageCanvaSubject.asObservable();
 
     private selectFileCanvaSubject = new Subject<{ index: number }>();
@@ -79,10 +79,25 @@ export class DataService {
     private requestChangeValuesCircleSubject = new Subject<{ offsetCircle: number, radiusCircle: number }>();
     requestChangeValuesCircle$ = this.requestChangeValuesCircleSubject.asObservable();
 
+    private requestIdentificationRecognitionSubject = new Subject<{}>();
+    requestrequestIdentificationRecognition$ = this.requestIdentificationRecognitionSubject.asObservable();
+
+    private operationIdentificationRecognitionCompleteSubject = new Subject<{ recognizedText: string[] }>();
+    operationIdentificationCompleteRecognition$ = this.operationIdentificationRecognitionCompleteSubject.asObservable();
+
     private operationIdentificationCompleteSubject = new Subject<{ average_score: number, totalIdentified: number }>();
     operationIdentificationComplete$ = this.operationIdentificationCompleteSubject.asObservable();
 
+    // app
+    private openProjectSubject = new Subject<{}>();
+    openProject$ = this.openProjectSubject.asObservable();
+
     constructor() { }
+
+    // app
+    sendOpenProject() {
+        this.openProjectSubject.next({});
+    }
 
     // Entry changes
     sendBoxCreate(idBox: number, text: string) {
@@ -137,7 +152,7 @@ export class DataService {
     }
 
     // file box
-    addImageCanva(urlImage: string) {
+    addImageCanva(urlImage: File) {
         this.addImageCanvaSubject.next({ urlImage });
     }
 
@@ -174,7 +189,15 @@ export class DataService {
         this.requestChangeValuesCircleSubject.next({ offsetCircle, radiusCircle });
     }
 
+    requestIdentificationRecognition() {
+        this.requestIdentificationRecognitionSubject.next({});
+    }
+
     operationIdentificationComplete(average_score: number, totalIdentified: number) {
         this.operationIdentificationCompleteSubject.next({ average_score, totalIdentified });
+    }
+
+    operationIdentificationRecognitionComplete(recognizedText: string[]) {
+        this.operationIdentificationRecognitionCompleteSubject.next({ recognizedText });
     }
 }

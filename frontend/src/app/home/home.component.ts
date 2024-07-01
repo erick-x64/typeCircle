@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
 import { DataService } from '../data.service';
-import { FileService } from '../file.service';
+import { SaveService } from '../save.service';
 
 @Component({
   selector: 'app-home',
@@ -10,7 +10,7 @@ import { FileService } from '../file.service';
 export class HomeComponent {
   @Output() signChangeMenu = new EventEmitter<string>();
 
-  constructor(private dataService: DataService, private fileService: FileService) { }
+  constructor(private dataService: DataService, private saveService: SaveService) { }
 
   @ViewChild('openFileImage') fileInput: ElementRef | undefined;
 
@@ -25,7 +25,7 @@ export class HomeComponent {
     const fileExtension = file.name.split('.').pop();
     const fileNameWithoutExtension = file.name.substring(0, file.name.lastIndexOf('.'));
 
-    this.fileService.arrayFiles.push({ pathFile: imageUrl, nameFile: fileNameWithoutExtension, extensionFile: fileExtension, select: true });
+    this.saveService.arrayFiles.push({ pathFile: imageUrl, nameFile: fileNameWithoutExtension, extensionFile: fileExtension, select: true });
 
     this.signChangeMenu.emit(imageUrl);
   }

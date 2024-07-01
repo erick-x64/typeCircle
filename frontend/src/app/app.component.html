@@ -1,64 +1,175 @@
-<app-home *ngIf="showHome" (signChangeMenu)="changeDashBoard($event)"></app-home>
+<!-- <app-home *ngIf="showHome" (signChangeMenu)="changeDashBoard($event)"></app-home> -->
 
-<div *ngIf="!showHome" id="main">
-  <div id="boxFunctions">
-    <div class="element_boxFunctions">
-      <div class="header_element_boxFunctions">
-        <div (click)="changeTopHeader(0)" [ngClass]="{'select': selectTopHeader == 0}"
-          class="button_header_element_boxFunctions">
-          <img src="../assets/icons/01.svg" alt="">
-        </div>
-        <div (click)="changeTopHeader(1)" [ngClass]="{'select': selectTopHeader == 1}"
-          class="button_header_element_boxFunctions">
-          <img src="../assets/icons/02.svg" alt="">
-        </div>
-        <div (click)="changeTopHeader(2)" [ngClass]="{'select': selectTopHeader == 2}"
-          class="button_header_element_boxFunctions">
-          <img src="../assets/icons/05.svg" alt="">
-        </div>
+<div id="home" #home>
+  <div id="headerHome" #headerHome>
+    <div id="logoVersion">
+      <div id="logo"></div>
+      <div id="infoVersion">
+        <h1>TypeCircle</h1>
+        <h2>1.0.0</h2>
       </div>
-
-      <div id="topElement" class="content_element_boxFunctions">
-        <div class="pass" *ngIf="selectTopHeader == 0">
-          <app-box-entry-text *ngFor="let item of arrayEntry" [data]="item"></app-box-entry-text>
-        </div>
-        <div class="pass" *ngIf="selectTopHeader == 1">
-          <app-other-tools></app-other-tools>
-        </div>
-        <div class="pass" *ngIf="selectTopHeader == 2">
-          <app-box-ai></app-box-ai>
-        </div>
-      </div>
-
     </div>
-
-    <div class="element_boxFunctions">
-      <div class="header_element_boxFunctions">
-        <div (click)="changeBottomHeader(0)" [ngClass]="{'select': selectBottomHeader == 0}"
-          class="button_header_element_boxFunctions">
-          <img src="../assets/icons/03.svg" alt="">
-        </div>
-        <div (click)="changeBottomHeader(1)" [ngClass]="{'select': selectBottomHeader == 1}"
-          class="button_header_element_boxFunctions">
-          <img src="../assets/icons/04.svg" alt="">
-        </div>
+    <div id="actionsOptions">
+      <div class="buttonOptions" [ngClass]="{'select': selectMenu == 0}">
+        <h1>Seus projetos</h1>
       </div>
-
-      <div class="content_element_boxFunctions">
-
-        <div class="pass" *ngIf="selectBottomHeader == 0">
-          <app-config-font-box [selectEntry]="selectEntry"></app-config-font-box>
-        </div>
-
-        <div class="pass" *ngIf="selectBottomHeader == 1">
-          <app-file-box></app-file-box>
-        </div>
+      <div class="buttonOptions" [ngClass]="{'select': selectMenu == 2}">
+        <h1>Configurações</h1>
       </div>
+    </div>
+    <div id="actionsUser">
+      <div id="buttonLogin">
+        <h1>Acessar</h1>
+      </div>
+      <div id="imageUser"></div>
     </div>
   </div>
 
+  <div id="recents">
+    <div *ngIf="!showHome" id="shortenedHeader">
+      <div id="logoShort"></div>
+      <div id="row_buttonShortenedHeader">
+        <div class="buttonShortenedHeader" (click)="changeMenu(0)" [ngClass]="{'select': selectMenu == 0}">
+          <img src="/assets/icons/27.svg" alt="">
+        </div>
+        <div class="buttonShortenedHeader" (click)="changeMenu(1)" [ngClass]="{'select': selectMenu == 1}">
+          <img src="/assets/icons/29.svg" alt="">
+        </div>
+        <div class="buttonShortenedHeader" (click)="changeMenu(2)" [ngClass]="{'select': selectMenu == 2}">
+          <img src="/assets/icons/28.svg" alt="">
+        </div>
+      </div>
+      <div id="imageUserShort"></div>
+    </div>
 
-  <div id="boxCanva">
-    <app-canva-element></app-canva-element>
+    <div *ngIf="showHome" [ngStyle]="{ 'opacity': isAnimationOpenEdit ? '0' : '1' }" id="isHome">
+      <div id="headerRecents">
+        <div id="openAndFormat">
+          <div (click)="openImage()" id="buttonOpenFile">
+            <img src="/assets/icons/21.svg" alt="">
+            <h1>Abrir novo arquivo</h1>
+          </div>
+
+          <div class="buttonFormatDisplay">
+            <img src="/assets/icons/22.svg" alt="">
+          </div>
+
+          <div class="buttonFormatDisplay select">
+            <img src="/assets/icons/23.svg" alt="">
+          </div>
+        </div>
+
+        <div id="orderFiles">
+          <img src="/assets/icons/24.svg" alt="">
+        </div>
+      </div>
+
+      <div *ngIf="projectDisplay.length > 0" class="project-list-content">
+        <div class="box-recent-in-list">
+          <div class="image-caption">
+            <img src="#" alt="image-project" />
+            <div class="caption-title">Nome do projeto</div>
+          </div>
+          <b class="image-number">Arquivos</b>
+          <div class="image-content">
+            <a class="image-details">Data de modificação</a>
+          </div>
+          <div class="image-content content-delete">
+            <a class="image-details">Data de criação</a>
+            <img src="/assets/icons/30.svg" alt="delete" />
+          </div>
+        </div>
+        <app-box-recent-in-list *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"
+          [nameProject]="project.nameProject" [creationDate]="project.creationDate"
+          [modificationDate]="project.modificationDate" [index]="i" (deleteBoxRecent)="onDeleteBoxRecent($event)"
+          (openProject)="openProject($event)"></app-box-recent-in-list>
+      </div>
+
+      <div *ngIf="projectDisplay.length == 0" id="noProjects">
+        <div id="rowBalls-noProjects">
+          <div class="element-rowBalls-noProjects"></div>
+          <div class="element-rowBalls-noProjects"></div>
+          <div class="element-rowBalls-noProjects"></div>
+        </div>
+        <div id="about-noProjects">
+          <h2>Sem projetos por aqui, clique em:</h2>
+          <div (click)="openImage()" id="buttonOpenFile">
+            <img src="/assets/icons/21.svg" alt="">
+            <h1>Abrir novo arquivo</h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- <app-box-recent *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"
+        [nameProject]="project.nameProject" [creationDate]="project.creationDate"
+        [modificationDate]="project.modificationDate" (click)="openProject(i)">
+      </app-box-recent> -->
+    </div>
+
+    <div [ngClass]="{'hidden': showHome}" id="main" #contentEdit>
+      <div id="boxFunctions">
+        <div class="element_boxFunctions">
+          <div class="header_element_boxFunctions">
+            <div (click)="changeTopHeader(0)" [ngClass]="{'select': selectTopHeader == 0}"
+              class="button_header_element_boxFunctions">
+              <img src="../assets/icons/01.svg" alt="">
+            </div>
+            <div (click)="changeTopHeader(1)" [ngClass]="{'select': selectTopHeader == 1}"
+              class="button_header_element_boxFunctions">
+              <img src="../assets/icons/02.svg" alt="">
+            </div>
+            <div (click)="changeTopHeader(2)" [ngClass]="{'select': selectTopHeader == 2}"
+              class="button_header_element_boxFunctions">
+              <img src="../assets/icons/05.svg" alt="">
+            </div>
+          </div>
+
+          <div id="topElement" class="content_element_boxFunctions">
+            <div class="pass" [ngClass]="{'hidden': selectTopHeader !== 0}">
+              <app-box-entry-text *ngFor="let item of arrayEntry" [data]="item"></app-box-entry-text>
+            </div>
+            <div class="pass" [ngClass]="{'hidden': selectTopHeader !== 1}">
+              <app-other-tools></app-other-tools>
+            </div>
+            <div class="pass" [ngClass]="{'hidden': selectTopHeader !== 2}">
+              <app-box-ai></app-box-ai>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="element_boxFunctions">
+          <div class="header_element_boxFunctions">
+            <div (click)="changeBottomHeader(0)" [ngClass]="{'select': selectBottomHeader == 0}"
+              class="button_header_element_boxFunctions">
+              <img src="../assets/icons/03.svg" alt="">
+            </div>
+            <div (click)="changeBottomHeader(1)" [ngClass]="{'select': selectBottomHeader == 1}"
+              class="button_header_element_boxFunctions">
+              <img src="../assets/icons/04.svg" alt="">
+            </div>
+          </div>
+
+          <div class="content_element_boxFunctions">
+
+            <div class="pass" [ngClass]="{'hidden': selectBottomHeader !== 0}">
+              <app-config-font-box [selectEntry]="selectEntry"></app-config-font-box>
+            </div>
+
+            <div class="pass" *ngIf="selectBottomHeader == 1">
+              <app-file-box></app-file-box>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div id="boxCanva">
+        <app-canva-element></app-canva-element>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- ignore -->
+<input (change)="handleFileInput($event)" style="display: none;" type="file" #openFileImage>

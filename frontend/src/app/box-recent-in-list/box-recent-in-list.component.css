@@ -1,0 +1,132 @@
+:host {
+    width: 100%;
+}
+
+.box-recent-in-list {
+    cursor: pointer;
+    align-self: stretch;
+    border-radius: 14px;
+    background-color: rgba(44, 44, 44, 0.5);
+    border: 1.5px solid #323232;
+    box-sizing: border-box;
+    overflow: hidden;
+    justify-content: space-between;
+    padding: 13px 24px;
+    max-width: 100%;
+    gap: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.image-caption {
+    width: 544px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+    max-width: 100%;
+    font-size: 14px;
+    color: #d2d2d2;
+}
+
+.image-caption img {
+    mix-blend-mode: difference;
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.content-caption-title {
+    display: flex;
+    flex: 1;
+    max-width: calc(100% - 44px);
+    padding: 5px 9px;
+    box-shadow: #4A4A4A 0px 0px 0px 0px inset;
+    border-radius: 8px;
+    transition: all ease 0.1s;
+}
+
+.content-caption-title:hover {
+    box-shadow: #4A4A4A 0px 0px 0px 1.5px inset;
+}
+
+.content-caption-title.focus-shadow {
+    box-shadow: #4A4A4A 0px 0px 0px 1.5px inset;
+}
+
+.caption-title {
+    color: #c7c7c7;
+    flex: 1;
+    position: relative;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.image-number,
+.image-time,
+.image-details {
+    text-decoration: none;
+    position: relative;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.image-number {
+    width: 80px;
+    color: #73abff;
+    flex-shrink: 0;
+}
+
+.image-time,
+.image-details {
+    color: inherit;
+    min-width: 66px;
+}
+
+.image-time {
+    font-size: 10px;
+    min-width: 23px;
+    white-space: nowrap;
+}
+
+.image-content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+    flex: 1;
+    gap: 5px;
+}
+
+.image-content img {
+    cursor: pointer;
+}
+
+.detail-date,
+.detail-time {
+    position: relative;
+    display: inline-block;
+    min-width: 66px;
+}
+
+.detail-time {
+    font-size: 10px;
+    min-width: 23px;
+    white-space: nowrap;
+}
+
+.image-detail {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+    flex: 1;
+    gap: 5px;
+}
+
+.content-delete{
+    gap: 15px;
+}
