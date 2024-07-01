@@ -11,15 +11,15 @@
     </div>
     <div id="actionsOptions">
       <div class="buttonOptions" [ngClass]="{'select': selectMenu == 0}">
-        <h1>Seus projetos</h1>
+        <h1>Your projects</h1>
       </div>
       <div class="buttonOptions" [ngClass]="{'select': selectMenu == 2}">
-        <h1>Configurações</h1>
+        <h1>Settings</h1>
       </div>
     </div>
     <div id="actionsUser">
       <div id="buttonLogin">
-        <h1>Acessar</h1>
+        <h1>Sign in</h1>
       </div>
       <div id="imageUser"></div>
     </div>
@@ -47,7 +47,7 @@
         <div id="openAndFormat">
           <div (click)="openImage()" id="buttonOpenFile">
             <img src="/assets/icons/21.svg" alt="">
-            <h1>Abrir novo arquivo</h1>
+            <h1>Open a new file</h1>
           </div>
 
           <div class="buttonFormatDisplay">
@@ -68,14 +68,14 @@
         <div class="box-recent-in-list">
           <div class="image-caption">
             <img src="#" alt="image-project" />
-            <div class="caption-title">Nome do projeto</div>
+            <div class="caption-title">Project name</div>
           </div>
-          <b class="image-number">Arquivos</b>
+          <b class="image-number">Files</b>
           <div class="image-content">
-            <a class="image-details">Data de modificação</a>
+            <a class="image-details">Modification date</a>
           </div>
           <div class="image-content content-delete">
-            <a class="image-details">Data de criação</a>
+            <a class="image-details">Creation date</a>
             <img src="/assets/icons/30.svg" alt="delete" />
           </div>
         </div>
@@ -92,10 +92,10 @@
           <div class="element-rowBalls-noProjects"></div>
         </div>
         <div id="about-noProjects">
-          <h2>Sem projetos por aqui, clique em:</h2>
+          <h2>No projects here</h2>
           <div (click)="openImage()" id="buttonOpenFile">
             <img src="/assets/icons/21.svg" alt="">
-            <h1>Abrir novo arquivo</h1>
+            <h1>Open a new file</h1>
           </div>
         </div>
       </div>
