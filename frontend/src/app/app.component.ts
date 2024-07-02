@@ -161,7 +161,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  private onCloseImageComplete() {    
+  private onCloseImageComplete() {
     this.showShortenedHeader = false;
     this.showHome = true;
 
@@ -219,7 +219,7 @@ export class AppComponent implements OnInit {
       this.initAnimateOpenImage();
     }
   }
-  
+
   openFileFirst(file: File) {
     this.addProjectToLocalStorage();
     this.initAnimateOpenImage();
@@ -243,7 +243,11 @@ export class AppComponent implements OnInit {
   }
 
   private getProjectsFromLocalStorage() {
-    return this.localStorageService.getProjects();
+    if (this.localStorageService.getProjects() != null) {
+      return this.localStorageService.getProjects();
+    } else {
+      return [];
+    }
   }
 
   private clearProjectsFromLocalStorage() {

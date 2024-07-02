@@ -29,13 +29,13 @@ export class HomeComponent implements AfterViewInit {
     private localStorageService: LocalStorageService,
     private saveService: SaveService
   ) { }
-
+    
   @Input() projectDisplay: Project[] = [];
   @Output() sendOpenFileFirst = new EventEmitter<File>();
   @Output() sendOpenProject = new EventEmitter<number>();
 
   ngAfterViewInit() {
-    if (this.projectDisplay.length === 0) {
+    if (this.projectDisplay.length == 0) {
       this.animateBalls();
     }
   }
