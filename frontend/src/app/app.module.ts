@@ -13,11 +13,12 @@ import { CanvaElementComponent } from './canva-element/canva-element.component';
 import { FileBoxComponent } from './file-box/file-box.component';
 import { ElementFileBoxComponent } from './element-file-box/element-file-box.component';
 import { BoxAiComponent } from './box-ai/box-ai.component';
-import { HomeComponent } from './home/home.component';
 import { FontDropdownComponent } from './font-dropdown/font-dropdown.component';
 import { OtherToolsComponent } from './other-tools/other-tools.component';
 import { BoxRecentComponent } from './box-recent/box-recent.component';
 import { BoxRecentInListComponent } from './box-recent-in-list/box-recent-in-list.component';
+import { HomeComponent } from './home/home.component';
+import { DashboardCanvaComponent } from './dashboard-canva/dashboard-canva.component';
 
 @NgModule({
   declarations: [
@@ -28,11 +29,12 @@ import { BoxRecentInListComponent } from './box-recent-in-list/box-recent-in-lis
     FileBoxComponent,
     ElementFileBoxComponent,
     BoxAiComponent,
-    HomeComponent,
     FontDropdownComponent,
     OtherToolsComponent,
     BoxRecentComponent,
     BoxRecentInListComponent,
+    HomeComponent,
+    DashboardCanvaComponent,
   ],
   imports: [
     BrowserModule,

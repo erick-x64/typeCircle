@@ -130,3 +130,15 @@
 .content-delete{
     gap: 15px;
 }
+
+@media only screen and (max-width: 1380px) {
+    .image-caption {
+       width: 350px;
+    }
+}
+
+@media only screen and (max-width: 1020px) {
+    .image-caption {
+       width: 200px;
+    }
+}

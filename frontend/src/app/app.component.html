@@ -26,7 +26,7 @@
   </div>
 
   <div id="recents">
-    <div *ngIf="!showHome" id="shortenedHeader">
+    <div *ngIf="showShortenedHeader" id="shortenedHeader">
       <div id="logoShort"></div>
       <div id="row_buttonShortenedHeader">
         <div class="buttonShortenedHeader" (click)="changeMenu(0)" [ngClass]="{'select': selectMenu == 0}">
@@ -42,134 +42,10 @@
       <div id="imageUserShort"></div>
     </div>
 
-    <div *ngIf="showHome" [ngStyle]="{ 'opacity': isAnimationOpenEdit ? '0' : '1' }" id="isHome">
-      <div id="headerRecents">
-        <div id="openAndFormat">
-          <div (click)="openImage()" id="buttonOpenFile">
-            <img src="/assets/icons/21.svg" alt="">
-            <h1>Open a new file</h1>
-          </div>
+    <app-home *ngIf="showHome" [ngStyle]="{ 'opacity': isAnimationOpenEdit ? '0' : '1' }"
+      [projectDisplay]="projectDisplay" (sendOpenProject)="openProject($event)"
+      (sendOpenFileFirst)="openFileFirst($event)" id="contentHome"></app-home>
 
-          <div class="buttonFormatDisplay">
-            <img src="/assets/icons/22.svg" alt="">
-          </div>
-
-          <div class="buttonFormatDisplay select">
-            <img src="/assets/icons/23.svg" alt="">
-          </div>
-        </div>
-
-        <div id="orderFiles">
-          <img src="/assets/icons/24.svg" alt="">
-        </div>
-      </div>
-
-      <div *ngIf="projectDisplay.length > 0" class="project-list-content">
-        <div class="box-recent-in-list">
-          <div class="image-caption">
-            <img src="#" alt="image-project" />
-            <div class="caption-title">Project name</div>
-          </div>
-          <b class="image-number">Files</b>
-          <div class="image-content">
-            <a class="image-details">Modification date</a>
-          </div>
-          <div class="image-content content-delete">
-            <a class="image-details">Creation date</a>
-            <img src="/assets/icons/30.svg" alt="delete" />
-          </div>
-        </div>
-        <app-box-recent-in-list *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"
-          [nameProject]="project.nameProject" [creationDate]="project.creationDate"
-          [modificationDate]="project.modificationDate" [index]="i" (deleteBoxRecent)="onDeleteBoxRecent($event)"
-          (openProject)="openProject($event)"></app-box-recent-in-list>
-      </div>
-
-      <div *ngIf="projectDisplay.length == 0" id="noProjects">
-        <div id="rowBalls-noProjects">
-          <div class="element-rowBalls-noProjects"></div>
-          <div class="element-rowBalls-noProjects"></div>
-          <div class="element-rowBalls-noProjects"></div>
-        </div>
-        <div id="about-noProjects">
-          <h2>No projects here</h2>
-          <div (click)="openImage()" id="buttonOpenFile">
-            <img src="/assets/icons/21.svg" alt="">
-            <h1>Open a new file</h1>
-          </div>
-        </div>
-      </div>
-
-      <!-- <app-box-recent *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"
-        [nameProject]="project.nameProject" [creationDate]="project.creationDate"
-        [modificationDate]="project.modificationDate" (click)="openProject(i)">
-      </app-box-recent> -->
-    </div>
-
-    <div [ngClass]="{'hidden': showHome}" id="main" #contentEdit>
-      <div id="boxFunctions">
-        <div class="element_boxFunctions">
-          <div class="header_element_boxFunctions">
-            <div (click)="changeTopHeader(0)" [ngClass]="{'select': selectTopHeader == 0}"
-              class="button_header_element_boxFunctions">
-              <img src="../assets/icons/01.svg" alt="">
-            </div>
-            <div (click)="changeTopHeader(1)" [ngClass]="{'select': selectTopHeader == 1}"
-              class="button_header_element_boxFunctions">
-              <img src="../assets/icons/02.svg" alt="">
-            </div>
-            <div (click)="changeTopHeader(2)" [ngClass]="{'select': selectTopHeader == 2}"
-              class="button_header_element_boxFunctions">
-              <img src="../assets/icons/05.svg" alt="">
-            </div>
-          </div>
-
-          <div id="topElement" class="content_element_boxFunctions">
-            <div class="pass" [ngClass]="{'hidden': selectTopHeader !== 0}">
-              <app-box-entry-text *ngFor="let item of arrayEntry" [data]="item"></app-box-entry-text>
-            </div>
-            <div class="pass" [ngClass]="{'hidden': selectTopHeader !== 1}">
-              <app-other-tools></app-other-tools>
-            </div>
-            <div class="pass" [ngClass]="{'hidden': selectTopHeader !== 2}">
-              <app-box-ai></app-box-ai>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="element_boxFunctions">
-          <div class="header_element_boxFunctions">
-            <div (click)="changeBottomHeader(0)" [ngClass]="{'select': selectBottomHeader == 0}"
-              class="button_header_element_boxFunctions">
-              <img src="../assets/icons/03.svg" alt="">
-            </div>
-            <div (click)="changeBottomHeader(1)" [ngClass]="{'select': selectBottomHeader == 1}"
-              class="button_header_element_boxFunctions">
-              <img src="../assets/icons/04.svg" alt="">
-            </div>
-          </div>
-
-          <div class="content_element_boxFunctions">
-
-            <div class="pass" [ngClass]="{'hidden': selectBottomHeader !== 0}">
-              <app-config-font-box [selectEntry]="selectEntry"></app-config-font-box>
-            </div>
-
-            <div class="pass" *ngIf="selectBottomHeader == 1">
-              <app-file-box></app-file-box>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-      <div id="boxCanva">
-        <app-canva-element></app-canva-element>
-      </div>
-    </div>
+    <app-dashboard-canva [ngClass]="{'hidden': showHome}" #contentEdit></app-dashboard-canva>
   </div>
 </div>
-
-<!-- ignore -->
-<input (change)="handleFileInput($event)" style="display: none;" type="file" #openFileImage>

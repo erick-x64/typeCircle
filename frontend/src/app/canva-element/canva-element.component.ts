@@ -148,36 +148,6 @@ export class CanvaElementComponent {
       mtr: false,
     });
     img.selectable = false;
-
-    fabric.Object.prototype.setControlsVisibility({
-      mtr: false
-    });
-
-    fabric.Textbox.prototype.set({
-      hoverCursor: 'crosshair',
-      transparentCorners: false,
-      borderColor: 'rgba(108, 165, 250)',
-      cornerColor: 'rgba(108, 165, 250)',
-      cornerStrokeColor: '#FCFCFC',
-      cornerStyle: 'rect',
-      cornerSize: 9,
-      strokeWidth: 0,
-      padding: 8,
-    });
-
-    fabric.Rect.prototype.set({
-      hoverCursor: 'crosshair',
-      transparentCorners: false,
-      borderColor: 'rgba(108, 165, 250)',
-      cornerColor: 'rgba(108, 165, 250)',
-      cornerStrokeColor: '#FCFCFC',
-      cornerStyle: 'rect',
-      cornerSize: 9,
-      strokeWidth: 0,
-      padding: 0,
-    });
-
-    this.canvas.hoverCursor = 'crosshair';
   }
 
   // Zoom functionality
@@ -497,6 +467,42 @@ export class CanvaElementComponent {
     this.files.canvas[this.files.selectFile] = canvasJson;
   }
 
+  private setControlsStyle() {
+    fabric.Textbox.prototype.set({
+      hoverCursor: 'crosshair',
+      transparentCorners: false,
+      borderColor: 'rgba(108, 165, 250)',
+      cornerColor: 'rgba(108, 165, 250)',
+      cornerStrokeColor: '#FCFCFC',
+      cornerStyle: 'rect',
+      cornerSize: 9,
+      strokeWidth: 0,
+      padding: 8,
+    });
+
+    fabric.Textbox.prototype.setControlsVisibility({
+      mtr: false
+    });
+
+    fabric.Rect.prototype.set({
+      hoverCursor: 'crosshair',
+      transparentCorners: false,
+      borderColor: 'rgba(108, 165, 250)',
+      cornerColor: 'rgba(108, 165, 250)',
+      cornerStrokeColor: '#FCFCFC',
+      cornerStyle: 'rect',
+      cornerSize: 9,
+      strokeWidth: 0,
+      padding: 0,
+    });
+
+    fabric.Rect.prototype.setControlsVisibility({
+      mtr: false
+    });
+
+    this.canvas.hoverCursor = 'crosshair';
+  }
+
   // Receiving from (app) data service
   ngOnInit(): void {
     this.subscribeToBoxCanvaChange();
@@ -517,6 +523,7 @@ export class CanvaElementComponent {
     this.subscribeToRequestAddTextFromImage();
     this.subscribeToOpenProject();
     this.manageKeyListeners(true);
+    this.setControlsStyle();
   }
 
   ngOnDestroy(): void {

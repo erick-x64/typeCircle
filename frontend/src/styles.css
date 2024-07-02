@@ -84,6 +84,7 @@ input[type=number] {
 }
 
 .hidden {
+    opacity: 0 !important;
     display: none !important;
 }
 
@@ -114,12 +115,18 @@ input[type=number] {
 
 
 /* media */
-
-@media only screen and (max-width: 1350px) {
-
+@media only screen and (max-width: 1465px) {
     html,
     body {
-        padding: 20px 20px;
+        padding: 20px 50px;
+    }
+}
+
+
+@media only screen and (max-width: 1380px) {
+    html,
+    body {
+        padding: 20px 30px;
     }
 }
 

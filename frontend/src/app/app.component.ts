@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, Output, AfterViewInit, EventEmitter } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { DataService } from './data.service';
 import anime from 'animejs';
 import { LocalStorageService } from './local-storage.service';
@@ -16,22 +16,16 @@ interface Project {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent implements OnInit {
   @Output() signChangeMenu = new EventEmitter<string>();
 
   @ViewChild('headerHome') headerHome!: ElementRef;
   @ViewChild('home') home!: ElementRef;
-  @ViewChild('contentEdit') contentEdit!: ElementRef;
-  @ViewChild('openFileImage') fileInput: ElementRef | undefined;
 
   title = 'typeCircle';
-  selectEntry: number = -1;
-  arrayEntry: { idEntry?: number, text?: string, select?: boolean }[] = [];
-  availableFonts: any = [];
-  selectTopHeader: number = 0;
   selectMenu: number = 0;
-  selectBottomHeader: number = 0;
   showHome: boolean = true;
+  showShortenedHeader: boolean = false;
   isInAnimation: boolean = false;
   isAnimationOpenEdit: boolean = false;
   file?: File;
@@ -44,65 +38,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    this.subscribeToDataService();
     this.projectDisplay = this.getProjectsFromLocalStorage();
     // this.clearProjectsFromLocalStorage();
     // this.debugMode();
   }
 
-  ngAfterViewInit() {
-    if (this.projectDisplay.length === 0) {
-      this.animateBalls();
-    }
-  }
-
-  // Data Service Subscriptions
-  private subscribeToDataService() {
-    this.dataService.boxCreate$.subscribe(data => this.addNewBoxEntry(data));
-    this.dataService.boxChange$.subscribe(data => this.changeBoxEntry(data));
-    this.dataService.boxSelect$.subscribe(data => this.selectBoxEntry(data));
-    this.dataService.boxDelete$.subscribe(data => this.deleteBoxEntry(data));
-    this.dataService.boxAllDelete$.subscribe(() => this.deleteAllBoxEntry());
-  }
-
-  // Box Entry Handlers
-  private addNewBoxEntry({ idBox, text }: { idBox: number; text: string }) {
-    this.selectEntry = idBox;
-    this.arrayEntry.push({ idEntry: idBox, text, select: false });
-  }
-
-  private changeBoxEntry({ idBox, text }: { idBox: number; text: string }) {
-    this.selectEntry = idBox;
-    const entry = this.arrayEntry[idBox];
-    if (entry) {
-      entry.text = text;
-    }
-  }
-
-  private selectBoxEntry({ idBox, isSelect }: { idBox: number; isSelect: boolean }) {
-    this.selectEntry = idBox;
-    this.arrayEntry[idBox] = { ...this.arrayEntry[idBox], select: isSelect };
-  }
-
-  private deleteBoxEntry({ idBox }: { idBox: number }) {
-    if (idBox >= 0 && idBox < this.arrayEntry.length) {
-      this.arrayEntry.splice(idBox, 1);
-    }
-  }
-
-  private deleteAllBoxEntry() {
-    this.arrayEntry = [];
-  }
-
   // Header Handlers
-  changeTopHeader(selectTopHeader: number) {
-    this.selectTopHeader = selectTopHeader;
-  }
-
-  changeBottomHeader(selectBottomHeader: number) {
-    this.selectBottomHeader = selectBottomHeader;
-  }
-
   changeDashBoard(imageURL: File) {
     this.showHome = false;
     setTimeout(() => {
@@ -117,46 +58,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // File Handling
-  openImage() {
-    if (!this.isAnimationOpenEdit) {
-      this.fileInput?.nativeElement.click();
-    }
-  }
-
-  handleFileInput(event: any) {
-    if (event.target.files && event.target.files.length > 0) {
-      this.addProjectToLocalStorage();
-      this.initAnimateOpenImage();
-
-      const file = event.target.files[0];
-      this.file = file;
-      const imageUrl = URL.createObjectURL(file);
-
-      const [fileNameWithoutExtension, fileExtension] = file.name.split('.');
-
-      this.saveService.arrayFiles.push({
-        pathFile: imageUrl,
-        nameFile: fileNameWithoutExtension,
-        extensionFile: fileExtension,
-        select: true
-      });
-    }
-  }
-
   // Animation
-  animateBalls() {
-    anime({
-      targets: '.element-rowBalls-noProjects',
-      backgroundColor: [
-        { value: '#3D3D3D', duration: 1000 },
-        { value: '#262626', duration: 1000 }
-      ],
-      delay: anime.stagger(500, { start: 500 }), // interval between each ball's animation
-      loop: true
-    });
-  }
-
   private initAnimateOpenImage() {
     const home = this.home.nativeElement;
     const headerHomeElement = this.headerHome.nativeElement;
@@ -171,7 +73,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     anime({
       targets: home,
       gap: [homeGap, "0px"],
-      duration: 300,
+      duration: 200,
+      easing: 'easeInOutQuad'
+    });
+
+    anime({
+      targets: "#contentHome",
+      opacity: [1, 0],
+      duration: 150,
       easing: 'easeInOutQuad'
     });
 
@@ -187,7 +96,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       top: ['0px', `-${headerHomeHeight}px`],
       height: [`${headerHomeHeight}px`, "0px"],
       paddingBottom: [headerHomePadding, "0px"],
-      paddingTop: [headerHomePadding, "0px"],
+      // paddingTop: [headerHomePadding, "0px"],
       opacity: [1, 0],
       duration: 200,
       easing: 'easeInExpo',
@@ -196,15 +105,18 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   private onOpenImageComplete() {
-    if (this.file) {
-      this.dataService.addImageCanva(this.file);
-    } else {
-      this.dataService.sendOpenProject();
-    }
-    this.showHome = false;
     this.selectMenu = 1;
+    this.showShortenedHeader = true;
 
     setTimeout(() => {
+      this.showHome = false;
+
+      if (this.file) {
+        this.dataService.addImageCanva(this.file);
+      } else {
+        this.dataService.sendOpenProject();
+      }
+
       anime({
         targets: "#shortenedHeader",
         opacity: [0, 1],
@@ -216,7 +128,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       anime({
         targets: "#main",
         opacity: [0, 1],
-        duration: 150,
+        duration: 200,
         easing: 'easeInOutQuad'
       });
 
@@ -249,7 +161,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private onCloseImageComplete() {
+  private onCloseImageComplete() {    
+    this.showShortenedHeader = false;
     this.showHome = true;
 
     const home = this.home.nativeElement;
@@ -278,6 +191,13 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   private onResetHeaderComplete() {
     anime({
+      targets: "#contentHome",
+      opacity: [0, 1],
+      duration: 150,
+      easing: 'easeInOutQuad'
+    });
+
+    anime({
       targets: "#isHome",
       opacity: [0, 1],
       duration: 150,
@@ -289,6 +209,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // Home Handlers
   openProject(index: number) {
     if (!this.isInAnimation) {
       this.isInAnimation = true;
@@ -297,6 +218,12 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.file = undefined;
       this.initAnimateOpenImage();
     }
+  }
+  
+  openFileFirst(file: File) {
+    this.addProjectToLocalStorage();
+    this.initAnimateOpenImage();
+    this.file = file;
   }
 
   // Local Storage Handlers
@@ -347,12 +274,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     };
   }
 
-  // Box Recent Handlers
-  onDeleteBoxRecent(index: number) {
-    this.localStorageService.removeProject(index);
-    this.projectDisplay = this.getProjectsFromLocalStorage();
-  }
-
   // Debug Mode
   async fetchImageAsFile(imagePath: string, fileName: string): Promise<File> {
     const response = await fetch(imagePath);
@@ -364,7 +285,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   async debugMode() {
     this.showHome = false;
     setTimeout(async () => {
-      this.contentEdit.nativeElement.style.opacity = 1;
       this.headerHome.nativeElement.style.display = "none";
 
       const file = await this.fetchImageAsFile("/assets/testImages/read-sensei-wa-koi.png", "read-sensei-wa-koi.png");
