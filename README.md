@@ -2,7 +2,7 @@
 
 ![TypeCircle](frontend/src/assets/readme/typecircle.png)
 
-TypeCircle is a web application designed for adding text, editing, and identifying text boxes on manga images. This project is built using Angular for the frontend and Rust for the backend.
+TypeCircle is a web application designed for adding text, editing, and identifying text or characters on manga images. This project is built using Angular for the frontend and Rust for the backend.
 
 The project is also available online at [TypeCircle](http://typecircle.com). You can access the website to use the application without setting it up locally.
 
