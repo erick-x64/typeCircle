@@ -40,14 +40,14 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.projectDisplay = this.getProjectsFromLocalStorage();
     // this.clearProjectsFromLocalStorage();
-    // this.debugMode();
+    this.debugMode();
   }
 
   // Header Handlers
   changeDashBoard(imageURL: File) {
     this.showHome = false;
     setTimeout(() => {
-      this.dataService.addImageCanva(imageURL);
+      this.dataService.addImageCanva(imageURL, false);
     });
   }
 
@@ -112,7 +112,7 @@ export class AppComponent implements OnInit {
       this.showHome = false;
 
       if (this.file) {
-        this.dataService.addImageCanva(this.file);
+        this.dataService.addImageCanva(this.file, false);
       } else {
         this.dataService.sendOpenProject();
       }
@@ -292,7 +292,7 @@ export class AppComponent implements OnInit {
       this.headerHome.nativeElement.style.display = "none";
 
       const file = await this.fetchImageAsFile("/assets/testImages/read-sensei-wa-koi.png", "read-sensei-wa-koi.png");
-      this.dataService.addImageCanva(file);
+      this.dataService.addImageCanva(file, true);
     });
   }
 }

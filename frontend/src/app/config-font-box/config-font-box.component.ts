@@ -100,13 +100,55 @@ export class ConfigFontBoxComponent {
   async listFonts() {
     if (this.availableFonts.length === 0) {
       try {
-        this.availableFonts = await this.queryLocalFonts();
-        this.organizeFontsByFamily();
+        if (typeof (window as any).queryLocalFonts === 'function') {
+          this.availableFonts = await (window as any).queryLocalFonts();
+          console.log(this.availableFonts);
+          
+          this.organizeFontsByFamily();
+        } else {
+          console.warn("queryLocalFonts is not supported in this browser.");
+          this.availableFonts = this.getFallbackFonts();
+          this.organizeFontsByFamily();
+        } 
       } catch (err: any) {
         console.error(err.name, err.message);
       }
     }
   }
+
+  getFallbackFonts() {
+    return [
+      { family: 'Arial', fullName: 'Arial' },
+      { family: 'Arial', fullName: 'Arial Black' },
+      { family: 'Arial', fullName: 'Arial Bold' },
+      { family: 'Arial', fullName: 'Arial Italic' },
+      { family: 'Arial', fullName: 'Arial Bold Italic' },
+      { family: 'Helvetica', fullName: 'Helvetica' },
+      { family: 'Helvetica', fullName: 'Helvetica Bold' },
+      { family: 'Helvetica', fullName: 'Helvetica Italic' },
+      { family: 'Helvetica', fullName: 'Helvetica Bold Italic' },
+      { family: 'Times New Roman', fullName: 'Times New Roman' },
+      { family: 'Times New Roman', fullName: 'Times New Roman Bold' },
+      { family: 'Times New Roman', fullName: 'Times New Roman Italic' },
+      { family: 'Times New Roman', fullName: 'Times New Roman Bold Italic' },
+      { family: 'Courier New', fullName: 'Courier New' },
+      { family: 'Courier New', fullName: 'Courier New Bold' },
+      { family: 'Courier New', fullName: 'Courier New Italic' },
+      { family: 'Courier New', fullName: 'Courier New Bold Italic' },
+      { family: 'Georgia', fullName: 'Georgia' },
+      { family: 'Georgia', fullName: 'Georgia Bold' },
+      { family: 'Georgia', fullName: 'Georgia Italic' },
+      { family: 'Georgia', fullName: 'Georgia Bold Italic' },
+      { family: 'Verdana', fullName: 'Verdana' },
+      { family: 'Verdana', fullName: 'Verdana Bold' },
+      { family: 'Verdana', fullName: 'Verdana Italic' },
+      { family: 'Verdana', fullName: 'Verdana Bold Italic' },
+      { family: 'Trebuchet MS', fullName: 'Trebuchet MS' },
+      { family: 'Trebuchet MS', fullName: 'Trebuchet MS Bold' },
+      { family: 'Trebuchet MS', fullName: 'Trebuchet MS Italic' },
+      { family: 'Trebuchet MS', fullName: 'Trebuchet MS Bold Italic' }
+    ];
+  }  
 
   queryLocalFonts() {
     return new Promise((resolve, reject) => {

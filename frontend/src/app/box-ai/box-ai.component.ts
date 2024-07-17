@@ -12,24 +12,15 @@ export class BoxAiComponent {
 
   average_score = "";
   quantityFound = 0;
-  recognizedText: string[] = [];
 
-  isChangeToolEnabled = true;
   showOptionsRemoveText = true;
   inProcessRequest = false;
   offsetCircle?: number;
   radiusCircle?: number;
-
-  changeTo = 0;
+  private count: number = 0
+  enableOcrBox: boolean = false;
 
   constructor(private dataService: DataService) { }
-
-  changeTool(number: number): void {
-    if (!this.isChangeToolEnabled) {
-      return;
-    }
-    this.changeTo = number;
-  }
 
   requestIdentification(): void {
     if (!this.inProcessRequest) {
@@ -71,57 +62,45 @@ export class BoxAiComponent {
     this.dataService.requestChangeValuesCircle(offsetCircle, radiusCircle);
   }
 
-  requestIdentificationRecognition(): void {
-    this.startAnimationGradient();
-    this.resetAnimationTopObjects();
+  enableOcrBoxs() {
+    this.count++;
 
-    this.dataService.requestIdentificationRecognition();
+    if (this.count == 1) {
+      this.enableOcrBox = true;
+    } else if (this.count == 2) {
+      this.count = 0;
+      this.enableOcrBox = false;
+    }
 
-    this.dataService.operationIdentificationCompleteRecognition$.subscribe((data) => {
-      this.recognizedText = data.recognizedText.map(text => text.trim() === '' ? '[empty]' : text.trim());
-
-      this.startAnimationTopObjects();
-      this.stopAnimationGradient();
-    });
+    this.dataService.requestEnableOcrBox(this.enableOcrBox);
   }
 
   private startAnimationTopObjects(): void {
-    const targetSelector = this.changeTo === 0 ? '#infos_Identification' : '#info_recognition';
-
-    this.animateTarget(targetSelector, ['10px', '0px'], [0, 1]);
+    this.animateTarget("#buttonIdentification", ['10px', '0px'], [0, 1]);
   }
 
   private resetAnimationTopObjects(): void {
-    const targetSelector = this.changeTo === 0 ? '#infos_Identification' : '#info_recognition';
-
-    this.animateTarget(targetSelector, '10px', 0);
+    this.animateTarget("#buttonIdentification", '10px', 0);
   }
 
   private startAnimationGradient(): void {
-    this.isChangeToolEnabled = false;
-    const targetSelector = this.changeTo === 0 ? '#buttonIdentification' : '#buttonRecognition';
-
     this.animation = anime({
-      targets: targetSelector,
+      targets: "#buttonIdentification",
       easing: 'easeInOutQuad',
       loop: true,
       update: (anim) => {
         const progress = anim.progress / 100;
         const newGradientPosition = 50 + 50 * Math.sin(progress * Math.PI * 2);
-        this.setGradientBackground(targetSelector, newGradientPosition);
+        this.setGradientBackground("#buttonIdentification", newGradientPosition);
       }
     });
   }
 
   private stopAnimationGradient(): void {
-    const targetSelector = this.changeTo === 0 ? '#buttonIdentification' : '#buttonRecognition';
-
     if (this.animation) {
       this.animation.pause();
-      this.setGradientBackground(targetSelector, 50);
+      this.setGradientBackground("#buttonIdentification", 50);
     }
-
-    this.isChangeToolEnabled = true;
   }
 
   private animateTarget(target: string, property: string | string[], value: any): void {

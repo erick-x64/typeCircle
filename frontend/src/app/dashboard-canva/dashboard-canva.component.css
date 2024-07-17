@@ -120,6 +120,7 @@
 }
 
 #boxCanva {
+    position: relative;
     width: 100%;
     align-self: stretch;
     display: flex;

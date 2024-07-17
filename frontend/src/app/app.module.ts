@@ -19,6 +19,7 @@ import { BoxRecentComponent } from './box-recent/box-recent.component';
 import { BoxRecentInListComponent } from './box-recent-in-list/box-recent-in-list.component';
 import { HomeComponent } from './home/home.component';
 import { DashboardCanvaComponent } from './dashboard-canva/dashboard-canva.component';
+import { BoxTranslateComponent } from './box-translate/box-translate.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { DashboardCanvaComponent } from './dashboard-canva/dashboard-canva.compo
     BoxRecentInListComponent,
     HomeComponent,
     DashboardCanvaComponent,
+    BoxTranslateComponent,
   ],
   imports: [
     BrowserModule,

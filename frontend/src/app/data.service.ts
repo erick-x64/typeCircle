@@ -41,7 +41,7 @@ export class DataService {
     sendConfigBoxSelect$ = this.sendConfigBoxSelectSubject.asObservable();
 
     // file box
-    private addImageCanvaSubject = new Subject<{ urlImage: File }>();
+    private addImageCanvaSubject = new Subject<{ urlImage: File, debugMode: boolean }>();
     addImageCanva$ = this.addImageCanvaSubject.asObservable();
 
     private selectFileCanvaSubject = new Subject<{ index: number }>();
@@ -69,6 +69,9 @@ export class DataService {
     // box ai
     private requestIdentificationSubject = new Subject<{}>();
     requestIdentification$ = this.requestIdentificationSubject.asObservable();
+
+    private requestEnableOcrBoxSubject = new Subject<{ enableOcrBox: boolean }>();
+    requestEnableOcrBox$ = this.requestEnableOcrBoxSubject.asObservable();
 
     private requestRemoveTextSubject = new Subject<{}>();
     requestRemoveText$ = this.requestRemoveTextSubject.asObservable();
@@ -152,8 +155,8 @@ export class DataService {
     }
 
     // file box
-    addImageCanva(urlImage: File) {
-        this.addImageCanvaSubject.next({ urlImage });
+    addImageCanva(urlImage: File, debugMode: boolean) {
+        this.addImageCanvaSubject.next({ urlImage, debugMode });
     }
 
     selectFileCanva(index: number) {
@@ -175,6 +178,10 @@ export class DataService {
     // box ai
     requestIdentification() {
         this.requestIdentificationSubject.next({});
+    }
+
+    requestEnableOcrBox(enableOcrBox: boolean) {
+        this.requestEnableOcrBoxSubject.next({ enableOcrBox });
     }
 
     requestRemoveText() {

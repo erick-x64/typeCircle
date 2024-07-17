@@ -40,7 +40,7 @@ export class FileBoxComponent {
     const fileExtension = file.name.split('.').pop();
     const fileNameWithoutExtension = file.name.substring(0, file.name.lastIndexOf('.'));
 
-    this.dataService.addImageCanva(file);
+    this.dataService.addImageCanva(file, false);
     this.saveService.arrayFiles.push({ pathFile: imageUrl, nameFile: fileNameWithoutExtension, extensionFile: fileExtension, select: true });
   }
 
