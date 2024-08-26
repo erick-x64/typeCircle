@@ -1,44 +1,50 @@
 #toolErase {
+    align-items: flex-start;
     display: flex;
     flex-direction: column;
+    gap: 14px;
     justify-content: flex-start;
-    align-items: flex-start;
-    gap: 10px;
 }
 
 #toolErase h1 {
+    font-family: BeepMedium;
     font-size: 13px;
 }
 
 #toolErase h2 {
-    font-size: 12px;
     color: #737373;
+    font-family: BeepMedium;
+    font-size: 12px;
     -webkit-line-clamp: 3;
 }
 
 #toolErase_info {
+    align-items: flex-start;
     align-self: stretch;
-    flex-grow: 0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
+    flex-grow: 0;
     gap: 5px;
+    justify-content: flex-start;
     padding: 0;
 }
 
 .buttonsActions {
+    align-items: flex-start;
     align-self: stretch;
-    flex-grow: 0;
     display: flex;
     flex-direction: row;
+    flex-grow: 0;
+    gap: 1px;
     justify-content: flex-start;
-    align-items: flex-start;
-    gap: 10px;
+}
+
+.buttonsActions .button-action{
+    background-color: #1B1B1B;
 }
 
 .button-action h1{
-    color: #adadad;
+    color: #848484;
 }
 
 .buttonsActions:nth-child(2) .button-action{
@@ -46,15 +52,34 @@
 }
 
 .button-action{
+    align-items: center;
+    background-color: #151515;
+    box-sizing: border-box;
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
     gap: 10px;
-    padding: 10px 14px;
-    border-radius: 5px;
-    border: solid 2px #383838;
-    transition: background 0.08s ease
+    justify-content: center;
+    padding: 14px 16px;
+    transition: background 0.2s ease;
+    width: 100%;
+}
+
+.buttonsActions .button-action{
+    height: 44px;
+    padding: 16px 20px;
+}
+
+#buttons_toolErase{
+    align-items: stretch;
+    background-color: #252525;
+    border: solid 1px #252525;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    gap: 1px;
+    justify-content: flex-start;
+    padding: 0;
 }
 
 .hover {
@@ -62,24 +87,27 @@
 }
 
 .hover:hover {
-    background-color: #2f2f2f;
+    background-color: #222222;
 }
 
 .button-action input {
+    color: #c0c0c0;
+    font-family: BeepMedium;
     width: 100%;
 }
 
 .button-action.select {
-    background-color: #2f2f2f;
+    background-color: #202020;
 }
 
 #boxColor{
-    width: 14px;
-    height: 14px;
-    flex-grow: 0;
-    border-radius: 5px;
-    border: solid 2px #5c5c5c;
     background-color: #000;
+    border: solid 2px #5c5c5c;
+    border-radius: 5px;
+    cursor: pointer;
+    flex-grow: 0;
+    height: 12px;
+    width: 24px;
 }
 
 .buttonsActions:nth-child(3) .button-action:nth-child(1){

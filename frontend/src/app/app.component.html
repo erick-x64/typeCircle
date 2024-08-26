@@ -3,45 +3,25 @@
 <div id="home" #home>
   <div id="headerHome" #headerHome>
     <div id="logoVersion">
-      <div id="logo"></div>
-      <div id="infoVersion">
-        <h1>TypeCircle</h1>
-        <h2>1.0.0</h2>
-      </div>
+      <h1>TypeCircle</h1>
+      <h2>1.1.0</h2>
     </div>
     <div id="actionsOptions">
-      <div class="buttonOptions" [ngClass]="{'select': selectMenu == 0}">
-        <h1>Your projects</h1>
+      <div class="buttonOptions" (click)="changeMenu(0)" [ngClass]="{'select': selectMenu == 0}">
+        <div class="svg-mask svg-menu" style="mask-image: url('/assets/icons/27.svg');"></div>
       </div>
       <div class="buttonOptions" [ngClass]="{'select': selectMenu == 2}">
-        <h1>Settings</h1>
+        <div class="svg-mask svg-menu" style="mask-image: url('/assets/icons/28.svg');"></div>
       </div>
     </div>
     <div id="actionsUser">
-      <div id="buttonLogin">
-        <h1>Sign in</h1>
+      <div id="boxMoreThings">
+        <h1>More things coming soon.</h1>
       </div>
-      <div id="imageUser"></div>
     </div>
   </div>
 
   <div id="recents">
-    <div *ngIf="showShortenedHeader" id="shortenedHeader">
-      <div id="logoShort"></div>
-      <div id="row_buttonShortenedHeader">
-        <div class="buttonShortenedHeader" (click)="changeMenu(0)" [ngClass]="{'select': selectMenu == 0}">
-          <img src="/assets/icons/27.svg" alt="">
-        </div>
-        <div class="buttonShortenedHeader" (click)="changeMenu(1)" [ngClass]="{'select': selectMenu == 1}">
-          <img src="/assets/icons/29.svg" alt="">
-        </div>
-        <div class="buttonShortenedHeader" (click)="changeMenu(2)" [ngClass]="{'select': selectMenu == 2}">
-          <img src="/assets/icons/28.svg" alt="">
-        </div>
-      </div>
-      <div id="imageUserShort"></div>
-    </div>
-
     <app-home *ngIf="showHome" [ngStyle]="{ 'opacity': isAnimationOpenEdit ? '0' : '1' }"
       [projectDisplay]="projectDisplay" (sendOpenProject)="openProject($event)"
       (sendOpenFileFirst)="openFileFirst($event)" id="contentHome"></app-home>

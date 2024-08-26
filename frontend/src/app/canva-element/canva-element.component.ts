@@ -7,12 +7,17 @@ import { saveAs } from 'file-saver';
 import { API_BASE_URL } from '../../config';
 import { LocalStorageService } from '../local-storage.service';
 import { SaveService } from '../save.service';
-import { BoxTranslateComponent } from '../box-translate/box-translate.component';
+
+interface TranslationFile {
+  text: string;
+  textTranslate: string;
+}
 
 interface Files {
   base64Image: string[];
   selectFile: number;
   canvas: any[];
+  translationOfFiles: TranslationFile[][];
 }
 
 @Component({
@@ -60,12 +65,10 @@ export class CanvaElementComponent {
   // File management
   files: Files = {
     base64Image: [],
-    selectFile: 0,
+    selectFile: -1,
     canvas: [],
+    translationOfFiles: [[]]
   };
-
-  // Component
-  private boxTranslateComponentRef: ComponentRef<BoxTranslateComponent> | null = null;
 
   constructor(private dataService: DataService,
     private http: HttpClient,
@@ -109,8 +112,23 @@ export class CanvaElementComponent {
       const dataUrl = e.target.result;
 
       fabric.Image.fromURL(dataUrl, (img: any) => {
-        let newHeight = this.myCanvas?.nativeElement.parentElement.parentElement.offsetHeight;
-        let maxWidth = this.myCanvas?.nativeElement.parentElement.parentElement.offsetWidth;
+        // using body in height
+        const bodyElement = document.querySelector("body") as HTMLElement;
+        const computedStyle = window.getComputedStyle(bodyElement);
+
+        const parentHeight = bodyElement.offsetHeight;
+        const paddingTop = parseFloat(computedStyle.paddingTop);
+        const paddingBottom = parseFloat(computedStyle.paddingBottom);
+        let newHeight = (parentHeight - paddingTop - paddingBottom) - 132;
+
+        // using boxCanva in width
+        const boxCanva = document.querySelector("#boxCanva") as HTMLElement;
+        const boxCanvaComputedStyle = window.getComputedStyle(boxCanva);
+        const parentWidth = boxCanva.offsetWidth;
+        const paddingLeft = parseFloat(boxCanvaComputedStyle.paddingLeft);
+        const paddingRight = parseFloat(boxCanvaComputedStyle.paddingRight);
+        let maxWidth = parentWidth + paddingLeft + paddingRight;
+
         let scaleFactor = newHeight / img.height;
         let newWidth = img.width * scaleFactor;
 
@@ -296,8 +314,8 @@ export class CanvaElementComponent {
                   strokeUniform: true,
                 });
                 this.rects.push(currentRect);
+                this.updateRects();
                 this.canvas.add(currentRect);
-                this.setupEventInRect(currentRect, 0);
               } else {
                 currentTextbox = this.createTextbox(pointer);
                 this.textboxes.push(currentTextbox);
@@ -388,7 +406,7 @@ export class CanvaElementComponent {
 
   private updateRectDimensions(startPoint: fabric.Point, pointer: fabric.Point, rect: fabric.Rect) {
     const width = Math.abs(startPoint.x - pointer.x);
-    const height = Math.abs(startPoint.y - pointer.y);  
+    const height = Math.abs(startPoint.y - pointer.y);
 
     rect.set({
       width,
@@ -396,7 +414,16 @@ export class CanvaElementComponent {
       left: Math.min(startPoint.x, pointer.x),
       top: Math.min(startPoint.y, pointer.y),
     });
-    rect.setCoords(); // Update coordinates
+    rect.setCoords();
+
+    const index = this.rects.indexOf(rect);
+    const boxlist = [rect.left, rect.top, width, height] as [number, number, number, number];
+
+    if (this.boxesList[index]) {
+      this.boxesList[index] = boxlist;
+    } else {
+      this.boxesList.push(boxlist);
+    }
   }
 
   // Event Listeners
@@ -424,22 +451,38 @@ export class CanvaElementComponent {
     });
   }
 
-  private deleteRect(rect: fabric.Rect) {
+  private deleteRect(rect: fabric.Rect) {    
     this.canvas.remove(rect);
+    this.canvas.renderAll();
     const index = this.rects.indexOf(rect);
     if (index !== -1) {
       this.rects.splice(index, 1);
       this.boxesList.splice(index, 1);
+      this.updateRects();
     }
+
+    // object:removed not working, calling the function manually
+    this.saveChangesInLocal();
   }
 
   private deleteTextbox(textbox: fabric.Textbox) {
+    if (textbox.get("data")) {
+      const linkedRectId = textbox.get("data").linkedRectId;
+      this.files.translationOfFiles[this.files.selectFile].splice(linkedRectId, 1);
+      this.dataService.sendTranslationsData(this.files.translationOfFiles[this.files.selectFile]);
+      this.deleteRect(this.rects[linkedRectId]);
+    };
+
     this.canvas.remove(textbox);
+    this.canvas.renderAll();
     const index = this.textboxes.indexOf(textbox);
     if (index !== -1) {
       this.textboxes.splice(index, 1);
     }
     this.sendBoxDelete(index);
+
+    // object:removed not working, calling the function manually
+    this.saveChangesInLocal();
   }
 
   private setupEventInTextBox(textbox: fabric.Textbox) {
@@ -504,6 +547,35 @@ export class CanvaElementComponent {
     this.canvas.hoverCursor = 'crosshair';
   }
 
+  private setBackgroudRectWithFill(rect: fabric.Rect) {
+    rect.set('fill', "transparent");
+    rect.set('stroke', "transparent");
+    rect.set('strokeWidth', 0);
+    rect.set('selectable', false);
+    this.canvas.renderAll();
+
+    const left = rect.left;
+    const top = rect.top;
+    const width = rect.width;
+    const height = rect.height;
+
+    if (this.colorReplace != "") {
+      rect.set('fill', this.colorReplace);
+    } else {
+      const canvasElement = this.canvas.getElement() as HTMLCanvasElement;
+      const context = canvasElement.getContext('2d');
+      if (context) {
+        const imageData = context.getImageData(left!, top!, width!, height!);
+        const dominantColor = this.getDominantColor(imageData);
+        rect.set('fill', dominantColor);
+      }
+    }
+  }
+
+  private updateRects() {
+    this.saveService.updateRects(this.rects);
+  }
+
   // Receiving from (app) data service
   ngOnInit(): void {
     this.subscribeToBoxCanvaChange();
@@ -524,6 +596,8 @@ export class CanvaElementComponent {
     this.subscribeToRequestAddTextFromImage();
     this.subscribeToOpenProject();
     this.subscribeToEnableOcrBox();
+    this.subscribeToRequestOcrRect();
+    this.subscribeTorequestReplacement();
     this.manageKeyListeners(true);
     this.setControlsStyle();
   }
@@ -626,8 +700,8 @@ export class CanvaElementComponent {
   }
 
   private subscribeToRequestAddTextFromImage() {
-    this.dataService.requestrequestIdentificationRecognition$.subscribe(data => {
-      this.requestrequestIdentificationRecognition();
+    this.dataService.requestIdentificationRecognition$.subscribe(data => {
+      this.requestIdentificationRecognition();
     });
   }
 
@@ -643,9 +717,30 @@ export class CanvaElementComponent {
     });
   }
 
+  private subscribeToRequestOcrRect() {
+    this.dataService.requestOcrRect$.subscribe(data => {
+      this.requestOcrRect(data.indexRect, data.langInput);
+    });
+  }
+
+  private subscribeTorequestReplacement() {
+    this.dataService.requestReplacement$.subscribe(data => {
+      this.requestReplacement(data.indexRect, data.inputOcr, data.outputTranslate);
+    });
+  }
+
   // Handlers
   private updateTextboxText(idBox: number, text: string) {
     this.textboxes[idBox].text = text;
+
+    if (this.textboxes[idBox].get("data")) {
+      const linkedRectId = this.textboxes[idBox].get("data").linkedRectId;
+      this.files.translationOfFiles[this.files.selectFile][linkedRectId].textTranslate = text;
+      this.dataService.sendTranslationsData(this.files.translationOfFiles[this.files.selectFile]);
+      this.sendBoxChange(idBox, text);
+      this.saveChangesInLocal();
+    };
+
     this.canvas.renderAll();
   }
 
@@ -699,51 +794,92 @@ export class CanvaElementComponent {
     this.sendBoxAllDelete();
     this.textboxes = [];
     this.boxesList = [];
+    this.rects = [];
     this.canvas.dispose();
     this.canvas = new fabric.Canvas('myCanvas', {});
-    if (!debugMode) {
-      this.canvas.on('object:added', () => this.saveChangesInLocal());
-      this.canvas.on('object:modified', () => this.saveChangesInLocal());
-      this.canvas.on('object:moved', () => this.saveChangesInLocal());
-    }
+    this.canvas.clear();
+    this.files.selectFile = this.files.selectFile + 1;
+    this.updateRects();
     this.setupImage(urlImage);
     this.setupZoom();
     this.setupDrawing();
     this.setupEventListeners();
+
+    // send translations if any to table-translate-and-ocr
+    if (this.files.translationOfFiles[this.files.selectFile]) {
+      this.dataService.sendTranslationsData(this.files.translationOfFiles[this.files.selectFile]);
+    } else {
+      this.files.translationOfFiles[this.files.selectFile] = [];
+      this.dataService.sendTranslationsData(this.files.translationOfFiles[this.files.selectFile]);
+    }
+
+    if (!debugMode) {
+      this.canvas.on('object:added', () => this.saveChangesInLocal());
+      this.canvas.on('object:removed', () => this.saveChangesInLocal());
+      this.canvas.on('object:modified', () => this.saveChangesInLocal());
+      this.canvas.on('object:moved', () => this.saveChangesInLocal());
+    }
+
     this.canvas.renderAll();
   }
 
   private selectFileCanvas(data: any, isOpenProject?: boolean) {
     if (isOpenProject == undefined) {
-      const canvasJson = this.canvas.toDatalessJSON();
+      const canvasJson = this.canvas.toDatalessJSON(['data', 'selectable']);
       this.files.canvas[this.files.selectFile] = canvasJson;
     };
 
+    // send translations if any to table-translate-and-ocr
     this.files.selectFile = data.index;
+    if (this.files.translationOfFiles[this.files.selectFile]) {
+      this.dataService.sendTranslationsData(this.files.translationOfFiles[this.files.selectFile]);
+    } else {
+      this.files.translationOfFiles[this.files.selectFile] = [];
+      this.dataService.sendTranslationsData(this.files.translationOfFiles[this.files.selectFile]);
+    }
+
     this.sendBoxAllDelete();
     this.textboxes = [];
     this.boxesList = [];
+    this.rects = [];
+    this.updateRects();
     this.canvas.dispose();
     this.canvas = new fabric.Canvas('myCanvas', {});
+    this.canvas.clear();
     this.canvas.on('object:added', () => this.saveChangesInLocal());
+    this.canvas.on('object:removed', () => this.saveChangesInLocal());
     this.canvas.on('object:modified', () => this.saveChangesInLocal());
     this.canvas.on('object:moved', () => this.saveChangesInLocal());
     this.canvas.loadFromJSON(this.files.canvas[data.index], () => {
       this.canvas.getObjects().forEach((obj: any) => {
         if (obj instanceof fabric.Image) {
           if (obj.height && obj.width) {
-            const parentElement = this.myCanvas?.nativeElement.parentElement?.parentElement;
-            let newHeight = parentElement.offsetHeight;
-            const maxWidth = parentElement.offsetWidth;
+
+            // using body in height
+            const bodyElement = document.querySelector("body") as HTMLElement;
+            const computedStyle = window.getComputedStyle(bodyElement);
+
+            const parentHeight = bodyElement.offsetHeight;
+            const paddingTop = parseFloat(computedStyle.paddingTop);
+            const paddingBottom = parseFloat(computedStyle.paddingBottom);
+            let newHeight = (parentHeight - paddingTop - paddingBottom) - 132;
+
+            // using boxCanva in width
+            const boxCanva = document.querySelector("#boxCanva") as HTMLElement;
+            const boxCanvaComputedStyle = window.getComputedStyle(boxCanva);
+            const parentWidth = boxCanva.offsetWidth;
+            const paddingLeft = parseFloat(boxCanvaComputedStyle.paddingLeft);
+            const paddingRight = parseFloat(boxCanvaComputedStyle.paddingRight);
+            let maxWidth = parentWidth + paddingLeft + paddingRight;
 
             let scaleFactor = newHeight / obj.height;
             let newWidth = obj.width * scaleFactor;
 
             if (newWidth > maxWidth) {
-              newWidth = maxWidth;
+              newWidth = maxWidth - 50;
               scaleFactor = newWidth / obj.width;
               newHeight = obj.height * scaleFactor;
-            }
+            };
 
             this.scaleFactor = scaleFactor;
             obj.scale(scaleFactor);
@@ -753,6 +889,15 @@ export class CanvaElementComponent {
 
             this.setupImageControls(obj);
           }
+        }
+
+        if (obj instanceof fabric.Rect) {
+          this.rects.push(obj);
+
+          const index = this.rects.indexOf(obj);
+          const boxlist = [obj.left, obj.top, obj.width, obj.height] as [number, number, number, number];
+
+          this.boxesList[index] = boxlist;
         }
 
         if (obj instanceof fabric.Textbox) {
@@ -766,6 +911,7 @@ export class CanvaElementComponent {
       this.setupZoom();
       this.setupDrawing();
       this.setupEventListeners();
+      this.updateRects();
     });
     this.canvas.renderAll();
   }
@@ -881,16 +1027,16 @@ export class CanvaElementComponent {
         this.boxesList = [];
         this.http.post<any>(this.apiUrl_imageProcessing, { data_url: dataURL }).subscribe({
           next: (response) => {
-            this.boxesList = response.boxes_list;
+            this.boxesList = [...response.boxes_list];
+
             response.boxes_list.forEach((box: any) => {
               const [x, y, w, h] = box;
 
               // add rects
               const center_x = x + w / 2;
               const center_y = y + h / 2;
-              const offset = 10;
-              const rx = (w / 2) - offset;
-              const ry = (h / 2) - offset;
+              const rx = (w / 2);
+              const ry = (h / 2);
               const width = 2 * rx;
               const height = 2 * ry;
               const rect = new fabric.Rect({
@@ -904,12 +1050,12 @@ export class CanvaElementComponent {
               });
               this.canvas.add(rect);
               this.rects.push(rect);
-              this.setupEventInRect(rect, offset);
+              this.updateRects();
             });
             this.dataService.operationIdentificationComplete(response.average_score, response.boxes_list.length);
           },
           error: (error) => {
-            console.error('Erro ao enviar imagem para o servidor:', error);
+            console.error('Error uploading image to server:', error);
             setTimeout(() => {
               this.dataService.operationIdentificationComplete(0, 0);
             }, 500);
@@ -936,24 +1082,13 @@ export class CanvaElementComponent {
       react.set('selectable', false);
     });
     this.canvas.renderAll();
-    const context = this.canvas.getContext('2d', { willReadFrequently: true });
+
     this.rects.forEach(react => {
-      const left = react.left;
-      const top = react.top;
-      const width = react.width;
-      const height = react.height;
-
-      if (this.colorReplace != "") {
-        react.set('fill', this.colorReplace);
-      } else {
-        const imageData = context.getImageData(left, top, width, height);
-        const dominantColor = this.getDominantColor(imageData);
-        react.set('fill', dominantColor);
-      }
-
+      this.setBackgroudRectWithFill(react);
       this.canvas.renderAll();
     });
     this.rects = [];
+    this.updateRects();
     this.textboxes.forEach(textbox => {
       textbox!.bringToFront();
     });
@@ -1026,7 +1161,6 @@ export class CanvaElementComponent {
         });
         this.canvas.add(rect);
         this.rects.push(rect);
-        this.setupEventInRect(rect, offset);
       });
       this.canvas.renderAll();
     }
@@ -1039,6 +1173,104 @@ export class CanvaElementComponent {
 
   private setEnableOcrBox(enableOcrBox: boolean) {
     this.enableOcrBox = enableOcrBox;
+  }
+
+  private requestOcrRect(indexRect: number, langInput: string) {
+    let canvas = new fabric.Canvas('tempCanvas', {});
+    canvas.loadFromJSON(this.files.canvas[this.files.selectFile], () => {
+      const firstImage = canvas.getObjects().find((obj: any) => obj instanceof fabric.Image) as fabric.Image;
+      if (firstImage && firstImage.width && firstImage.height) {
+        firstImage.scale(1);
+
+        const scaleX = 1 / this.scaleFactor;
+        const scaleY = 1 / this.scaleFactor;
+
+        const originalRect = {
+          width: this.rects[indexRect].width,
+          height: this.rects[indexRect].height,
+          left: this.rects[indexRect].left,
+          top: this.rects[indexRect].top
+        };
+
+        const widthRect = this.rects[indexRect].width! *= scaleX;
+        const heightRect = this.rects[indexRect].height! *= scaleY;
+        const leftRect = this.rects[indexRect].left! *= scaleX;
+        const topRect = this.rects[indexRect].top! *= scaleY;
+
+        canvas.setWidth(widthRect);
+        canvas.setHeight(heightRect);
+
+        const croppedCanvas = document.createElement('canvas');
+        croppedCanvas.width = widthRect;
+        croppedCanvas.height = heightRect;
+        const croppedCtx = croppedCanvas.getContext('2d');
+
+        if (croppedCtx) {
+          croppedCtx.drawImage(
+            firstImage.getElement(),
+            leftRect, topRect, this.rects[indexRect].width!, this.rects[indexRect].height!,
+            0, 0, widthRect, heightRect
+          );
+
+          fabric.Image.fromURL(croppedCanvas.toDataURL(), (croppedImage) => {
+            canvas.clear();
+            canvas.add(croppedImage);
+            canvas.renderAll();
+
+            const dataURL = canvas.toDataURL({
+              format: 'png',
+              quality: 1
+            });
+
+            this.http.post<any>(this.apiUrl_textRecognition, { data_url: dataURL, lang: langInput }).subscribe({
+              next: (response) => {
+                this.dataService.requestOcrRectComplete(response.text);
+
+                this.rects[indexRect].width = originalRect.width;
+                this.rects[indexRect].height = originalRect.height;
+                this.rects[indexRect].left = originalRect.left;
+                this.rects[indexRect].top = originalRect.top;
+              },
+              error: (error) => {
+                console.error('Error uploading image to server:', error);
+              }
+            });
+          });
+        }
+      }
+    });
+  }
+
+  private requestReplacement(indexRect: number, inputOcr: string, outputTranslate: string) {
+    this.canvas.discardActiveObject().renderAll();
+    const [x, y, w, h] = this.boxesList[indexRect];
+    const center_x = x + w / 2;
+    const center_y = y + h / 2;
+
+    if (this.textboxes[indexRect]) {
+      if (!this.textboxes[indexRect].get('data')) {
+        this.createAndConfigureTextbox(indexRect, outputTranslate, center_x, center_y);
+      } else {
+        this.updateAndCenterTextbox(indexRect, outputTranslate);
+      }
+    } else {
+      this.createAndConfigureTextbox(indexRect, outputTranslate, center_x, center_y);
+    }
+
+    this.canvas.renderAll();
+
+    // save translate
+    const translationOfFiles = {
+      text: inputOcr,
+      textTranslate: outputTranslate
+    }
+
+    if (!this.files.translationOfFiles[this.files.selectFile]) {
+      this.files.translationOfFiles[this.files.selectFile] = [];
+    }
+    this.files.translationOfFiles[this.files.selectFile][indexRect] = translationOfFiles;
+
+    this.saveChangesInLocal();
   }
 
   private removeAreaSelect() {
@@ -1063,7 +1295,7 @@ export class CanvaElementComponent {
     }
   };
 
-  private requestrequestIdentificationRecognition() {
+  private requestIdentificationRecognition() {
     const firstImage = this.canvas.getObjects().find((obj: any) => obj instanceof fabric.Image) as fabric.Image;
 
     this.boxesList.forEach(box => {
@@ -1114,9 +1346,10 @@ export class CanvaElementComponent {
     }
   }
 
-  private openProject() {
+  async openProject() {
     const indexProject = this.localStorageService.getSelectedProjectIndex();
-    const clonedProject = JSON.parse(JSON.stringify(this.localStorageService.getProjects()[indexProject].canvaFile));
+    const projects = await this.localStorageService.getProjects();
+    const clonedProject = JSON.parse(JSON.stringify(projects[indexProject].canvaFile));
     const getProject = clonedProject as Files;
 
     this.files = getProject;
@@ -1135,12 +1368,18 @@ export class CanvaElementComponent {
 
       const nameFile = "image-" + count;
 
-      if (getProject.selectFile == i) {
-        this.saveService.arrayFiles.push({ pathFile: getProject.base64Image[i], nameFile: nameFile, extensionFile: extension, select: true });
+      let arrayFile = { pathFile: getProject.base64Image[i], nameFile: nameFile, extensionFile: extension, select: true };
+
+      if (getProject.selectFile == i) {        
+        this.saveService.addFile(arrayFile);
       } else {
-        this.saveService.arrayFiles.push({ pathFile: getProject.base64Image[i], nameFile: nameFile, extensionFile: extension, select: false });
+        arrayFile.select = false;
+        this.saveService.addFile(arrayFile);
       }
     }
+
+    // setFileSelectTrue
+    this.saveService.setFileSelectTrue(this.files.selectFile);
   }
 
   // Handlers functions
@@ -1161,129 +1400,6 @@ export class CanvaElementComponent {
     }
 
     return `rgb(${dominantColor})`;
-  }
-
-  private setupEventInRect(obj: fabric.Rect, offset: number) {
-    obj.on('moving', (event) => this.handleMoving(obj, offset));
-    obj.on('mousedown', (event) => this.handleMouseDown(obj));
-    obj.on('scaling', () => this.handleScaling(obj));
-    obj.on('selected', () => this.handleSelected(obj));
-  }
-  
-  private handleMoving(obj: fabric.Rect, offset: number) {
-    const index = this.rects.indexOf(obj);
-  
-    if (this.boxesList[index]) {
-      const w = this.boxesList[index][2];
-      const h = this.boxesList[index][2];
-  
-      const center_x = obj.left! + (w / 2) - offset;
-      const center_y = obj.top! + (h / 2) - offset;
-  
-      this.boxesList[index][0] = center_x - w / 2;
-      this.boxesList[index][1] = center_y - h / 2;
-    }
-  
-    const rectCoords = obj.getBoundingRect();
-    this.updateComponentPosition(rectCoords);
-  }
-  
-  private handleMouseDown(obj: fabric.Rect) {
-    if (this.enableOcrBox) {
-      const rectCoords = obj.getBoundingRect();
-      this.positionComponent(rectCoords);
-    }
-  }
-  
-  private handleScaling(obj: fabric.Rect) {
-    if (this.boxTranslateComponentRef) {      
-      const rectCoords = obj.getBoundingRect();
-      this.updateComponentPosition(rectCoords);
-    }
-  }
-  
-  private handleSelected(obj: fabric.Rect) {
-    // Save index of the selected rectangle
-    this.indexSelectRect = this.rects.indexOf(obj);
-  }
-  
-  private positionComponent(rectCoords: any) {
-    const canvasContainer = document.querySelector('.canvas-container');
-    const hasBoxTranslate = canvasContainer?.querySelector('.box-translate');
-  
-    if (hasBoxTranslate) {
-      this.updateComponentPosition(rectCoords);
-    } else {
-      this.createAndPositionBoxTranslateComponent(rectCoords);
-    }
-  }
-  
-  private createAndPositionBoxTranslateComponent(rectCoords: any) {
-    this.boxTranslateComponentRef = null;
-  
-    const componentRef = this.container.createComponent(BoxTranslateComponent);
-    componentRef.instance.index = this.indexSelectRect;
-  
-    const domElement = (componentRef.hostView as any).rootNodes[0] as HTMLElement;
-    const position = this.calculateComponentPosition(domElement, rectCoords);
-  
-    if (position) {
-      domElement.style.position = 'absolute';
-      domElement.style.left = `${position.left}px`;
-      domElement.style.top = `${position.top}px`;
-  
-      const canvasContainer = document.querySelector('.canvas-container');
-      canvasContainer?.appendChild(domElement);
-  
-      this.boxTranslateComponentRef = componentRef;
-    }
-  }
-  
-  private calculateComponentPosition(domElement: HTMLElement, rectCoords: any) {
-    const canvasWidth = this.canvas.getWidth();
-    const canvasHeight = this.canvas.getHeight();
-    const spaces = this.getAvailableSpace(rectCoords, canvasWidth, canvasHeight);
-  
-    const childElement = domElement.firstElementChild as HTMLElement;
-    const margin = 20;
-    const componentWidth = childElement.offsetWidth + margin;
-    const componentHeight = childElement.offsetHeight + margin;
-  
-    let position = null;
-  
-    if (spaces.rightSpace > componentWidth) {
-      position = { left: rectCoords.left + rectCoords.width + 10, top: rectCoords.top + (rectCoords.height / 2) - ((componentHeight - 20) / 2) };
-    } else if (spaces.leftSpace > componentWidth) {
-      position = { left: rectCoords.left - componentWidth + 10, top: rectCoords.top + (rectCoords.height / 2) - ((componentHeight - 20) / 2) };
-    } else if (spaces.bottomSpace > componentHeight) {
-      position = { left: rectCoords.left + (rectCoords.width / 2) - (componentWidth / 2) + 8, top: rectCoords.top + rectCoords.height + 12 };
-    } else if (spaces.topSpace > componentHeight) {
-      position = { left: rectCoords.left + (rectCoords.width / 2) - (componentWidth / 2) + 8, top: rectCoords.top - componentHeight + 12 };
-    }
-  
-    return position;
-  }
-  
-  private updateComponentPosition(rectCoords: any) {
-    if (!this.boxTranslateComponentRef) return;
-  
-    const domElement = (this.boxTranslateComponentRef.hostView as any).rootNodes[0] as HTMLElement;
-    const position = this.calculateComponentPosition(domElement, rectCoords);
-  
-    if (position) {
-      domElement.style.left = `${position.left}px`;
-      domElement.style.top = `${position.top}px`;
-    }
-  }
-  
-  private getAvailableSpace(rectCoords: any, canvasWidth: number, canvasHeight: number) {
-    const margin = 10;
-    const leftSpace = rectCoords.left - margin;
-    const rightSpace = canvasWidth - (rectCoords.left + rectCoords.width + margin);
-    const topSpace = rectCoords.top - margin;
-    const bottomSpace = canvasHeight - (rectCoords.top + rectCoords.height + margin);
-
-    return { leftSpace, rightSpace, topSpace, bottomSpace };
   }
 
   private addCanvasToZip(zip: JSZip, canvasData: any, filename: string) {
@@ -1377,12 +1493,12 @@ export class CanvaElementComponent {
       base64Image: this.files.base64Image.slice(),
       selectFile: this.files.selectFile,
       canvas: [...this.files.canvas],
+      translationOfFiles: [...this.files.translationOfFiles]
     };
 
     // update changes in canva select
-    const canvasJson = this.canvas.toDatalessJSON();
+    const canvasJson = this.canvas.toDatalessJSON(['data', 'selectable']);    
     filesLocalStorage.canvas[filesLocalStorage.selectFile] = canvasJson;
-
     this.addFileToProject(this.localStorageService.getSelectedProjectIndex(), filesLocalStorage);
   }
 
@@ -1392,5 +1508,48 @@ export class CanvaElementComponent {
 
   updateProjectModificationDate(index: number) {
     this.localStorageService.updateModificationDate(index);
+  }
+
+  // auxiliary functions
+  createAndConfigureTextbox(indexRect: number, outputTranslate: string, center_x: number, center_y: number) {
+    this.setBackgroudRectWithFill(this.rects[indexRect]);
+
+    let textbox = new fabric.Textbox(outputTranslate, {
+      left: center_x,
+      top: center_y,
+      fontFamily: this.familyFont,
+      fontSize: this.sizeFont,
+      lineHeight: this.lineHeightFont,
+      fill: this.colorFont,
+      textAlign: this.positionText === 0 ? 'center' : (this.positionText === 1 ? 'left' : 'right'),
+      data: {
+        linkedRectId: indexRect
+      }
+    });
+
+    textbox.setControlsVisibility({
+      mt: false,
+      mb: false,
+      mtr: false
+    });
+
+    const offsetX = textbox.width! / 2;
+    const offsetY = textbox.height! / 2;
+    const textboxLeft = center_x - offsetX;
+    const textboxTop = center_y - offsetY;
+    textbox.set('left', textboxLeft);
+    textbox.set('top', textboxTop);
+
+    this.canvas.add(textbox);
+
+    const texto = textbox.text ?? '';
+    this.textboxes.push(textbox);
+    this.sendBoxCreate(this.textboxes.length - 1, texto);
+    this.setupEventInTextBox(textbox);
+  }
+
+  updateAndCenterTextbox(indexRect: number, outputTranslate: string) {
+    const textbox = this.textboxes[indexRect];
+    textbox.set('text', outputTranslate);
   }
 }

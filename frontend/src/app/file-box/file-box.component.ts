@@ -1,81 +1,78 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { DataService } from '../data.service';
 import { SaveService } from '../save.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-file-box',
   templateUrl: './file-box.component.html',
-  styleUrl: './file-box.component.css'
+  styleUrls: ['./file-box.component.css']
 })
-export class FileBoxComponent {
+export class FileBoxComponent implements OnInit, OnDestroy {
 
-  arrayFiles: { pathFile: string, nameFile: string, extensionFile: string, select: boolean }[] = this.saveService.arrayFiles;
+  arrayFiles: { pathFile: string, nameFile: string, extensionFile: string, select: boolean }[] = [];
   currentSelect: number = -1;
+  private arrayFilesSubscription: Subscription | undefined;
 
   @ViewChild('openFileImage') fileInput: ElementRef | undefined;
 
   constructor(private dataService: DataService, private saveService: SaveService) { }
 
-  openFileInput() {
-    this.fileInput?.nativeElement.click();
-
-    // test
-    // this.dataService.addImageCanva("/assets/teste/teste2.jpg");
-    // this.arrayFiles.push({ pathFile: "/assets/teste/teste2.jpg", nameFile: "test", extensionFile: "png", select: true });
-    // this.dataService.addImageCanva("/assets/teste/image.png");
-    // this.arrayFiles.push({ pathFile: "/assets/teste/image.png", nameFile: "test3", extensionFile: "png", select: true });
+  ngOnInit(): void {
+    this.arrayFilesSubscription = this.saveService.arrayFiles$.subscribe(files => {
+      this.arrayFiles = files;
+    });
   }
 
-  handleFileInput(event: any) {
-    // remove select from other element
-    if (this.saveService.arrayFiles.length >= 0) {
-      this.saveService.arrayFiles.forEach((element, index) => {
-        this.saveService.arrayFiles[index] = { pathFile: element.pathFile, nameFile: element.nameFile, extensionFile: element.extensionFile, select: false };
-      });
+  ngOnDestroy(): void {
+    if (this.arrayFilesSubscription) {
+      this.arrayFilesSubscription.unsubscribe();
     }
+  }
 
+  openFileInput() {
+    this.fileInput?.nativeElement.click();
+  }
+
+  // add file
+  handleFileInput(event: any) {
     const file = event.target.files[0];
     const imageUrl = URL.createObjectURL(file);
-
     const fileExtension = file.name.split('.').pop();
     const fileNameWithoutExtension = file.name.substring(0, file.name.lastIndexOf('.'));
 
     this.dataService.addImageCanva(file, false);
-    this.saveService.arrayFiles.push({ pathFile: imageUrl, nameFile: fileNameWithoutExtension, extensionFile: fileExtension, select: true });
+    this.saveService.addFile({ pathFile: imageUrl, nameFile: fileNameWithoutExtension, extensionFile: fileExtension, select: true });
   }
 
-  selectFile(index: number) {    
-    if (this.saveService.arrayFiles.length > 0 && index != this.currentSelect) {
-      // remove before
-      for (let index = 0; index < this.saveService.arrayFiles.length; index++) {
-        this.saveService.arrayFiles[index] = { pathFile: this.saveService.arrayFiles[index].pathFile, nameFile: this.saveService.arrayFiles[index].nameFile, extensionFile: this.saveService.arrayFiles[index].extensionFile, select: false };
-      }
+  selectFile(index: number) {
+    if (this.arrayFiles.length > 0 && index !== this.currentSelect) {
+      this.arrayFiles = this.arrayFiles.map((file, i) => ({
+        ...file,
+        select: i === index
+      }));
 
-      // add
-      this.saveService.arrayFiles[index] = { pathFile: this.saveService.arrayFiles[index].pathFile, nameFile: this.saveService.arrayFiles[index].nameFile, extensionFile: this.saveService.arrayFiles[index].extensionFile, select: true };
       this.dataService.selectFileCanva(index);
-
       this.currentSelect = index;
     }
   }
 
   removeFile(index: number) {
-    if (this.currentSelect === 0) {
-      if ((this.saveService.arrayFiles.length - 2) > 0) {
-        this.currentSelect = 1;
+    if (this.currentSelect === index) {
+      if (this.arrayFiles.length > 1) {
+        this.currentSelect = index > 0 ? index - 1 : 0;
       } else {
-        this.currentSelect = 0;
+        this.currentSelect = -1;
       }
-    } else {
-      this.currentSelect = this.saveService.arrayFiles.length - 2;
     }
 
-    if ((this.saveService.arrayFiles.length - 2) > 0) {
-      this.saveService.arrayFiles[this.currentSelect] = { pathFile: this.saveService.arrayFiles[this.currentSelect].pathFile, nameFile: this.saveService.arrayFiles[this.currentSelect].nameFile, extensionFile: this.saveService.arrayFiles[this.currentSelect].extensionFile, select: true };
-    }
+    console.log(this.currentSelect);
+    
+
+    this.arrayFiles.splice(index, 1);
+    this.saveService.updateArrayFiles(this.arrayFiles);
 
     this.dataService.removeFileCanva(index);
-    this.saveService.arrayFiles.splice(index, 1);
   }
 
   downloadFile(index: number) {

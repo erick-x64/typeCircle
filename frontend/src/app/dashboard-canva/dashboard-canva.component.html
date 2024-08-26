@@ -4,15 +4,15 @@
             <div class="header_element_boxFunctions">
                 <div (click)="changeTopHeader(0)" [ngClass]="{'select': selectTopHeader == 0}"
                     class="button_header_element_boxFunctions">
-                    <img src="../assets/icons/01.svg" alt="">
+                    <div class="svg-mask svg-header-element" style="mask-image: url('/assets/icons/01.svg');"></div>
                 </div>
                 <div (click)="changeTopHeader(1)" [ngClass]="{'select': selectTopHeader == 1}"
                     class="button_header_element_boxFunctions">
-                    <img src="../assets/icons/02.svg" alt="">
+                    <div class="svg-mask svg-header-element" style="mask-image: url('/assets/icons/02.svg');"></div>
                 </div>
                 <div (click)="changeTopHeader(2)" [ngClass]="{'select': selectTopHeader == 2}"
                     class="button_header_element_boxFunctions">
-                    <img src="../assets/icons/05.svg" alt="">
+                    <div class="svg-mask svg-header-element" style="mask-image: url('/assets/icons/05.svg');"></div>
                 </div>
             </div>
 
@@ -20,42 +20,26 @@
                 <div class="pass" [ngClass]="{'hidden': selectTopHeader !== 0}">
                     <app-box-entry-text *ngFor="let item of arrayEntry" [data]="item"></app-box-entry-text>
                 </div>
+                <div [ngClass]="{'hidden': selectTopHeader !== 0}" class="bottom-pass">
+                    <div class="line-bottom-pass"></div>
+                    <app-config-font-box [selectEntry]="selectEntry"></app-config-font-box>
+                </div>
                 <div class="pass" [ngClass]="{'hidden': selectTopHeader !== 1}">
                     <app-other-tools></app-other-tools>
                 </div>
+                <div [ngClass]="{'hidden': selectTopHeader !== 1}" class="bottom-pass">
+                    <div class="line-bottom-pass"></div>
+                    <app-file-box></app-file-box>
+                </div>
                 <div class="pass" [ngClass]="{'hidden': selectTopHeader !== 2}">
                     <app-box-ai></app-box-ai>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="element_boxFunctions">
-            <div class="header_element_boxFunctions">
-                <div (click)="changeBottomHeader(0)" [ngClass]="{'select': selectBottomHeader == 0}"
-                    class="button_header_element_boxFunctions">
-                    <img src="../assets/icons/03.svg" alt="">
-                </div>
-                <div (click)="changeBottomHeader(1)" [ngClass]="{'select': selectBottomHeader == 1}"
-                    class="button_header_element_boxFunctions">
-                    <img src="../assets/icons/04.svg" alt="">
-                </div>
-            </div>
-
-            <div class="content_element_boxFunctions">
-
-                <div class="pass" [ngClass]="{'hidden': selectBottomHeader !== 0}">
-                    <app-config-font-box [selectEntry]="selectEntry"></app-config-font-box>
-                </div>
-
-                <div class="pass" *ngIf="selectBottomHeader == 1">
-                    <app-file-box></app-file-box>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="boxCanva">
+        <app-box-slide-translate></app-box-slide-translate>
         <app-canva-element></app-canva-element>
     </div>
 </div>

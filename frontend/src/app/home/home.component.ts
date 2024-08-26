@@ -1,4 +1,5 @@
 import { Component, Output, Input, EventEmitter, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { LocalStorageService } from '../local-storage.service';
 import { SaveService } from '../save.service';
 import anime from 'animejs';
@@ -29,15 +30,30 @@ export class HomeComponent implements AfterViewInit {
     private localStorageService: LocalStorageService,
     private saveService: SaveService
   ) { }
-    
+
   @Input() projectDisplay: Project[] = [];
+  projectDisplaySubject: BehaviorSubject<any[]> = new BehaviorSubject(this.projectDisplay);
   @Output() sendOpenFileFirst = new EventEmitter<File>();
   @Output() sendOpenProject = new EventEmitter<number>();
 
   ngAfterViewInit() {
-    if (this.projectDisplay.length == 0) {
-      this.animateBalls();
-    }
+    this.projectDisplaySubject.subscribe((projects) => {
+      if (projects.length === 0) {
+        this.animationNoImage();
+      }
+    });
+  }
+
+  animationNoImage(): void {
+    setTimeout(() => {
+      anime({
+        targets: "#noImages",
+        opacity: [0, 1],
+        translateY: [-10, 0],
+        duration: 500,
+        easing: 'easeOutQuart'
+      });
+    }, 0);
   }
 
   // File Handling
@@ -52,28 +68,17 @@ export class HomeComponent implements AfterViewInit {
 
       const [fileNameWithoutExtension, fileExtension] = file.name.split('.');
 
-      this.saveService.arrayFiles.push({
+      let arrayFile = {
         pathFile: imageUrl,
         nameFile: fileNameWithoutExtension,
         extensionFile: fileExtension,
         select: true
-      });
+      };
+
+      this.saveService.addFile(arrayFile);
 
       this.sendOpenFileFirst.emit(file);
     }
-  }
-
-  // Animation
-  animateBalls() {
-    anime({
-      targets: '.element-rowBalls-noProjects',
-      backgroundColor: [
-        { value: '#3D3D3D', duration: 1000 },
-        { value: '#262626', duration: 1000 }
-      ],
-      delay: anime.stagger(500, { start: 500 }), // interval between each ball's animation
-      loop: true
-    });
   }
 
   // Box Recent Handlers
@@ -81,8 +86,11 @@ export class HomeComponent implements AfterViewInit {
     this.sendOpenProject.emit(index);
   }
 
-  onDeleteBoxRecent(index: number) {
-    this.localStorageService.removeProject(index);
-    this.projectDisplay = this.localStorageService.getProjects() as Project[];
+  async onDeleteBoxRecent(index: number) {
+    if (index > -1 && index < this.projectDisplay.length) {
+      this.projectDisplay.splice(index, 1);
+      this.projectDisplaySubject.next(this.projectDisplay);
+      this.localStorageService.removeProject(index);
+    }
   }
 }

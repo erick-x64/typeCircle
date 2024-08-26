@@ -1,21 +1,17 @@
-<div class="box-recent-in-list" #boxRecentList (click)="onBoxClick()">
-    <div class="image-caption">
-        <img [src]="imageSrc" alt="image-project" />
-        <div class="content-caption-title" (click)="onTitleClick($event)" [ngClass]="{'focus-shadow': isFocusedInput}">
-            <input class="caption-title" [value]="nameProject" (input)="changeInput($event)" type="text" (focus)="onFocusInput()"
-                (blur)="onBlurInput()">
-        </div>
+<div class="box-recent-in-list" (click)="onBoxClick()" #boxRecentList>
+    <div class="headerItem">
+        <img [src]="imageSrc" alt="image" />
+        <input class="caption-title" (click)="onTitleClick($event)" [value]="nameProject" (input)="changeInput($event)" type="text"
+            (focus)="onFocusInput()" (blur)="onBlurInput()">
     </div>
-    <a class="image-number">{{totalImage}}</a>
-    <div class="image-content">
-        <a class="image-details">{{modificationOnlyDate}}</a>
-        <a class="image-time">{{modificationOnlyHour}}</a>
+
+    <div class="headerItem lastUpdate">
+        <p>{{modificationOnlyDate}}, {{modificationOnlyHour}}</p>
     </div>
-    <div class="image-content content-delete">
-        <div class="image-detail">
-            <b class="detail-date">{{creationOnlyDate}}</b>
-            <b class="detail-time">{{creationOnlyHour}}</b>
-        </div>
-        <img (click)="onDeleteClick($event)" src="/assets/icons/30.svg" alt="delete" />
+
+    <div class="headerItem openFile">
+        <p>{{totalImage}}</p>
     </div>
+
+    <div (click)="onDeleteClick($event)" class="svg-mask svg-headerItem" style="mask-image: url('/assets/icons/13.svg');"></div>
 </div>

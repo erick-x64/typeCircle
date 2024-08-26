@@ -1,0 +1,39 @@
+<div id="boxSlideTranslate" [ngStyle]="{ 'height': keepOpen ? 'auto' : '40px' }">
+    <div (click)="openBox()" id="header_boxSlideTranslate">
+        <img src="/assets/icons/33.svg" alt="">
+        <h2>translation and replacement of boxes</h2>
+        <img src="/assets/icons/34.svg" id="imgArrow" alt="">
+    </div>
+    <div id="choiceLanguage">
+        <select id="select_choiceLanguage" [(ngModel)]="langInput">
+            <option value=eng>EN</option>
+            <option value=jpn>JP</option>
+            <option value=jpn_vert>JP V</option>
+        </select>
+        <img src="/assets/icons/36.svg" alt="">
+        <select id="select_choiceLanguage" [(ngModel)]="langOutput">
+            <option value=eng>EG</option>
+            <option value=jpn>JP</option>
+            <option value=jpn_vert>JP V</option>
+        </select>
+    </div>
+    <div id="content_boxSlideTranslate">
+        <div id="rowContent1_boxSlideTranslate">
+            <div id="tableTranslateAndOcr">
+                <div id="element_tableTranslateAndOcr">
+                    <div id="column_element_tableTranslateAndOcr">
+                        <span>Text</span>
+                    </div>
+                    <div id="column_element_tableTranslateAndOcr">
+                        <span>Text translate</span>
+                    </div>
+                </div>
+            </div>
+            <app-table-translate-and-ocr *ngFor="let rect of rects; let i = index" [indexRect]="i"
+                [langInput]="langInput" [langOutput]="langOutput"></app-table-translate-and-ocr>
+        </div>
+        <!-- <div id="rowContent2_boxSlideTranslate">
+
+        </div> -->
+    </div>
+</div>

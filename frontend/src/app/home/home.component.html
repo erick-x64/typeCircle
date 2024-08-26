@@ -1,39 +1,43 @@
-<div  id="isHome">
+<div id="isHome">
     <div id="headerRecents">
         <div id="openAndFormat">
             <div (click)="openImage()" id="buttonOpenFile">
-                <img src="/assets/icons/21.svg" alt="">
-                <h1>Open a new file</h1>
+                <div class="svg-mask svg-header" style="mask-image: url('/assets/icons/24.svg');"></div>
             </div>
 
-            <div class="buttonFormatDisplay">
-                <img src="/assets/icons/22.svg" alt="">
+            <div id="searchHeader">
+                <div class="svg-mask svg-header" style="mask-image: url('/assets/icons/31.svg');"></div>
+                <input placeholder="Search..." type="text">
             </div>
 
             <div class="buttonFormatDisplay select">
-                <img src="/assets/icons/23.svg" alt="">
+                <div class="svg-mask svg-header" style="mask-image: url('/assets/icons/23.svg');"></div>
             </div>
-        </div>
 
-        <div id="orderFiles">
-            <img src="/assets/icons/24.svg" alt="">
+            <div class="buttonFormatDisplay">
+                <div class="svg-mask svg-header" style="mask-image: url('/assets/icons/22.svg');"></div>
+            </div>
         </div>
     </div>
 
     <div *ngIf="projectDisplay.length > 0" class="project-list-content">
         <div class="box-recent-in-list">
-            <div class="image-caption">
-                <img src="#" alt="image-project" />
-                <div class="caption-title">Project name</div>
+            <div class="headerItem">
+                <p>Name</p>
+                <img src="/assets/icons/32.svg" alt="">
             </div>
-            <b class="image-number">Files</b>
-            <div class="image-content">
-                <a class="image-details">Modification date</a>
+
+            <div class="headerItem lastUpdate">
+                <p>Last update</p>
+                <img src="/assets/icons/32.svg" alt="">
             </div>
-            <div class="image-content content-delete">
-                <a class="image-details">Creation date</a>
-                <img src="/assets/icons/30.svg" alt="delete" />
+
+            <div class="headerItem openFile">
+                <p>Open files</p>
+                <img src="/assets/icons/32.svg" alt="">
             </div>
+
+            <div class="svg-mask svg-headerItem" style="mask-image: url('/assets/icons/13.svg');"></div>
         </div>
         <app-box-recent-in-list *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"
             [nameProject]="project.nameProject" [creationDate]="project.creationDate"
@@ -41,19 +45,11 @@
             (openProject)="openProject($event)"></app-box-recent-in-list>
     </div>
 
-    <div *ngIf="projectDisplay.length == 0" id="noProjects">
-        <div id="rowBalls-noProjects">
-            <div class="element-rowBalls-noProjects"></div>
-            <div class="element-rowBalls-noProjects"></div>
-            <div class="element-rowBalls-noProjects"></div>
-        </div>
-        <div id="about-noProjects">
-            <h2>No projects here</h2>
-            <div (click)="openImage()" id="buttonOpenFile">
-                <img src="/assets/icons/21.svg" alt="">
-                <h1>Open a new file</h1>
-            </div>
-        </div>
+    <div *ngIf="projectDisplay.length == 0" id="noImages">
+        <span class="text-style-1">no </span>
+        <span class="text-style-2">images</span>
+        <span class="text-style-4">, add them, </span>
+        <span class="text-style-3">maybe</span>
     </div>
 
     <!-- <app-box-recent *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"

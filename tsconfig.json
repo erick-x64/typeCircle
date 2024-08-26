@@ -21,11 +21,6 @@
       "ES2022",
       "dom"
     ],
-    "paths": {
-      "animejs": [
-        "/node_modules/animejs/lib/anime.es.js"
-      ]
-    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

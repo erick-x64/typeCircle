@@ -1,11 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
+
+interface TranslationFile {
+    text: string;
+    textTranslate: string;
+}
 
 @Injectable({
     providedIn: 'root'
 })
-export class DataService {
 
+export class DataService {
     // Entry changes
     private boxCreateSubject = new Subject<{ idBox: number, text: string }>();
     boxCreate$ = this.boxCreateSubject.asObservable();
@@ -26,9 +32,8 @@ export class DataService {
     private boxCanvaChangeSubject = new Subject<{ idBox: number, text: string }>();
     boxCanvaChange$ = this.boxCanvaChangeSubject.asObservable();
 
-    // vou ver ainda
-    // private boxCanvaSelectSubject = new Subject<{ idBox: number, text: string }>();
-    // boxCanvaSelect$ = this.boxCanvaSelectSubject.asObservable();
+    private sendTranslationsDataSubject = new ReplaySubject<{ dataTranslations: TranslationFile[] }>();
+    sendTranslationsData$ = this.sendTranslationsDataSubject.asObservable();
 
     // config font changes
     private boxFontChangeSubject = new Subject<{ idBox: number, familyFont: string, styleFont: string, fontWeight: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>();
@@ -83,7 +88,7 @@ export class DataService {
     requestChangeValuesCircle$ = this.requestChangeValuesCircleSubject.asObservable();
 
     private requestIdentificationRecognitionSubject = new Subject<{}>();
-    requestrequestIdentificationRecognition$ = this.requestIdentificationRecognitionSubject.asObservable();
+    requestIdentificationRecognition$ = this.requestIdentificationRecognitionSubject.asObservable();
 
     private operationIdentificationRecognitionCompleteSubject = new Subject<{ recognizedText: string[] }>();
     operationIdentificationCompleteRecognition$ = this.operationIdentificationRecognitionCompleteSubject.asObservable();
@@ -94,6 +99,16 @@ export class DataService {
     // app
     private openProjectSubject = new Subject<{}>();
     openProject$ = this.openProjectSubject.asObservable();
+
+    // table-translate
+    private requestOcrRectSubject = new Subject<{ indexRect: number, langInput: string }>();
+    requestOcrRect$ = this.requestOcrRectSubject.asObservable();
+
+    private requestOcrRectCompleteSubject = new Subject<{ ocrString: string }>();
+    requestOcrRectComplete$ = this.requestOcrRectCompleteSubject.asObservable();
+
+    private requestReplacementSubject = new Subject<{ indexRect: number, inputOcr: string, outputTranslate: string }>();
+    requestReplacement$ = this.requestReplacementSubject.asObservable();
 
     constructor() { }
 
@@ -139,6 +154,10 @@ export class DataService {
     // Canvas object changes
     sendBoxCanvaChange(idBox: number, text: string) {
         this.boxCanvaChangeSubject.next({ idBox, text });
+    }
+
+    sendTranslationsData(dataTranslations: TranslationFile[]) {
+        this.sendTranslationsDataSubject.next({ dataTranslations });
     }
 
     // other tools
@@ -206,5 +225,18 @@ export class DataService {
 
     operationIdentificationRecognitionComplete(recognizedText: string[]) {
         this.operationIdentificationRecognitionCompleteSubject.next({ recognizedText });
+    }
+
+    // table-translate
+    requestOcrRect(indexRect: number, langInput: string) {
+        this.requestOcrRectSubject.next({ indexRect, langInput });
+    }
+
+    requestOcrRectComplete(ocrString: string) {
+        this.requestOcrRectCompleteSubject.next({ ocrString });
+    }
+
+    requestReplacement(indexRect: number, inputOcr: string, outputTranslate: string) {
+        this.requestReplacementSubject.next({ indexRect, inputOcr, outputTranslate });
     }
 }

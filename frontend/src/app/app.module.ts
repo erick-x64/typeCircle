@@ -20,6 +20,8 @@ import { BoxRecentInListComponent } from './box-recent-in-list/box-recent-in-lis
 import { HomeComponent } from './home/home.component';
 import { DashboardCanvaComponent } from './dashboard-canva/dashboard-canva.component';
 import { BoxTranslateComponent } from './box-translate/box-translate.component';
+import { BoxSlideTranslateComponent } from './box-slide-translate/box-slide-translate.component';
+import { TableTranslateAndOcrComponent } from './table-translate-and-ocr/table-translate-and-ocr.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +39,8 @@ import { BoxTranslateComponent } from './box-translate/box-translate.component';
     HomeComponent,
     DashboardCanvaComponent,
     BoxTranslateComponent,
+    BoxSlideTranslateComponent,
+    TableTranslateAndOcrComponent,
   ],
   imports: [
     BrowserModule,

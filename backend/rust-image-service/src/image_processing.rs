@@ -3,7 +3,6 @@
 use actix_web::{error, web, HttpResponse, Result};
 use opencv::{core::{self, Mat, ToInputArray}, dnn, imgcodecs, prelude::*};
 use serde::{Deserialize, Serialize};
-use std::time::Instant;
 
 #[derive(Debug, Serialize)]
 pub struct ResponseData {
@@ -17,10 +16,8 @@ pub struct ImageData {
 }
 
 pub async fn process_image(image_data: web::Json<ImageData>) -> Result<HttpResponse> {
-    // Obter a URL de dados da imagem do corpo da solicitação
     let data_url = &image_data.data_url;
 
-    // Extrair os bytes da URL de dados
     let base64_data = data_url
         .split(',')
         .nth(1)
@@ -50,7 +47,6 @@ pub async fn process_image(image_data: web::Json<ImageData>) -> Result<HttpRespo
         Err(_) => return Err(error::ErrorInternalServerError("Erro in process image")),
     };
 
-    // Retornar uma resposta indicando o sucesso
     Ok(HttpResponse::Ok().json(ResponseData {
         boxes_list: boxes_list,
         average_score: average_score,
@@ -80,8 +76,6 @@ fn process_image_cv(frame: &Mat) -> opencv::Result<(Vec<Vec<i32>>, f32)> {
     let mut scores = opencv::types::VectorOff32::new();
     let mut boxes = opencv::types::VectorOfRect::new();
 
-    let start = Instant::now();
-
     model.detect(
         &frame,
         &mut classes,
@@ -90,9 +84,6 @@ fn process_image_cv(frame: &Mat) -> opencv::Result<(Vec<Vec<i32>>, f32)> {
         conf_threshold,
         nms_threshold,
     )?;
-
-    let duration = start.elapsed();
-    println!("Detecção levou: {:?}", duration);
 
     let mut total_score = 0.0;
     let mut num_detections = 0;

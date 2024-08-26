@@ -4,24 +4,26 @@
         <h2>Activate the icon and select the area you want to erase, set the color too or leave it to detect
             automatically.</h2>
     </div>
-    <div class="buttonsActions">
+    <div id="buttons_toolErase">
         <div (click)="enableDrawingRect()" [ngClass]="{'select': enableDrawing}" class="button-action hover">
             <img src="/assets/icons/18.svg" alt="">
         </div>
-        <div class="button-action">
+        <div class="buttonsActions">
+            <div class="button-action">
+                <div [colorPicker]="colorReplace" [ngStyle]="{ 'background-color': colorReplace }"
+                    (colorPickerChange)="onColorChange($event)" id="boxColor"></div>
 
-            <div [colorPicker]="colorReplace" [ngStyle]="{ 'background-color': colorReplace }"
-                (colorPickerChange)="onColorChange($event)" id="boxColor"></div>
-
-            <input (change)="changeColorFont()" [(ngModel)]="colorReplace" type="text" placeholder="auto">
-        </div>
-    </div>
-    <div class="buttonsActions">
-        <div (click)="sendRemoveAreaSelect()" class="button-action hover">
-            <h1>Delete selected areas</h1>
-        </div>
-        <div (click)="sendBackAreaSelect()" class="button-action hover">
-            <img src="/assets/icons/19.svg" alt="">
+                <input (change)="changeColorFont()" [(ngModel)]="colorReplace" type="text" placeholder="Auto">
+            </div>
+            <div (click)="sendRemoveAreaSelect()" class="button-action hover">
+                <h1>Delete areas</h1>
+            </div>
         </div>
     </div>
 </div>
+
+
+
+<!-- <div (click)="sendBackAreaSelect()" class="button-action hover">
+    <img src="/assets/icons/19.svg" alt="">
+</div> -->

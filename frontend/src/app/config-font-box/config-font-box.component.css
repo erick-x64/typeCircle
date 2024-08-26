@@ -1,43 +1,33 @@
-:host {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
 h1 {
     font-size: 13px;
 }
 
-.overlay {
-    width: 100%;
-    height: 100%;
-    z-index: 999;
-    /* Coloque um valor alto para garantir que esteja na frente */
-}
-
 #configFontBox {
+    align-items: stretch;
     align-self: stretch;
-    flex-grow: 0;
     display: flex;
     flex-direction: column;
+    flex-grow: 0;
+    gap: 1px;
     justify-content: flex-start;
-    align-items: stretch;
-    gap: 20px;
     padding: 0;
+    border-radius: 5px;
+    border: solid 1px #292929;
+    background-color: #292929;
 }
 
-#configFontBox select{
+#configFontBox select {
     font-size: 13px;
 }
 
 .row_configFontBox {
+    align-items: flex-start;
     align-self: stretch;
-    flex-grow: 0;
     display: flex;
     flex-direction: row;
+    flex-grow: 0;
+    gap: 1px;
     justify-content: flex-start;
-    align-items: flex-start;
-    gap: 16px;
     padding: 0;
 }
 
@@ -45,8 +35,16 @@ h1 {
     gap: 10px;
 }
 
-.row_configFontBox:first-child .button_configFont:last-child {
-    max-width: 90px;
+.row_configFontBox:first-child .button_configFont:first-child,
+.row_configFontBox:nth-child(2) .button_configFont:first-child {
+    min-width: 174px;
+}
+
+.button_configFont h1,
+.button_configFont input,
+.button_configFont {
+    font-family: BeepSemiBold;
+    color: #c0c0c0;
 }
 
 .button_configFont {
@@ -55,53 +53,64 @@ h1 {
 
 .button_configFont,
 .button_configAlingText {
+    align-items: center;
     align-self: stretch;
-    flex-grow: 1;
+    background-color: #1b1b1b;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
+    flex-grow: 1;
     gap: 10px;
-    box-sizing: border-box;
-    padding: 12px 18px;
-    border-radius: 10px;
-    border: solid 1px #4b4b4b;
-    background-color: #2d2d2d;
+    justify-content: flex-start;
+    padding: 15px 18px;
+    border: 0;
 }
 
 .button_configAlingText {
+    display: flex;
+    background-color: #151515;
     cursor: pointer;
-    padding: 14px;
-    width: fit-content;
-    background-color: rgba(57, 57, 57, 0.3);
-    border: solid 1px transparent;
-    align-self: auto;
-    flex-grow: 0;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 15px;
     transition: background, border 0.08s ease;
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+.svg-row {
+    width: 17px;
+    height: 13px;
+    background-color: #575757;
 }
 
 .button_configAlingText:hover {
-    border: solid 1px #4b4b4b;
-    background-color: #393939;
+    background-color: #1b1b1b;
+}
+
+.button_configAlingText:hover .svg-row {
+    background-color: #c0c0c0;
 }
 
 .button_configAlingText.select {
-    border: solid 1px #4b4b4b;
-    background-color: #393939;
+    background-color: #1b1b1b;
+}
+
+.button_configAlingText.select .svg-row {
+    background-color: #c0c0c0;
 }
 
 .showColorSelect {
-    width: 24px;
-    height: 18px;
-    flex-grow: 0;
-    border-radius: 5px;
-    border: solid 2px #5c5c5c;
     background-color: #000;
+    border: solid 2px #5c5c5c;
+    border-radius: 5px;
+    flex-grow: 0;
+    height: 14px;
+    width: 18px;
 }
 
 .button_configFont img {
-    width: 18px;
     height: 18px;
+    width: 18px;
 }
 
 .button_configFont input {
@@ -109,11 +118,15 @@ h1 {
 }
 
 .rowTextAling {
+    align-items: flex-start;
     display: flex;
     flex: 1 0 0;
     flex-direction: row;
+    gap: 1px;
     justify-content: flex-start;
-    align-items: flex-start;
-    gap: 10px;
     padding: 0;
+}
+
+#changeLineHeightFont{
+    color: #575757;
 }

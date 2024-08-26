@@ -1,0 +1,39 @@
+<div id="tableTranslateAndOcr">
+    <div id="element_tableTranslateAndOcr">
+        <div [ngStyle]="{ 'background-color': !isSelectOptionOcr ? '#212121' : 'unset' }" id="column_element_tableTranslateAndOcr">
+            <div *ngIf="!isSelectOptionOcr && !loadingOptionOcr" class="selectOption">
+                <div (click)="sendOCR()" class="selectOption_buttonChoice">
+                    <h1>OCR</h1>
+                </div>
+                <div (click)="selectManual1()" class="selectOption_buttonChoice">
+                    <h1>Manual</h1>
+                </div>
+            </div>
+            <div *ngIf="!isSelectOptionOcr && loadingOptionOcr" class="loading">
+                <div class="ball-loading"></div>
+                <div class="ball-loading"></div>
+                <div class="ball-loading"></div>
+            </div>
+            <input *ngIf="isSelectOptionOcr" [(ngModel)]="inputOcr" type="text">
+        </div>
+        <div [ngStyle]="{ 'background-color': !isSelectOptionTranslateAi ? '#212121' : 'unset' }" id="column_element_tableTranslateAndOcr">
+            <div *ngIf="!isSelectOptionTranslateAi && !loadingOptionTranslateAi" class="selectOption">
+                <div class="selectOption_buttonChoice">
+                    <h1>Translate AI</h1>
+                </div>
+                <div (click)="selectManual2()" class="selectOption_buttonChoice">
+                    <h1>Manual</h1>
+                </div>
+            </div>
+            <div *ngIf="!isSelectOptionTranslateAi && loadingOptionTranslateAi" class="loading">
+                <div class="ball-loading"></div>
+                <div class="ball-loading"></div>
+                <div class="ball-loading"></div>
+            </div>
+            <div *ngIf="isSelectOptionTranslateAi" id="changeRow">
+                <input [(ngModel)]="outputTranslate" type="text">
+                <img (click)="sendReplacement()" *ngIf="inputOcr && outputTranslate" src="/assets/icons/35.svg" alt="">
+            </div>
+        </div>
+    </div>
+</div>

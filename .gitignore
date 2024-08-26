@@ -48,3 +48,4 @@ backend/rust-image-service/tmp/*
 # Rust yolov4
 backend/rust-image-service/yolov4/yolov4-custom_best.weights
 backend/rust-image-service/target
+backend/rust-image-service/.history

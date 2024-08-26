@@ -92,9 +92,10 @@ export class BoxRecentInListComponent {
     anime({
       targets: this.boxRecentList.nativeElement,
       opacity: [1, 0],
-      translateY: -40,
-      duration: 250,
-      easing: 'easeInOutElastic',
+      translateY: -10,
+      duration: 150,
+      easing: 'easeOutQuart',
+      delay: 50,
       complete: () => {
         this.deleteBoxRecent.emit(this.index!);
       }

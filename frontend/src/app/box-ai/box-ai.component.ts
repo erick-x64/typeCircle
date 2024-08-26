@@ -26,7 +26,6 @@ export class BoxAiComponent {
     if (!this.inProcessRequest) {
       this.inProcessRequest = true;
       this.showOptionsRemoveText = true;
-      this.resetAnimationTopObjects();
       this.startAnimationGradient();
 
       this.dataService.requestIdentification();
@@ -35,11 +34,9 @@ export class BoxAiComponent {
         this.inProcessRequest = false;
         const primeirosDoisDigitos = data.average_score.toString().slice(0, 2);
         this.average_score = primeirosDoisDigitos;
-
         this.quantityFound = data.totalIdentified;
 
-        this.stopAnimationGradient();
-        this.startAnimationTopObjects();
+        // this.stopAnimationGradient();
       });
     }
   }
@@ -75,20 +72,16 @@ export class BoxAiComponent {
     this.dataService.requestEnableOcrBox(this.enableOcrBox);
   }
 
-  private startAnimationTopObjects(): void {
-    this.animateTarget("#buttonIdentification", ['10px', '0px'], [0, 1]);
-  }
-
-  private resetAnimationTopObjects(): void {
-    this.animateTarget("#buttonIdentification", '10px', 0);
-  }
-
-  private startAnimationGradient(): void {
+  private startAnimationGradient(): void {  
     this.animation = anime({
       targets: "#buttonIdentification",
       easing: 'easeInOutQuad',
       loop: true,
       update: (anim) => {
+        if (anim.progress == 100 && !this.inProcessRequest) {
+          this.animation.pause();
+        }
+
         const progress = anim.progress / 100;
         const newGradientPosition = 50 + 50 * Math.sin(progress * Math.PI * 2);
         this.setGradientBackground("#buttonIdentification", newGradientPosition);
@@ -96,25 +89,8 @@ export class BoxAiComponent {
     });
   }
 
-  private stopAnimationGradient(): void {
-    if (this.animation) {
-      this.animation.pause();
-      this.setGradientBackground("#buttonIdentification", 50);
-    }
-  }
-
-  private animateTarget(target: string, property: string | string[], value: any): void {
-    anime({
-      targets: target,
-      top: property,
-      opacity: value,
-      duration: 300,
-      easing: 'easeInOutQuad'
-    });
-  }
-
   private setGradientBackground(target: string, position: number): void {
     (document.querySelector(target) as HTMLElement).style.backgroundImage =
-      `linear-gradient(to right, #292929, #393939 ${position}%, #292929)`;
+      `linear-gradient(to left, #161616, #202020, ${position}%, #202020, #161616)`;
   }
 }

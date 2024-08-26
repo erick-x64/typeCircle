@@ -1,15 +1,32 @@
 import { Injectable } from '@angular/core';
+import { openDB, DBSchema, IDBPDatabase } from 'idb';
+
+interface TranslationFile {
+  text: string;
+  textTranslate: string;
+}
+
+interface CanvaFile {
+  base64Image: string[];
+  selectFile: number;
+  canvas: any[];
+  translationOfFiles: TranslationFile[][];
+}
 
 interface Project {
-  canvaFile: {};
+  id?: number;
+  canvaFile: CanvaFile;
   nameProject: string;
   creationDate: string;
   modificationDate: string;
 }
 
-interface Files {
-  selectFile: number;
-  canvas: any[];
+interface MyDB extends DBSchema {
+  projects: {
+    value: Project;
+    key: number;
+    indexes: { 'by-nameProject': string };
+  };
 }
 
 @Injectable({
@@ -18,73 +35,76 @@ interface Files {
 
 export class LocalStorageService {
 
+  private dbPromise: Promise<IDBPDatabase<MyDB>>;
   private selectedProjectIndex: number = 0;
 
-  constructor() { }
-
-  public setItem(key: string, value: any): void {
-    localStorage.setItem(key, JSON.stringify(value));
+  constructor() {
+    this.dbPromise = openDB<MyDB>('my-database', 1, {
+      upgrade(db) {
+        const store = db.createObjectStore('projects', {
+          keyPath: 'id',
+          autoIncrement: true,
+        });
+        store.createIndex('by-nameProject', 'nameProject');
+      },
+    });
   }
 
-  public getItem(key: string): any {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
+  public async addProject(project: Project): Promise<void> {
+    const db = await this.dbPromise;
+    await db.add('projects', project);
   }
 
-  public removeItem(key: string): void {
-    localStorage.removeItem(key);
+  public async getProjects(): Promise<Project[]> {
+    const db = await this.dbPromise;
+    return await db.getAll('projects');
   }
 
-  public addProject(project: Project): void {
-    let projects = this.getItem('projects') as Project[];
-    if (!projects) {
-      projects = [];
-    }
-
-    projects.push(project);
-    this.setItem('projects', projects);
+  public async clearProjects(): Promise<void> {
+    const db = await this.dbPromise;
+    const keys = await db.getAllKeys('projects');
+    keys.forEach(async (key) => {
+      await db.delete('projects', key);
+    });
   }
 
-  public getProjects(): Project[] {
-    return this.getItem('projects') as Project[];
-  }
-
-  public clearProjects(): void {
-    this.removeItem('projects');
-  }
-
-  public addCanvasToProject(index: number, file: Files): void {
-    const projects = this.getProjects();
+  public async addCanvasToProject(index: number, file: CanvaFile): Promise<void> {
+    const db = await this.dbPromise;
+    const projects = await this.getProjects();
     if (index >= 0 && index < projects.length) {
       projects[index].canvaFile = file;
       const { date, time } = this.getFormattedDateTime();
       projects[index].modificationDate = date + ' ' + time;
-      this.setItem('projects', projects);
+      await db.put('projects', projects[index]);
     }
   }
 
-  public changeNameProject(projectIndex: number, nameProject: string): void {
-    const projects = this.getProjects();
+  public async changeNameProject(projectIndex: number, nameProject: string): Promise<void> {
+    const db = await this.dbPromise;
+    const projects = await this.getProjects();
     if (projectIndex >= 0 && projectIndex < projects.length) {
       projects[projectIndex].nameProject = nameProject;
-      this.setItem('projects', projects);
+      await db.put('projects', projects[projectIndex]);
     }
   }
 
-  public updateModificationDate(index: number): void {
-    const projects = this.getProjects();
+  public async updateModificationDate(index: number): Promise<void> {
+    const db = await this.dbPromise;
+    const projects = await this.getProjects();
     if (index >= 0 && index < projects.length) {
       const { date, time } = this.getFormattedDateTime();
       projects[index].modificationDate = date + ' ' + time;
-      this.setItem('projects', projects);
+      await db.put('projects', projects[index]);
     }
   }
 
-  public removeProject(projectIndex: number): void {
-    const projects = this.getProjects();
+  public async removeProject(projectIndex: number): Promise<void> {
+    const db = await this.dbPromise;
+    const projects = await this.getProjects();
     if (projectIndex >= 0 && projectIndex < projects.length) {
+      const project = projects[projectIndex];
       projects.splice(projectIndex, 1);
-      this.setItem('projects', projects);
+      await db.delete('projects', project.id!);
     }
   }
 

@@ -1,16 +1,16 @@
 .box-translate {
-    position: absolute;
-    min-width: 180px;
-    flex-grow: 0;
+    align-items: flex-start;
+    background-color: #292929;
+    border: solid 2px #555;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
+    flex-grow: 0;
     gap: 14px;
+    justify-content: flex-start;
+    min-width: 180px;
     padding: 15px 12px;
-    border-radius: 10px;
-    border: solid 2px #555;
-    background-color: #292929;
+    position: absolute;
     z-index: 1;
 }
 
@@ -19,27 +19,27 @@
 }
 
 #row_translateButtons {
+    align-items: flex-start;
     display: flex;
     flex-direction: row;
     flex-grow: 1;
-    width: 100%;
-    justify-content: flex-start;
-    align-items: flex-start;
     gap: 7px;
+    justify-content: flex-start;
+    width: 100%;
 }
 
 .translateButtons {
+    align-items: center;
+    background-color: #333;
+    border: solid 1px #4b4b4b;
+    border-radius: 5px;
     cursor: pointer;
-    flex-grow: 1;
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
+    flex-grow: 1;
     gap: 10px;
+    justify-content: center;
     padding: 8px 10px;
-    border-radius: 5px;
-    border: solid 1px #4b4b4b;
-    background-color: #333;
 }
 
 .translateButtons h2 {
