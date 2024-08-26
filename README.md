@@ -14,6 +14,7 @@ Before running Locally the project, ensure you have the following dependencies i
 
 - [Rust](https://www.rust-lang.org/tools/install)
 - [libclang-dev](https://apt.llvm.org/)
+- Tesseract-ocr (eng, jpn-vert)
 - Node.js and npm
 
 ### Installation
