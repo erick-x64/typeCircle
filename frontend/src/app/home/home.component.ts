@@ -31,15 +31,33 @@ export class HomeComponent implements AfterViewInit {
     private saveService: SaveService
   ) { }
 
-  @Input() projectDisplay: Project[] = [];
-  projectDisplaySubject: BehaviorSubject<any[]> = new BehaviorSubject(this.projectDisplay);
+  private _allProjects: Project[] = [];
+
+  @Input()
+  set allProjects(value: Project[]) {
+    this._allProjects = value;
+    this.onAllProjectsReceived();
+  }
+
+  get allProjects(): Project[] {
+    return this._allProjects;
+  }
+
+  projectDisplay: Project[] = [];
+  allProjectsSubject: BehaviorSubject<any[]> = new BehaviorSubject(this.allProjects);
   @Output() sendOpenFileFirst = new EventEmitter<File>();
   @Output() sendOpenProject = new EventEmitter<number>();
+  
+  onAllProjectsReceived(): void {
+    this.projectDisplay = [...this.allProjects];
+  }
 
   ngAfterViewInit() {
-    this.projectDisplaySubject.subscribe((projects) => {
+    this.allProjectsSubject.subscribe((projects) => {
       if (projects.length === 0) {
         this.animationNoImage();
+        this.projectDisplay = [...this.allProjects];
+        
       }
     });
   }
@@ -81,6 +99,17 @@ export class HomeComponent implements AfterViewInit {
     }
   }
 
+  // Search
+  onSearch(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const searchTerm = target.value.toLowerCase();
+
+    this.projectDisplay = this.allProjects.filter(project =>
+      project.nameProject.toLowerCase().includes(searchTerm)
+    );
+  }
+
+
   // Box Recent Handlers
   openProject(index: number) {
     this.sendOpenProject.emit(index);
@@ -89,7 +118,7 @@ export class HomeComponent implements AfterViewInit {
   async onDeleteBoxRecent(index: number) {
     if (index > -1 && index < this.projectDisplay.length) {
       this.projectDisplay.splice(index, 1);
-      this.projectDisplaySubject.next(this.projectDisplay);
+      this.allProjectsSubject.next(this.projectDisplay);
       this.localStorageService.removeProject(index);
     }
   }

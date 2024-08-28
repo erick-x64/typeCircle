@@ -23,7 +23,7 @@
 
   <div id="recents">
     <app-home *ngIf="showHome" [ngStyle]="{ 'opacity': isAnimationOpenEdit ? '0' : '1' }"
-      [projectDisplay]="projectDisplay" (sendOpenProject)="openProject($event)"
+      [allProjects]="projectDisplay" (sendOpenProject)="openProject($event)"
       (sendOpenFileFirst)="openFileFirst($event)" id="contentHome"></app-home>
 
     <app-dashboard-canva [ngClass]="{'hidden': showHome}" #contentEdit></app-dashboard-canva>

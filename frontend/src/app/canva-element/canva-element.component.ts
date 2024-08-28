@@ -787,6 +787,7 @@ export class CanvaElementComponent {
       });
 
       this.canvas.renderAll();
+      this.saveChangesInLocal();
     }
   }
 

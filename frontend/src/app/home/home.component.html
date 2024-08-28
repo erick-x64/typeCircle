@@ -7,7 +7,7 @@
 
             <div id="searchHeader">
                 <div class="svg-mask svg-header" style="mask-image: url('/assets/icons/31.svg');"></div>
-                <input placeholder="Search..." type="text">
+                <input placeholder="Search..." type="text" (input)="onSearch($event)">
             </div>
 
             <div class="buttonFormatDisplay select">
@@ -39,10 +39,12 @@
 
             <div class="svg-mask svg-headerItem" style="mask-image: url('/assets/icons/13.svg');"></div>
         </div>
+
         <app-box-recent-in-list *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"
             [nameProject]="project.nameProject" [creationDate]="project.creationDate"
             [modificationDate]="project.modificationDate" [index]="i" (deleteBoxRecent)="onDeleteBoxRecent($event)"
-            (openProject)="openProject($event)"></app-box-recent-in-list>
+            (openProject)="openProject($event)">
+        </app-box-recent-in-list>
     </div>
 
     <div *ngIf="projectDisplay.length == 0" id="noImages">
