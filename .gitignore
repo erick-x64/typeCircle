@@ -41,7 +41,7 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# assets
+# Assets
 frontend/src/assets/teste
 backend/rust-image-service/tmp/*
 
@@ -49,3 +49,6 @@ backend/rust-image-service/tmp/*
 backend/rust-image-service/yolov4/yolov4-custom_best.weights
 backend/rust-image-service/target
 backend/rust-image-service/.history
+
+# Config
+frontend/src/config.ts
