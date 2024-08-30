@@ -110,6 +110,7 @@
     height: 100%;
     justify-content: flex-start;
     padding: 26px 20px;
+    overflow: hidden;
 }
 
 .content_element_boxFunctions .pass {

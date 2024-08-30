@@ -1,7 +1,7 @@
 <div class="box-recent-in-list" (click)="onBoxClick()" #boxRecentList>
     <div class="headerItem">
         <img [src]="imageSrc" alt="image" />
-        <input class="caption-title" (click)="onTitleClick($event)" [value]="nameProject" (input)="changeInput($event)" type="text"
+        <input placeholder="not defined" class="caption-title" (click)="onTitleClick($event)" [value]="nameProject" (input)="changeInput($event)" type="text"
             (focus)="onFocusInput()" (blur)="onBlurInput()">
     </div>
 

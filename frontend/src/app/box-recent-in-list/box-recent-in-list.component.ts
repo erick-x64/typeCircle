@@ -19,6 +19,7 @@ export class BoxRecentInListComponent {
 
   @Output() deleteBoxRecent = new EventEmitter<number>();
   @Output() openProject = new EventEmitter<number>();
+  @Output() changeName = new EventEmitter<{ index: number, input: string }>();
 
   @Input() canvaFile?: CanvaFile;
   @Input() nameProject?: string;
@@ -83,6 +84,9 @@ export class BoxRecentInListComponent {
   changeInput(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     const currentValue = inputElement.value;
+    this.nameProject = currentValue;
+    this.changeName.emit({ index: this.index!, input: currentValue });
+
     // save
     this.localStorageService.changeNameProject(this.index!, currentValue);
   }

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../data.service';
+import anime from 'animejs';
 
 @Component({
   selector: 'app-dashboard-canva',
@@ -29,7 +30,6 @@ export class DashboardCanvaComponent implements OnInit {
 
   // Box Entry Handlers
   selectTopHeader: number = 0;
-  selectBottomHeader: number = 0;
 
   private addNewBoxEntry({ idBox, text }: { idBox: number; text: string }) {
     this.selectEntry = idBox;
@@ -61,10 +61,66 @@ export class DashboardCanvaComponent implements OnInit {
 
   // dashboard-canva Handlers
   changeTopHeader(selectTopHeader: number) {
-    this.selectTopHeader = selectTopHeader;
+    this.animateVisibleContent(selectTopHeader);
   }
 
-  changeBottomHeader(selectBottomHeader: number) {
-    this.selectBottomHeader = selectBottomHeader;
+  // animations
+  animateVisibleContent(selectTopHeader: number) {
+    if (selectTopHeader != this.selectTopHeader) {
+      const topElement = document.getElementById('topElement');
+
+      let translateXDirection: [number, number];
+      if (selectTopHeader > this.selectTopHeader) {
+        translateXDirection = [0, -30]; // Animação para a esquerda
+      } else {
+        translateXDirection = [0, 30]; // Animação para a direita
+      }
+
+      // Seleciona os elementos ocultos e redefine seu estilo
+      const hiddenElements = topElement?.querySelectorAll('.pass.hidden, .bottom-pass.hidden');
+      if (hiddenElements) {
+        hiddenElements.forEach(element => {
+          anime.remove(element);
+          (element as HTMLElement).style.opacity = '0';
+          (element as HTMLElement).style.transform = '';
+        });
+      }
+
+      // animation button top content
+      const visibleButtonTop = topElement?.querySelectorAll('.button_header_element_boxFunctions.select');
+      anime({
+        targets: visibleButtonTop,
+        backgroundColor: ['#222', 'rgba(255, 0, 0, 0)'],
+        easing: 'easeOutQuart',
+        duration: 100
+      });
+
+      // animation content
+      const visibleElements = topElement?.querySelectorAll('.pass:not(.hidden), .bottom-pass:not(.hidden)');
+
+      if (visibleElements) {
+        anime({
+          targets: visibleElements,
+          opacity: [1, 0],
+          translateX: translateXDirection,
+          duration: 100,
+          easing: 'easeOutQuart',
+          complete: () => {
+            this.selectTopHeader = selectTopHeader;
+            setTimeout(() => {       
+              // animation content
+              const visibleElements = topElement?.querySelectorAll('.pass:not(.hidden), .bottom-pass:not(.hidden)');
+              anime({
+                targets: visibleElements,
+                opacity: [0, 1],
+                scale: [0.8, 1],
+                duration: 100,
+                easing: 'easeOutQuart'
+              });
+            }, 0);
+          }
+        });
+      }
+    }
   }
 }

@@ -43,7 +43,7 @@
         <app-box-recent-in-list *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"
             [nameProject]="project.nameProject" [creationDate]="project.creationDate"
             [modificationDate]="project.modificationDate" [index]="i" (deleteBoxRecent)="onDeleteBoxRecent($event)"
-            (openProject)="openProject($event)">
+            (openProject)="openProject($event)" (changeName)="changeName($event)">
         </app-box-recent-in-list>
     </div>
 

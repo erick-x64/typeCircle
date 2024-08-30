@@ -1,4 +1,4 @@
-import { Component, Output, Input, EventEmitter, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, Output, Input, EventEmitter, ElementRef, AfterViewInit, ViewChild, input } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { LocalStorageService } from '../local-storage.service';
 import { SaveService } from '../save.service';
@@ -109,7 +109,6 @@ export class HomeComponent implements AfterViewInit {
     );
   }
 
-
   // Box Recent Handlers
   openProject(index: number) {
     this.sendOpenProject.emit(index);
@@ -121,5 +120,10 @@ export class HomeComponent implements AfterViewInit {
       this.allProjectsSubject.next(this.projectDisplay);
       this.localStorageService.removeProject(index);
     }
+  }
+
+  changeName(event: { index: number, input: string }) {
+    this.allProjects[event.index].nameProject = event.input;
+    this.projectDisplay = [...this.allProjects];
   }
 }
