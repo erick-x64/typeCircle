@@ -51,7 +51,7 @@ export class AppComponent implements OnInit {
 
   async ngOnInit() {
     this.projectDisplay = await this.localStorageService.getProjects();
-    this.debugMode();
+    // this.debugMode();
   }
 
   // Header Handlers

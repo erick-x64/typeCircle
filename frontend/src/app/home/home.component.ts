@@ -47,7 +47,7 @@ export class HomeComponent implements AfterViewInit {
   allProjectsSubject: BehaviorSubject<any[]> = new BehaviorSubject(this.allProjects);
   @Output() sendOpenFileFirst = new EventEmitter<File>();
   @Output() sendOpenProject = new EventEmitter<number>();
-  
+
   onAllProjectsReceived(): void {
     this.projectDisplay = [...this.allProjects];
   }
@@ -57,7 +57,8 @@ export class HomeComponent implements AfterViewInit {
       if (projects.length === 0) {
         this.animationNoImage();
         this.projectDisplay = [...this.allProjects];
-        
+
+
       }
     });
   }
@@ -73,6 +74,32 @@ export class HomeComponent implements AfterViewInit {
       });
     }, 0);
   }
+
+  displayFormat: number = 0;
+  // Change displayFormat
+  changeDisplayFormat(changeNumber: number) {
+    if (changeNumber != this.displayFormat) {
+      // animation
+      anime({
+        targets: ".contentProject",
+        opacity: [1, 0],
+        duration: 150,
+        easing: 'easeOutQuart',
+        complete: () => {
+          this.displayFormat = changeNumber;
+          setTimeout(() => {
+            anime({
+              targets: ".contentProject",
+              opacity: [0, 1],
+              duration: 150,
+              easing: 'easeOutQuart'
+            });
+          }, 0);
+        }
+      });
+    }
+  }
+
 
   // File Handling
   openImage() {

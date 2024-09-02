@@ -1,17 +1,16 @@
-<div class="boxRecent">
+<div #boxRecent id="boxRecent" (click)="onBoxClick()">
+    <div id="infoAboutProject">
+        <div class="buttonInfo">
+            <h3>{{totalImage}}</h3>
+        </div>
+        <div (click)="onDeleteClick($event)" class="buttonInfo">
+            <div class="svg-mask svg-headerItem" style="mask-image: url('/assets/icons/13.svg');"></div>
+        </div>
+    </div>
     <img [src]="imageSrc" alt="">
     <div id="headerBox">
-        <h1>{{nameProject}}</h1>
-        <h2>Total de images: <span id="blueColor">{{totalImage}}</span></h2>
-        <div class="infoAboutFile">
-            <div class="columnInfoFile">
-                <img src="/assets/icons/25.svg" alt="">
-                <h2>{{modificationDate}}</h2>
-            </div>
-            <div class="columnInfoFile">
-                <img src="/assets/icons/26.svg" alt="">
-                <h2>{{creationDate}}</h2>
-            </div>
-        </div>
+        <input placeholder="not defined" class="caption-title" (click)="onTitleClick($event)" [value]="nameProject"
+            (input)="onChangeInput($event)" type="text">
+        <h3>{{modificationDate}}</h3>
     </div>
 </div>

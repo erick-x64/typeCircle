@@ -77,7 +77,6 @@ export class BoxRecentInListComponent {
   onDeleteClick(event: Event) {
     event.stopPropagation();
     this.initAnimationDelete();
-    // this.localStorageService.removeProject(this.index!);
   }
 
   // event change

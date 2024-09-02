@@ -10,41 +10,57 @@
                 <input placeholder="Search..." type="text" (input)="onSearch($event)">
             </div>
 
-            <div class="buttonFormatDisplay select">
+            <div class="buttonFormatDisplay" (click)="changeDisplayFormat(0)"
+                [ngClass]="{'select': displayFormat == 0}">
                 <div class="svg-mask svg-header" style="mask-image: url('/assets/icons/23.svg');"></div>
             </div>
 
-            <div class="buttonFormatDisplay">
+            <div class="buttonFormatDisplay" (click)="changeDisplayFormat(1)"
+                [ngClass]="{'select': displayFormat == 1}">
                 <div class="svg-mask svg-header" style="mask-image: url('/assets/icons/22.svg');"></div>
             </div>
         </div>
     </div>
 
-    <div *ngIf="projectDisplay.length > 0" class="project-list-content">
-        <div class="box-recent-in-list">
-            <div class="headerItem">
-                <p>Name</p>
-                <img src="/assets/icons/32.svg" alt="">
+    <div class="contentProject" [ngClass]="{'hidden': displayFormat == 1 || projectDisplay.length <= 0}">
+        <div id="project-list-content">
+            <div class="box-recent-in-list">
+                <div class="headerItem">
+                    <p>Name</p>
+                    <img src="/assets/icons/32.svg" alt="">
+                </div>
+
+                <div class="headerItem lastUpdate">
+                    <p>Last update</p>
+                    <img src="/assets/icons/32.svg" alt="">
+                </div>
+
+                <div class="headerItem openFile">
+                    <p>Open files</p>
+                    <img src="/assets/icons/32.svg" alt="">
+                </div>
+
+                <div class="svg-mask svg-headerItem" style="mask-image: url('/assets/icons/13.svg');"></div>
             </div>
 
-            <div class="headerItem lastUpdate">
-                <p>Last update</p>
-                <img src="/assets/icons/32.svg" alt="">
-            </div>
-
-            <div class="headerItem openFile">
-                <p>Open files</p>
-                <img src="/assets/icons/32.svg" alt="">
-            </div>
-
-            <div class="svg-mask svg-headerItem" style="mask-image: url('/assets/icons/13.svg');"></div>
+            <app-box-recent-in-list *ngFor="let project of projectDisplay; let i = index"
+                [canvaFile]="project.canvaFile" [nameProject]="project.nameProject"
+                [creationDate]="project.creationDate" [modificationDate]="project.modificationDate" [index]="i"
+                (deleteBoxRecent)="onDeleteBoxRecent($event)" (openProject)="openProject($event)"
+                (changeName)="changeName($event)">
+            </app-box-recent-in-list>
         </div>
+    </div>
 
-        <app-box-recent-in-list *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"
-            [nameProject]="project.nameProject" [creationDate]="project.creationDate"
-            [modificationDate]="project.modificationDate" [index]="i" (deleteBoxRecent)="onDeleteBoxRecent($event)"
-            (openProject)="openProject($event)" (changeName)="changeName($event)">
-        </app-box-recent-in-list>
+    <div class="contentProject" [ngClass]="{'hidden': displayFormat == 0 || projectDisplay.length <= 0}">
+        <div id="project-box-content">
+            <app-box-recent *ngFor="let project of projectDisplay; let i = index" [index]="i"
+                [canvaFile]="project.canvaFile" [nameProject]="project.nameProject"
+                [creationDate]="project.creationDate" [modificationDate]="project.modificationDate"
+                (deleteBoxRecent)="onDeleteBoxRecent($event)" (openProject)="openProject($event)"
+                (changeName)="changeName($event)">
+            </app-box-recent>
+        </div>
     </div>
 
     <div *ngIf="projectDisplay.length == 0" id="noImages">
@@ -54,10 +70,6 @@
         <span class="text-style-3">maybe</span>
     </div>
 
-    <!-- <app-box-recent *ngFor="let project of projectDisplay; let i = index" [canvaFile]="project.canvaFile"
-      [nameProject]="project.nameProject" [creationDate]="project.creationDate"
-      [modificationDate]="project.modificationDate" (click)="openProject(i)">
-    </app-box-recent> -->
 </div>
 
 <!-- ignore -->

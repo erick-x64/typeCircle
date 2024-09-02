@@ -71,12 +71,11 @@ export class DashboardCanvaComponent implements OnInit {
 
       let translateXDirection: [number, number];
       if (selectTopHeader > this.selectTopHeader) {
-        translateXDirection = [0, -30]; // Animação para a esquerda
+        translateXDirection = [0, -30];
       } else {
-        translateXDirection = [0, 30]; // Animação para a direita
+        translateXDirection = [0, 30]; 
       }
 
-      // Seleciona os elementos ocultos e redefine seu estilo
       const hiddenElements = topElement?.querySelectorAll('.pass.hidden, .bottom-pass.hidden');
       if (hiddenElements) {
         hiddenElements.forEach(element => {
