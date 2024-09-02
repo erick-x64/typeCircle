@@ -26,7 +26,6 @@ interface Files {
   styleUrl: './canva-element.component.css'
 })
 export class CanvaElementComponent {
-  @ViewChild('container', { read: ViewContainerRef }) container!: ViewContainerRef;
 
   @ViewChild('downloadLink') downloadLink: ElementRef | undefined;
   @ViewChild('myCanvas') myCanvas: ElementRef | undefined;
@@ -430,7 +429,6 @@ export class CanvaElementComponent {
   private setupEventListeners() {
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Delete') {
-        this.container.clear();
         const activeObjects = this.canvas.getActiveObjects();
 
         if (activeObjects.length > 0) {
@@ -451,7 +449,7 @@ export class CanvaElementComponent {
     });
   }
 
-  private deleteRect(rect: fabric.Rect) {    
+  private deleteRect(rect: fabric.Rect) {
     this.canvas.remove(rect);
     this.canvas.renderAll();
     const index = this.rects.indexOf(rect);
@@ -1371,7 +1369,7 @@ export class CanvaElementComponent {
 
       let arrayFile = { pathFile: getProject.base64Image[i], nameFile: nameFile, extensionFile: extension, select: true };
 
-      if (getProject.selectFile == i) {        
+      if (getProject.selectFile == i) {
         this.saveService.addFile(arrayFile);
       } else {
         arrayFile.select = false;
@@ -1494,11 +1492,11 @@ export class CanvaElementComponent {
       base64Image: this.files.base64Image.slice(),
       selectFile: this.files.selectFile,
       canvas: [...this.files.canvas],
-      translationOfFiles: [...this.files.translationOfFiles]
+      translationOfFiles: [...this.files.translationOfFiles],
     };
 
     // update changes in canva select
-    const canvasJson = this.canvas.toDatalessJSON(['data', 'selectable']);    
+    const canvasJson = this.canvas.toDatalessJSON(['data', 'selectable']);
     filesLocalStorage.canvas[filesLocalStorage.selectFile] = canvasJson;
     this.addFileToProject(this.localStorageService.getSelectedProjectIndex(), filesLocalStorage);
   }

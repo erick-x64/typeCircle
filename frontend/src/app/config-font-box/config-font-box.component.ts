@@ -37,6 +37,16 @@ export class ConfigFontBoxComponent {
     this.debouncedSendVarsToCanva = this.debounce(this.sendVarsToCanva.bind(this), 300);
   }
 
+  ngOnInit() {
+    this.dataService.sendConfigBoxSelect$.subscribe(data => {
+      this.familyFont = data.familyFont;
+      this.sizeFont = data.sizeFont;
+      this.colorFont = data.colorFont;
+      this.lineHeightFont = data.lineHeightFont;
+      this.positionText = data.positionText;
+    });
+  }
+
   changeSizeFont() {
     this.sendVarsToCanva();
   }
