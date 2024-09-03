@@ -911,6 +911,16 @@ export class CanvaElementComponent {
       this.setupDrawing();
       this.setupEventListeners();
       this.updateRects();
+      if (this.textboxes.length > 0) {
+        this.dataService.sendConfigBoxSelect(
+          this.textboxes.length - 1,
+          this.textboxes[this.textboxes.length - 1].fontFamily ?? "",
+          this.textboxes[this.textboxes.length - 1].fontSize ?? 0,
+          this.textboxes[this.textboxes.length - 1].fill?.toString() ?? "",
+          this.textboxes[this.textboxes.length - 1].lineHeight ?? 0,
+          this.positionText
+        );
+      }
     });
     this.canvas.renderAll();
   }

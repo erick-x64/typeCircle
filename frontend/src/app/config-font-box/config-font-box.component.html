@@ -5,7 +5,7 @@
             <h1>Allow local fonts</h1>
         </div>
 
-        <app-font-dropdown (selectionChanged)="handleSelectionChanged($event)" *ngIf="!showButtonChoiceFont" [fontFamilies]="fontFamilies" [fontMap]="fontMap">
+        <app-font-dropdown (selectionChanged)="handleSelectionChanged($event)" *ngIf="!showButtonChoiceFont" [fontFamilies]="fontFamilies" [selectedFamily]="selectedFamily" [fontMap]="fontMap">
         </app-font-dropdown>
 
         <select class="button_configFont" (change)="changeSizeFont()" [(ngModel)]="sizeFont" name="select">

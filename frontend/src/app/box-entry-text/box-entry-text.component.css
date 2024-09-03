@@ -22,8 +22,10 @@
 }
 
 .boxEntryText input{
+    font-family: BeepSemiBold;
     font-size: 14px;
     font-family: "BeepMedium";
+    color: #c0c0c0;
     width: 100%;
 }
 

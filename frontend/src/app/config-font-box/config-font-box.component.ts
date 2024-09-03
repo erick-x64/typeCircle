@@ -38,12 +38,15 @@ export class ConfigFontBoxComponent {
   }
 
   ngOnInit() {
+    this.listFonts();
     this.dataService.sendConfigBoxSelect$.subscribe(data => {
       this.familyFont = data.familyFont;
       this.sizeFont = data.sizeFont;
       this.colorFont = data.colorFont;
       this.lineHeightFont = data.lineHeightFont;
       this.positionText = data.positionText;
+
+      this.selectedFamily = data.familyFont;
     });
   }
 

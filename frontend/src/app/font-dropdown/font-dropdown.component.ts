@@ -15,17 +15,27 @@ interface FontData {
 export class FontDropdownComponent {
   @Input() fontFamilies: string[] = [];
   @Input() fontMap: { [key: string]: any[] } = {};
+  @Input() selectedFamily: string = "";
   @Output() selectionChanged = new EventEmitter<{ selectedFamily: string, selectedOption: FontData }>();
 
   filterText: string = '';
-  selectedFamily: string | null = null;
   selectedOption: any | null = null;
   dropdownOpen: boolean = false;
   filteredFontFamilies: string[] = [];
 
   ngOnInit() {
-    this.dropdownOpen = true;
     this.filteredFontFamilies = [...this.fontFamilies];
+  }
+
+  ngOnChanges() {
+    if (this.selectedFamily) {
+      const object = {
+        family: this.selectedFamily,
+        fullName: this.selectedFamily
+      }
+
+      this.selectFont(object);
+    }
   }
 
   toggleDropdown() {
