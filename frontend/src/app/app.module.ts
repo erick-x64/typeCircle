@@ -2,7 +2,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { ColorPickerModule } from 'ngx-color-picker';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -23,36 +23,31 @@ import { BoxTranslateComponent } from './box-translate/box-translate.component';
 import { BoxSlideTranslateComponent } from './box-slide-translate/box-slide-translate.component';
 import { TableTranslateAndOcrComponent } from './table-translate-and-ocr/table-translate-and-ocr.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    BoxEntryTextComponent,
-    ConfigFontBoxComponent,
-    CanvaElementComponent,
-    FileBoxComponent,
-    ElementFileBoxComponent,
-    BoxAiComponent,
-    FontDropdownComponent,
-    OtherToolsComponent,
-    BoxRecentComponent,
-    BoxRecentInListComponent,
-    HomeComponent,
-    DashboardCanvaComponent,
-    BoxTranslateComponent,
-    BoxSlideTranslateComponent,
-    TableTranslateAndOcrComponent,
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    AppRoutingModule,
-    ColorPickerModule,
-    HttpClientModule
-  ],
-  providers: [
-    provideClientHydration()
-  ],
-  bootstrap: [AppComponent],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA] // Adicione o CUSTOM_ELEMENTS_SCHEMA aqui
-})
+@NgModule({ declarations: [
+        AppComponent,
+        BoxEntryTextComponent,
+        ConfigFontBoxComponent,
+        CanvaElementComponent,
+        FileBoxComponent,
+        ElementFileBoxComponent,
+        BoxAiComponent,
+        FontDropdownComponent,
+        OtherToolsComponent,
+        BoxRecentComponent,
+        BoxRecentInListComponent,
+        HomeComponent,
+        DashboardCanvaComponent,
+        BoxTranslateComponent,
+        BoxSlideTranslateComponent,
+        TableTranslateAndOcrComponent,
+    ],
+    bootstrap: [AppComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA] // Adicione o CUSTOM_ELEMENTS_SCHEMA aqui
+    , imports: [BrowserModule,
+        FormsModule,
+        AppRoutingModule,
+        ColorPickerModule], providers: [
+        provideClientHydration(),
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule { }
