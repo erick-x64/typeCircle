@@ -207,7 +207,7 @@ export class DataService {
 
     // Translation
     sendTranslationsData(dataTranslations: TranslationFile[]) {
-        this.next(this.subjects.canvas.translation, dataTranslations );
+        this.next(this.subjects.canvas.translation, { dataTranslations });
     }
 
     // OCR requests

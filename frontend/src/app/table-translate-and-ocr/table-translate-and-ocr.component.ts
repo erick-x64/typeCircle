@@ -22,7 +22,7 @@ export class TableTranslateAndOcrComponent {
     this.observeDOMChanges();
 
     this.dataService['subjects'].canvas.translation.subscribe(data => {
-      if (data.dataTranslations[this.indexRect]) {
+      if (data.dataTranslations[this.indexRect] != undefined) {
         this.isSelectOptionOcr = true;
         this.isSelectOptionTranslateAi = true;
 
