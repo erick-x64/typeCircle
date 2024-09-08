@@ -20,12 +20,26 @@ ng build
 sed -i '41d' $FILE
 
 # Removing previous files
-echo "Removing previous files from typecircle.com..."
-rm -r ~/htdocs/typecircle.com/*
+DIR=~/htdocs/typecircle.com
+
+# Check if the directory exists
+if [ -d "$DIR" ]; then
+    # Check if the directory is empty
+    if [ "$(ls -A $DIR)" ]; then
+        echo "Removing previous files from typecircle.com..."
+        rm -r "$DIR"/*
+        echo "Files removed."
+    else
+        echo "Directory is empty, nothing to remove."
+    fi
+else
+    echo "Directory does not exist."
+fi
+
 
 # Copy files to destination directory
 echo "Copying files to typecircle.com ..."
-cp -r dist/type-circle/browser/* ~/htdocs/typecircle.com/
+cp -r dist/type-circle/browser/* "$DIR"
 
 # Remove temporary files
 echo "Removing temporary files..."
