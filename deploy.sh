@@ -21,11 +21,11 @@ sed -i '41d' $FILE
 
 # Removing previous files
 echo "Removing previous files from typecircle.com..."
-sudo rm -r /home/user-ssh/htdocs/typecircle.com/*
+sudo rm -r  ~/htdocs/typecircle.com/*
 
 # Copy files to destination directory
 echo "Copying files to typecircle.com ..."
-sudo cp -r dist/type-circle/browser/* /home/user-ssh/htdocs/typecircle.com/
+sudo cp -r dist/type-circle/browser/* ~/htdocs/typecircle.com/
 
 # Remove temporary files
 echo "Removing temporary files..."
