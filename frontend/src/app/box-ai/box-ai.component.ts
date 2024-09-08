@@ -30,7 +30,7 @@ export class BoxAiComponent {
 
       this.dataService.requestIdentification();
 
-      this.dataService.operationIdentificationComplete$.subscribe((data) => {
+      this.dataService['subjects'].ai.identificationComplete.subscribe((data) => {
         this.inProcessRequest = false;
         const primeirosDoisDigitos = data.average_score.toString().slice(0, 2);
         this.average_score = primeirosDoisDigitos;

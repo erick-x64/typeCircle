@@ -1,11 +1,15 @@
 import { Component, Input } from '@angular/core';
 import { DataService } from '../data.service';
 
-interface FontData {
-  postscriptName: string;
-  fullName: string;
-  family: string;
-  style: string;
+interface BoxConfig {
+  idBox: number;
+  familyFont: string;
+  styleFont: string;
+  fontWeight: string;
+  sizeFont: number;
+  colorFont: string;
+  lineHeightFont: number;
+  positionText: number;
 }
 
 @Component({
@@ -13,6 +17,7 @@ interface FontData {
   templateUrl: './config-font-box.component.html',
   styleUrl: './config-font-box.component.css'
 })
+
 export class ConfigFontBoxComponent {
   @Input() selectEntry: number = 0;
 
@@ -39,7 +44,7 @@ export class ConfigFontBoxComponent {
 
   ngOnInit() {
     this.listFonts();
-    this.dataService.sendConfigBoxSelect$.subscribe(data => {
+    this.dataService['subjects'].fontConfig.select.subscribe(data => {
       this.familyFont = data.familyFont;
       this.sizeFont = data.sizeFont;
       this.colorFont = data.colorFont;
@@ -72,28 +77,21 @@ export class ConfigFontBoxComponent {
   }
 
   sendVarsToCanva() {
+    const boxConfig: BoxConfig = {
+      idBox: this.selectEntry,
+      familyFont: this.familyFont,
+      styleFont: this.styleFont,
+      fontWeight: this.fontWeight,
+      sizeFont: this.sizeFont,
+      colorFont: this.colorFont,
+      lineHeightFont: this.lineHeightFont,
+      positionText: this.positionText
+    };
+
     if (this.selectEntry !== -1) {
-      this.dataService.boxFontChange(
-        this.selectEntry,
-        this.familyFont,
-        this.styleFont,
-        this.fontWeight,
-        this.sizeFont,
-        this.colorFont,
-        this.lineHeightFont,
-        this.positionText
-      );
+      this.dataService.boxFontChange(boxConfig);
     } else {
-      this.dataService.boxFontDefaultChange(
-        this.selectEntry,
-        this.familyFont,
-        this.styleFont,
-        this.fontWeight,
-        this.sizeFont,
-        this.colorFont,
-        this.lineHeightFont,
-        this.positionText
-      );
+      this.dataService.boxFontDefaultChange(boxConfig);
     }
   }
 
@@ -115,14 +113,12 @@ export class ConfigFontBoxComponent {
       try {
         if (typeof (window as any).queryLocalFonts === 'function') {
           this.availableFonts = await (window as any).queryLocalFonts();
-          console.log(this.availableFonts);
-          
           this.organizeFontsByFamily();
         } else {
           console.warn("queryLocalFonts is not supported in this browser.");
           this.availableFonts = this.getFallbackFonts();
           this.organizeFontsByFamily();
-        } 
+        }
       } catch (err: any) {
         console.error(err.name, err.message);
       }
@@ -161,7 +157,7 @@ export class ConfigFontBoxComponent {
       { family: 'Trebuchet MS', fullName: 'Trebuchet MS Italic' },
       { family: 'Trebuchet MS', fullName: 'Trebuchet MS Bold Italic' }
     ];
-  }  
+  }
 
   queryLocalFonts() {
     return new Promise((resolve, reject) => {

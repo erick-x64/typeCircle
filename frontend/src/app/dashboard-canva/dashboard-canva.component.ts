@@ -21,11 +21,11 @@ export class DashboardCanvaComponent implements OnInit {
   arrayEntry: { idEntry?: number, text?: string, select?: boolean }[] = [];
 
   private subscribeToDataService() {
-    this.dataService.boxCreate$.subscribe(data => this.addNewBoxEntry(data));
-    this.dataService.boxChange$.subscribe(data => this.changeBoxEntry(data));
-    this.dataService.boxSelect$.subscribe(data => this.selectBoxEntry(data));
-    this.dataService.boxDelete$.subscribe(data => this.deleteBoxEntry(data));
-    this.dataService.boxAllDelete$.subscribe(() => this.deleteAllBoxEntry());
+    this.dataService['subjects'].entry.create.subscribe(data => this.addNewBoxEntry(data));
+    this.dataService['subjects'].entry.change.subscribe(data => this.changeBoxEntry(data));
+    this.dataService['subjects'].entry.select.subscribe(data => this.selectBoxEntry(data));
+    this.dataService['subjects'].entry.delete.subscribe(data => this.deleteBoxEntry(data));
+    this.dataService['subjects'].entry.deleteAll.subscribe(() => this.deleteAllBoxEntry());
   }
 
   // Box Entry Handlers

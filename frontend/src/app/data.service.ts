@@ -1,242 +1,225 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { ReplaySubject } from 'rxjs';
+import { Subject, ReplaySubject } from 'rxjs';
 
 interface TranslationFile {
     text: string;
     textTranslate: string;
 }
 
+interface BoxConfig {
+    idBox: number;
+    familyFont: string;
+    styleFont: string;
+    fontWeight: string;
+    sizeFont: number;
+    colorFont: string;
+    lineHeightFont: number;
+    positionText: number;
+}
+
+
 @Injectable({
     providedIn: 'root'
 })
-
 export class DataService {
-    // Entry changes
-    private boxCreateSubject = new Subject<{ idBox: number, text: string }>();
-    boxCreate$ = this.boxCreateSubject.asObservable();
+    // Subjects grouped by functionality
+    private subjects = {
+        // box-entry-text
+        entry: {
+            create: new Subject<{ idBox: number, text: string }>(),
+            change: new Subject<{ idBox: number, text: string }>(),
+            delete: new Subject<{ idBox: number }>(),
+            select: new Subject<{ idBox: number, isSelect: boolean }>(),
+            deleteAll: new Subject<{}>()
+        },
 
-    private boxChangeSubject = new Subject<{ idBox: number, text: string }>();
-    boxChange$ = this.boxChangeSubject.asObservable();
+        // canva-element
+        canvas: {
+            change: new Subject<{ idBox: number, text: string }>(),
+            translation: new ReplaySubject<{ dataTranslations: TranslationFile[] }>(),
+        },
 
-    private boxDeleteSubject = new Subject<{ idBox: number }>();
-    boxDelete$ = this.boxDeleteSubject.asObservable();
+        fontConfig: {
+            change: new Subject<BoxConfig>(),
+            defaultChange: new Subject<BoxConfig>(),
+            select: new Subject<{ idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>()
+        },
 
-    private boxSelectSubject = new Subject<{ idBox: number, isSelect: boolean }>();
-    boxSelect$ = this.boxSelectSubject.asObservable();
+        // file-box
+        fileBox: {
+            addImage: new Subject<{ urlImage: File, debugMode: boolean }>(),
+            selectFile: new Subject<{ index: number }>(),
+            removeFile: new Subject<{ index: number }>(),
+            downloadFile: new Subject<{ index: number }>(),
+            saveAllFiles: new Subject<{}>()
+        },
 
-    private boxDeleteAllSubject = new Subject<{}>();
-    boxAllDelete$ = this.boxDeleteAllSubject.asObservable();
+        // other-tools
+        tools: {
+            enableDrawingRect: new Subject<{ isEnable: boolean, colorReplace: string }>(),
+            removeAreaSelect: new Subject<{}>(),
+            backAreaSelect: new Subject<{}>()
+        },
 
-    // Canvas object changes
-    private boxCanvaChangeSubject = new Subject<{ idBox: number, text: string }>();
-    boxCanvaChange$ = this.boxCanvaChangeSubject.asObservable();
+        // box-ai
+        ai: {
+            requestIdentification: new Subject<{}>(),
+            enableOcrBox: new Subject<{ enableOcrBox: boolean }>(),
+            removeText: new Subject<{}>(),
+            addBoxText: new Subject<{}>(),
+            changeValuesCircle: new Subject<{ offsetCircle: number, radiusCircle: number }>(),
+            identificationRecognition: new Subject<{}>(),
+            identificationRecognitionComplete: new Subject<{ recognizedText: string[] }>(),
+            identificationComplete: new Subject<{ average_score: number, totalIdentified: number }>()
+        },
 
-    private sendTranslationsDataSubject = new ReplaySubject<{ dataTranslations: TranslationFile[] }>();
-    sendTranslationsData$ = this.sendTranslationsDataSubject.asObservable();
+        project: {
+            open: new Subject<{}>()
+        },
 
-    // config font changes
-    private boxFontChangeSubject = new Subject<{ idBox: number, familyFont: string, styleFont: string, fontWeight: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>();
-    boxFontChange$ = this.boxFontChangeSubject.asObservable();
-
-    private boxFontDefaultChangeSubject = new Subject<{ idBox: number, familyFont: string, styleFont: string, fontWeight: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>();
-    boxFontDefaultChange$ = this.boxFontDefaultChangeSubject.asObservable();
-
-    private sendConfigBoxSelectSubject = new Subject<{ idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number }>();
-    sendConfigBoxSelect$ = this.sendConfigBoxSelectSubject.asObservable();
-
-    // file box
-    private addImageCanvaSubject = new Subject<{ urlImage: File, debugMode: boolean }>();
-    addImageCanva$ = this.addImageCanvaSubject.asObservable();
-
-    private selectFileCanvaSubject = new Subject<{ index: number }>();
-    selectFileCanva$ = this.selectFileCanvaSubject.asObservable();
-
-    private removeFileCanvaSubject = new Subject<{ index: number }>();
-    removeFileCanva$ = this.removeFileCanvaSubject.asObservable();
-
-    private downloadFileCanvaSubject = new Subject<{ index: number }>();
-    downloadFileCanva$ = this.downloadFileCanvaSubject.asObservable();
-
-    private saveAllFilesSubject = new Subject<{}>();
-    saveAllFiles$ = this.saveAllFilesSubject.asObservable();
-
-    // other tools
-    private enableDrawingRectSubject = new Subject<{ isEnable: boolean, colorReplace: string }>();
-    enableDrawingRect$ = this.enableDrawingRectSubject.asObservable();
-
-    private sendRemoveAreaSelectSubject = new Subject<{}>();
-    sendRemoveAreaSelect$ = this.sendRemoveAreaSelectSubject.asObservable();
-
-    private sendBackAreaSelectSubject = new Subject<{}>();
-    sendBackAreaSelect$ = this.sendBackAreaSelectSubject.asObservable();
-
-    // box ai
-    private requestIdentificationSubject = new Subject<{}>();
-    requestIdentification$ = this.requestIdentificationSubject.asObservable();
-
-    private requestEnableOcrBoxSubject = new Subject<{ enableOcrBox: boolean }>();
-    requestEnableOcrBox$ = this.requestEnableOcrBoxSubject.asObservable();
-
-    private requestRemoveTextSubject = new Subject<{}>();
-    requestRemoveText$ = this.requestRemoveTextSubject.asObservable();
-
-    private requestAddBoxTextSubject = new Subject<{}>();
-    requestAddBoxText$ = this.requestAddBoxTextSubject.asObservable();
-
-    private requestChangeValuesCircleSubject = new Subject<{ offsetCircle: number, radiusCircle: number }>();
-    requestChangeValuesCircle$ = this.requestChangeValuesCircleSubject.asObservable();
-
-    private requestIdentificationRecognitionSubject = new Subject<{}>();
-    requestIdentificationRecognition$ = this.requestIdentificationRecognitionSubject.asObservable();
-
-    private operationIdentificationRecognitionCompleteSubject = new Subject<{ recognizedText: string[] }>();
-    operationIdentificationCompleteRecognition$ = this.operationIdentificationRecognitionCompleteSubject.asObservable();
-
-    private operationIdentificationCompleteSubject = new Subject<{ average_score: number, totalIdentified: number }>();
-    operationIdentificationComplete$ = this.operationIdentificationCompleteSubject.asObservable();
-
-    // app
-    private openProjectSubject = new Subject<{}>();
-    openProject$ = this.openProjectSubject.asObservable();
-
-    // table-translate
-    private requestOcrRectSubject = new Subject<{ indexRect: number, langInput: string }>();
-    requestOcrRect$ = this.requestOcrRectSubject.asObservable();
-
-    private requestOcrRectCompleteSubject = new Subject<{ ocrString: string }>();
-    requestOcrRectComplete$ = this.requestOcrRectCompleteSubject.asObservable();
-
-    private requestReplacementSubject = new Subject<{ indexRect: number, inputOcr: string, outputTranslate: string }>();
-    requestReplacement$ = this.requestReplacementSubject.asObservable();
+        // table-translate
+        ocr: {
+            requestOcrRect: new Subject<{ indexRect: number, langInput: string }>(),
+            requestOcrRectComplete: new Subject<{ ocrString: string }>(),
+            requestReplacement: new Subject<{ indexRect: number, inputOcr: string, outputTranslate: string }>()
+        }
+    };
 
     constructor() { }
 
-    // app
-    sendOpenProject() {
-        this.openProjectSubject.next({});
+    // General event sending functions
+    private next(subject: Subject<any>, data: any) {
+        subject.next(data);
     }
+
+    // Methods grouped by functionality:
 
     // Entry changes
     sendBoxCreate(idBox: number, text: string) {
-        this.boxCreateSubject.next({ idBox, text });
+        this.next(this.subjects.entry.create, { idBox, text });
     }
 
     sendBoxChange(idBox: number, text: string) {
-        this.boxChangeSubject.next({ idBox, text });
+        this.next(this.subjects.entry.change, { idBox, text });
     }
 
     sendBoxDelete(idBox: number) {
-        this.boxDeleteSubject.next({ idBox });
+        this.next(this.subjects.entry.delete, { idBox });
     }
 
     sendBoxSelect(idBox: number, isSelect: boolean) {
-        this.boxSelectSubject.next({ idBox, isSelect });
+        this.next(this.subjects.entry.select, { idBox, isSelect });
     }
 
     sendBoxAllDelete() {
-        this.boxDeleteAllSubject.next({});
-    }
-
-    // config font changes
-    sendConfigBoxSelect(idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number) {
-        this.sendConfigBoxSelectSubject.next({ idBox, familyFont, sizeFont, colorFont, lineHeightFont, positionText });
-    }
-
-    boxFontChange(idBox: number, familyFont: string, styleFont: string, fontWeight: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number) {
-        this.boxFontChangeSubject.next({ idBox, familyFont, styleFont, fontWeight, sizeFont, colorFont, lineHeightFont, positionText });
-    }
-
-    boxFontDefaultChange(idBox: number, familyFont: string, styleFont: string, fontWeight: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number) {
-        this.boxFontDefaultChangeSubject.next({ idBox, familyFont, styleFont, fontWeight, sizeFont, colorFont, lineHeightFont, positionText });
+        this.next(this.subjects.entry.deleteAll, {});
     }
 
     // Canvas object changes
     sendBoxCanvaChange(idBox: number, text: string) {
-        this.boxCanvaChangeSubject.next({ idBox, text });
+        this.next(this.subjects.canvas.change, { idBox, text });
     }
 
-    sendTranslationsData(dataTranslations: TranslationFile[]) {
-        this.sendTranslationsDataSubject.next({ dataTranslations });
-    }
-
-    // other tools
-    enableDrawingRect(isEnable: boolean, colorReplace: string) {
-        this.enableDrawingRectSubject.next({ isEnable, colorReplace });
-    }
-
-    sendRemoveAreaSelect() {
-        this.sendRemoveAreaSelectSubject.next({});
-    }
-
-    sendBackAreaSelect() {
-        this.sendBackAreaSelectSubject.next({});
-    }
-
-    // file box
+    // FileBox object changes
     addImageCanva(urlImage: File, debugMode: boolean) {
-        this.addImageCanvaSubject.next({ urlImage, debugMode });
+        this.next(this.subjects.fileBox.addImage, { urlImage, debugMode });
     }
 
     selectFileCanva(index: number) {
-        this.selectFileCanvaSubject.next({ index });
+        this.next(this.subjects.fileBox.selectFile, { index });
     }
 
     removeFileCanva(index: number) {
-        this.removeFileCanvaSubject.next({ index });
+        this.next(this.subjects.fileBox.removeFile, { index });
     }
 
     downloadFileCanva(index: number) {
-        this.downloadFileCanvaSubject.next({ index });
+        this.next(this.subjects.fileBox.downloadFile, { index });
     }
 
     saveAllFiles() {
-        this.saveAllFilesSubject.next({});
+        this.next(this.subjects.fileBox.saveAllFiles, {});
     }
 
-    // box ai
+    // Font config
+    sendConfigBoxSelect(idBox: number, familyFont: string, sizeFont: number, colorFont: string, lineHeightFont: number, positionText: number) {
+        this.next(this.subjects.fontConfig.select, { idBox, familyFont, sizeFont, colorFont, lineHeightFont, positionText });
+    }
+
+    boxFontChange(config: BoxConfig) {
+        this.next(this.subjects.fontConfig.change, config);
+    }
+
+    boxFontDefaultChange(config: BoxConfig) {
+        this.next(this.subjects.fontConfig.defaultChange, config);
+    }
+
+    // Other tools
+    enableDrawingRect(isEnable: boolean, colorReplace: string) {
+        this.next(this.subjects.tools.enableDrawingRect, { isEnable, colorReplace });
+    }
+
+    sendRemoveAreaSelect() {
+        this.next(this.subjects.tools.removeAreaSelect, {});
+    }
+
+    sendBackAreaSelect() {
+        this.next(this.subjects.tools.backAreaSelect, {});
+    }
+
+    // AI related methods
     requestIdentification() {
-        this.requestIdentificationSubject.next({});
+        this.next(this.subjects.ai.requestIdentification, {});
     }
 
     requestEnableOcrBox(enableOcrBox: boolean) {
-        this.requestEnableOcrBoxSubject.next({ enableOcrBox });
+        this.next(this.subjects.ai.enableOcrBox, { enableOcrBox });
     }
 
     requestRemoveText() {
-        this.requestRemoveTextSubject.next({});
+        this.next(this.subjects.ai.removeText, {});
     }
 
     requestAddBoxText() {
-        this.requestAddBoxTextSubject.next({});
+        this.next(this.subjects.ai.addBoxText, {});
     }
 
     requestChangeValuesCircle(offsetCircle: number, radiusCircle: number) {
-        this.requestChangeValuesCircleSubject.next({ offsetCircle, radiusCircle });
+        this.next(this.subjects.ai.changeValuesCircle, { offsetCircle, radiusCircle });
     }
 
     requestIdentificationRecognition() {
-        this.requestIdentificationRecognitionSubject.next({});
+        this.next(this.subjects.ai.identificationRecognition, {});
     }
 
     operationIdentificationComplete(average_score: number, totalIdentified: number) {
-        this.operationIdentificationCompleteSubject.next({ average_score, totalIdentified });
+        this.next(this.subjects.ai.identificationComplete, { average_score, totalIdentified });
     }
 
     operationIdentificationRecognitionComplete(recognizedText: string[]) {
-        this.operationIdentificationRecognitionCompleteSubject.next({ recognizedText });
+        this.next(this.subjects.ai.identificationRecognitionComplete, { recognizedText });
     }
 
-    // table-translate
+    // Project
+    sendOpenProject() {
+        this.next(this.subjects.project.open, {});
+    }
+
+    // Translation
+    sendTranslationsData(dataTranslations: TranslationFile[]) {
+        this.next(this.subjects.canvas.translation, dataTranslations );
+    }
+
+    // OCR requests
     requestOcrRect(indexRect: number, langInput: string) {
-        this.requestOcrRectSubject.next({ indexRect, langInput });
+        this.next(this.subjects.ocr.requestOcrRect, { indexRect, langInput });
     }
 
     requestOcrRectComplete(ocrString: string) {
-        this.requestOcrRectCompleteSubject.next({ ocrString });
+        this.next(this.subjects.ocr.requestOcrRectComplete, { ocrString });
     }
 
     requestReplacement(indexRect: number, inputOcr: string, outputTranslate: string) {
-        this.requestReplacementSubject.next({ indexRect, inputOcr, outputTranslate });
+        this.next(this.subjects.ocr.requestReplacement, { indexRect, inputOcr, outputTranslate });
     }
 }

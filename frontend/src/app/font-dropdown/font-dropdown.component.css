@@ -1,3 +1,8 @@
+:host{
+    display: flex;
+    flex-basis: 66.5%;
+}
+
 h1 {
     font-size: 13px;
 }
@@ -13,7 +18,6 @@ h1 {
     display: flex;
     flex-grow: 1;
     background-color: #1b1b1b;
-    box-sizing: border-box;
     cursor: pointer;
     padding: 15px 18px;
     max-width: 210px;

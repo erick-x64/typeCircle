@@ -21,7 +21,7 @@ export class TableTranslateAndOcrComponent {
   ngOnInit() {
     this.observeDOMChanges();
 
-    this.dataService.sendTranslationsData$.subscribe(data => {
+    this.dataService['subjects'].canvas.translation.subscribe(data => {
       if (data.dataTranslations[this.indexRect]) {
         this.isSelectOptionOcr = true;
         this.isSelectOptionTranslateAi = true;
@@ -61,11 +61,15 @@ export class TableTranslateAndOcrComponent {
     this.loadingOptionOcr = true;
     this.dataService.requestOcrRect(this.indexRect, this.langInput!);
 
-    this.dataService.requestOcrRectComplete$.pipe(take(1)).subscribe(data => {
+    this.dataService['subjects'].ocr.requestOcrRectComplete.pipe(take(1)).subscribe(data => {
       this.inputOcr = data.ocrString;
       this.loadingOptionOcr = false;
       this.isSelectOptionOcr = true;
     });
+  }
+
+  onInputFocus(){
+    
   }
 
   selectManual1() {

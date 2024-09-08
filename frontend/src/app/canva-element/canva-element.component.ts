@@ -606,123 +606,123 @@ export class CanvaElementComponent {
 
   // Subscriptions
   private subscribeToBoxCanvaChange() {
-    this.dataService.boxCanvaChange$.subscribe(data => {
+    this.dataService['subjects'].canvas.change.subscribe(data => {
       this.updateTextboxText(data.idBox, data.text);
     });
   }
 
   private subscribeToBoxFontChange() {
-    this.dataService.boxFontChange$.subscribe(data => {
+    this.dataService['subjects'].fontConfig.change.subscribe(data => {
       this.setFontDefaults(data);
       this.updateTextboxFont(data);
     });
   }
 
   private subscribeToBoxFontDefaultChange() {
-    this.dataService.boxFontDefaultChange$.subscribe(data => {
+    this.dataService['subjects'].fontConfig.defaultChange.subscribe(data => {
       this.setFontDefaults(data);
       this.canvas.renderAll();
     });
   }
 
   private subscribeToAddImageCanva() {
-    this.dataService.addImageCanva$.subscribe(data => {
+    this.dataService['subjects'].fileBox.addImage.subscribe(data => {
       this.resetCanvas(data.urlImage, data.debugMode);
     });
   }
 
   private subscribeToSelectFileCanva() {
-    this.dataService.selectFileCanva$.subscribe(data => {
+    this.dataService['subjects'].fileBox.selectFile.subscribe(data => {
       this.selectFileCanvas(data);
     });
   }
 
   private subscribeToRemoveFileCanva() {
-    this.dataService.removeFileCanva$.subscribe(data => {
+    this.dataService['subjects'].fileBox.removeFile.subscribe(data => {
       this.removeFileCanvas(data);
     });
   }
 
   private subscribeToDownloadFileCanva() {
-    this.dataService.downloadFileCanva$.subscribe(data => {
+    this.dataService['subjects'].fileBox.downloadFile.subscribe(data => {
       this.downloadFileCanvas(data);
     });
   }
 
   private subscribeToSaveAllFiles() {
-    this.dataService.saveAllFiles$.subscribe(data => {
+    this.dataService['subjects'].fileBox.saveAllFiles.subscribe(data => {
       this.saveAllFiles();
     });
   }
 
   private subscribeToRequestIdentification() {
-    this.dataService.requestIdentification$.subscribe(data => {
+    this.dataService['subjects'].ai.requestIdentification.subscribe(data => {
       this.requestIdentification();
     });
   }
 
   private subscribeToRequestRemoveText() {
-    this.dataService.requestRemoveText$.subscribe(data => {
+    this.dataService['subjects'].ai.removeText.subscribe(data => {
       this.requestRemoveText();
     });
   }
 
   private subscribeToRequestAddBoxText() {
-    this.dataService.requestAddBoxText$.subscribe(data => {
+    this.dataService['subjects'].ai.addBoxText.subscribe(data => {
       this.requestAddBoxText();
     });
   }
 
   private subscribeToRequestChangeValuesCircle() {
-    this.dataService.requestChangeValuesCircle$.subscribe(data => {
+    this.dataService['subjects'].ai.changeValuesCircle.subscribe(data => {
       this.requestChangeValuesCircle(data);
     });
   }
 
   private subscribeToEnableDrawingRect() {
-    this.dataService.enableDrawingRect$.subscribe(data => {
+    this.dataService['subjects'].tools.enableDrawingRect.subscribe(data => {
       this.setEnableDrawingRect(data);
     });
   }
 
   private subscribeToRemoveAreaSelect() {
-    this.dataService.sendRemoveAreaSelect$.subscribe(data => {
+    this.dataService['subjects'].tools.removeAreaSelect.subscribe(data => {
       this.removeAreaSelect();
     });
   }
 
   private subscribeToBackAreaSelect() {
-    this.dataService.sendBackAreaSelect$.subscribe(data => {
+    this.dataService['subjects'].tools.removeAreaSelect.subscribe(data => {
       this.backAreaSelect();
     });
   }
 
   private subscribeToRequestAddTextFromImage() {
-    this.dataService.requestIdentificationRecognition$.subscribe(data => {
+    this.dataService['subjects'].ai.identificationRecognition.subscribe(data => {
       this.requestIdentificationRecognition();
     });
   }
 
   private subscribeToOpenProject() {
-    this.dataService.openProject$.subscribe(data => {
+    this.dataService['subjects'].project.open.subscribe(data => {
       this.openProject();
     });
   }
 
   private subscribeToEnableOcrBox() {
-    this.dataService.requestEnableOcrBox$.subscribe(data => {
+    this.dataService['subjects'].ai.enableOcrBox.subscribe(data => {
       this.setEnableOcrBox(data.enableOcrBox);
     });
   }
 
   private subscribeToRequestOcrRect() {
-    this.dataService.requestOcrRect$.subscribe(data => {
+    this.dataService['subjects'].ocr.requestOcrRect.subscribe(data => {
       this.requestOcrRect(data.indexRect, data.langInput);
     });
   }
 
   private subscribeTorequestReplacement() {
-    this.dataService.requestReplacement$.subscribe(data => {
+    this.dataService['subjects'].ocr.requestReplacement.subscribe(data => {
       this.requestReplacement(data.indexRect, data.inputOcr, data.outputTranslate);
     });
   }

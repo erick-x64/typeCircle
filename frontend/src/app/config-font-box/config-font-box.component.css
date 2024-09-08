@@ -21,14 +21,16 @@ h1 {
 }
 
 .row_configFontBox {
-    align-items: flex-start;
-    align-self: stretch;
     display: flex;
-    flex-direction: row;
-    flex-grow: 0;
     gap: 1px;
-    justify-content: flex-start;
-    padding: 0;
+}
+
+.row_configFontBox:nth-child(1) {
+    flex-basis: 70%;
+}
+
+.row_configFontBox:nth-child(2) {
+    flex-basis: 30%;
 }
 
 .row_configFontBox:first {
@@ -127,6 +129,6 @@ h1 {
     padding: 0;
 }
 
-#changeLineHeightFont{
+#changeLineHeightFont {
     color: #575757;
 }

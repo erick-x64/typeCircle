@@ -1,6 +1,6 @@
 {
   "name": "type-circle",
-  "version": "0.0.0",
+  "version": "1.1.0",
   "scripts": {
     "ng": "ng",
     "start": "concurrently \"ng serve --host 0.0.0.0\" \"cd backend/rust-image-service && cargo run\"",

@@ -14,7 +14,7 @@
                 <div class="ball-loading"></div>
                 <div class="ball-loading"></div>
             </div>
-            <input *ngIf="isSelectOptionOcr" [(ngModel)]="inputOcr" type="text">
+            <input *ngIf="isSelectOptionOcr" (focus)="onInputFocus()" [(ngModel)]="inputOcr" type="text">
         </div>
         <div [ngStyle]="{ 'background-color': !isSelectOptionTranslateAi ? '#212121' : 'unset' }" id="column_element_tableTranslateAndOcr">
             <div *ngIf="!isSelectOptionTranslateAi && !loadingOptionTranslateAi" class="selectOption">

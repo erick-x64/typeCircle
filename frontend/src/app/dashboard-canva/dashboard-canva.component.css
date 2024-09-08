@@ -96,10 +96,6 @@
     width: 18px;
 }
 
-#topElement {
-    overflow-y: auto;
-}
-
 .content_element_boxFunctions {
     align-items: stretch;
     align-self: stretch;
