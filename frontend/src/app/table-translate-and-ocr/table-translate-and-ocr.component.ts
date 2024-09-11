@@ -68,8 +68,8 @@ export class TableTranslateAndOcrComponent {
     });
   }
 
-  onInputFocus(){
-    
+  onInputFocus() {
+    this.dataService.inputFocusTableTraslate(this.indexRect);
   }
 
   selectManual1() {
@@ -80,7 +80,7 @@ export class TableTranslateAndOcrComponent {
     this.isSelectOptionTranslateAi = true;
   }
 
-  sendReplacement(){
+  sendReplacement() {
     this.dataService.requestReplacement(this.indexRect, this.inputOcr, this.outputTranslate);
   }
 

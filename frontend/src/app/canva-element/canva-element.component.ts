@@ -276,6 +276,7 @@ export class CanvaElementComponent {
   // Drawing functionality
   private setupDrawing() {
     let isDrawing = false;
+    let isMoving = false;
     let startPoint: fabric.Point | null = null;
     let currentTextbox: fabric.Textbox | null = null;
     let currentRect: fabric.Rect | null = null;
@@ -290,6 +291,10 @@ export class CanvaElementComponent {
 
         if (this.twoClick === 2) {
           this.twoClick = 0;
+        }
+
+        if (activeObject) {
+          isMoving = true;
         }
 
         if (!activeObject && this.twoClick === 0) {
@@ -336,6 +341,16 @@ export class CanvaElementComponent {
     });
 
     this.canvas.on('mouse:move', (opt: any) => {
+      if (isMoving) {
+        this.canvas.getObjects().forEach((obj: any) => {
+          if (obj.type === 'rect' && obj.data?.isPersistent === false) {
+            this.canvas.remove(obj);
+          }
+        });
+
+        this.canvas.renderAll(); // Atualiza o canvas
+      }
+
       if (!isDrawing || !startPoint) return;
 
       const pointer = this.canvas.getPointer(opt.e);
@@ -349,6 +364,7 @@ export class CanvaElementComponent {
 
     this.canvas.on('mouse:up', (event: any) => {
       this.canvas.selection = false;
+      isMoving = false;
       isDrawing = false;
       startPoint = null;
 
@@ -450,6 +466,14 @@ export class CanvaElementComponent {
   }
 
   private deleteRect(rect: fabric.Rect) {
+    const linkedBorderRect = this.canvas.getObjects().find((obj: any) => {
+      return obj.data?.linkedRectIndex === this.rects.indexOf(rect);
+    });
+
+    if (linkedBorderRect) {
+      this.canvas.remove(linkedBorderRect);
+    }
+
     this.canvas.remove(rect);
     this.canvas.renderAll();
     const index = this.rects.indexOf(rect);
@@ -571,7 +595,9 @@ export class CanvaElementComponent {
   }
 
   private updateRects() {
-    this.saveService.updateRects(this.rects);
+    const filteredRects = this.rects.filter((rect: any) => rect.data?.isPersistent !== false);
+
+    this.saveService.updateRects(filteredRects);
   }
 
   // Receiving from (app) data service
@@ -595,7 +621,8 @@ export class CanvaElementComponent {
     this.subscribeToOpenProject();
     this.subscribeToEnableOcrBox();
     this.subscribeToRequestOcrRect();
-    this.subscribeTorequestReplacement();
+    this.subscribeToRequestReplacement();
+    this.subscribeToInputFocusTableTraslate();
     this.manageKeyListeners(true);
     this.setControlsStyle();
   }
@@ -721,9 +748,15 @@ export class CanvaElementComponent {
     });
   }
 
-  private subscribeTorequestReplacement() {
+  private subscribeToRequestReplacement() {
     this.dataService['subjects'].ocr.requestReplacement.subscribe(data => {
       this.requestReplacement(data.indexRect, data.inputOcr, data.outputTranslate);
+    });
+  }
+
+  private subscribeToInputFocusTableTraslate() {
+    this.dataService['subjects'].ocr.inputFocusTableTraslate.subscribe(data => {
+      this.inputFocusTableTraslate(data.indexRect);
     });
   }
 
@@ -1251,6 +1284,13 @@ export class CanvaElementComponent {
   }
 
   private requestReplacement(indexRect: number, inputOcr: string, outputTranslate: string) {
+    // Remove existing borderRect
+    this.canvas.getObjects().forEach((obj: any) => {
+      if (obj.data?.isPersistent === false) {
+        this.canvas.remove(obj);
+      }
+    });
+
     this.canvas.discardActiveObject().renderAll();
     const [x, y, w, h] = this.boxesList[indexRect];
     const center_x = x + w / 2;
@@ -1280,6 +1320,49 @@ export class CanvaElementComponent {
     this.files.translationOfFiles[this.files.selectFile][indexRect] = translationOfFiles;
 
     this.saveChangesInLocal();
+  }
+
+  private inputFocusTableTraslate(indexRect: number) {
+    const originalRect = this.rects[indexRect];
+
+    if (originalRect.selectable) {
+      // Remove existing borderRect
+      this.canvas.getObjects().forEach((obj: any) => {
+        if (obj.data?.isPersistent === false) {
+          this.canvas.remove(obj);
+        }
+      });
+
+      const borderPadding = 10;
+      const borderRect = new fabric.Rect({
+        left: originalRect.left! - borderPadding,
+        top: originalRect.top! - borderPadding,
+        width: originalRect.width! + (2 * borderPadding),
+        height: originalRect.height! + (2 * borderPadding),
+        stroke: 'rgba(190, 174, 25, 0.8)',
+        strokeWidth: 2,
+        fill: 'rgba(246, 229, 74, 0.05)',
+        selectable: false,
+        rx: 3,
+        ry: 3,
+        data: { isPersistent: false, linkedRectIndex: indexRect }
+      });
+
+      this.canvas.add(borderRect);
+
+      const imageObject = this.canvas.getObjects().find((obj: any) => obj.type === 'image');
+
+      let objects = this.canvas.getObjects();
+      let imageIndex = objects.indexOf(imageObject);
+      let borderRectIndex = objects.indexOf(borderRect);
+
+      while (borderRectIndex > imageIndex + 1) {
+        this.canvas.sendBackwards(borderRect);
+        borderRectIndex--;
+      }
+
+      this.canvas.renderAll();
+    }
   }
 
   private removeAreaSelect() {
@@ -1505,8 +1588,21 @@ export class CanvaElementComponent {
       translationOfFiles: [...this.files.translationOfFiles],
     };
 
-    // update changes in canva select
-    const canvasJson = this.canvas.toDatalessJSON(['data', 'selectable']);
+    const tempCanvas = new fabric.Canvas(document.createElement('canvas'));
+    this.canvas.getObjects().forEach((obj: fabric.Object) => {
+      const clone = fabric.util.object.clone(obj);
+      tempCanvas.add(clone);
+    });
+
+    tempCanvas.getObjects().forEach((obj: any) => {
+      if (obj.data?.isPersistent === false) {
+        tempCanvas.remove(obj);
+      }
+    });
+
+    const canvasJson = tempCanvas.toDatalessJSON(['data', 'selectable']);
+    tempCanvas.clear();
+
     filesLocalStorage.canvas[filesLocalStorage.selectFile] = canvasJson;
     this.addFileToProject(this.localStorageService.getSelectedProjectIndex(), filesLocalStorage);
   }

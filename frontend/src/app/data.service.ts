@@ -39,6 +39,7 @@ export class DataService {
             translation: new ReplaySubject<{ dataTranslations: TranslationFile[] }>(),
         },
 
+        // config-font-box
         fontConfig: {
             change: new Subject<BoxConfig>(),
             defaultChange: new Subject<BoxConfig>(),
@@ -73,6 +74,7 @@ export class DataService {
             identificationComplete: new Subject<{ average_score: number, totalIdentified: number }>()
         },
 
+        // home
         project: {
             open: new Subject<{}>()
         },
@@ -81,7 +83,8 @@ export class DataService {
         ocr: {
             requestOcrRect: new Subject<{ indexRect: number, langInput: string }>(),
             requestOcrRectComplete: new Subject<{ ocrString: string }>(),
-            requestReplacement: new Subject<{ indexRect: number, inputOcr: string, outputTranslate: string }>()
+            requestReplacement: new Subject<{ indexRect: number, inputOcr: string, outputTranslate: string }>(),
+            inputFocusTableTraslate: new Subject<{ indexRect: number }>()
         }
     };
 
@@ -210,7 +213,7 @@ export class DataService {
         this.next(this.subjects.canvas.translation, { dataTranslations });
     }
 
-    // OCR requests
+    // OCR requests & table-translate-and-ocr
     requestOcrRect(indexRect: number, langInput: string) {
         this.next(this.subjects.ocr.requestOcrRect, { indexRect, langInput });
     }
@@ -221,5 +224,9 @@ export class DataService {
 
     requestReplacement(indexRect: number, inputOcr: string, outputTranslate: string) {
         this.next(this.subjects.ocr.requestReplacement, { indexRect, inputOcr, outputTranslate });
+    }
+
+    inputFocusTableTraslate(indexRect: number) {
+        this.next(this.subjects.ocr.inputFocusTableTraslate, { indexRect });
     }
 }
