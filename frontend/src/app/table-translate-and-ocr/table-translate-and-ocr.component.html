@@ -15,7 +15,10 @@
                 <div class="ball-loading"></div>
                 <div class="ball-loading"></div>
             </div>
-            <input *ngIf="isSelectOptionOcr" (focus)="onInputFocus()" [(ngModel)]="inputOcr" type="text">
+            <div *ngIf="isSelectOptionOcr" id="changeRow">
+                <input *ngIf="isSelectOptionOcr" (focus)="onInputFocus()" [(ngModel)]="inputOcr" type="text">
+                <img (click)="backOcrManual()" src="/assets/icons/37.svg" alt="">
+            </div>
         </div>
         <div [ngStyle]="{ 'background-color': !isSelectOptionTranslateAi ? '#212121' : 'unset' }"
             id="column_element_tableTranslateAndOcr">
@@ -35,6 +38,7 @@
             <div *ngIf="isSelectOptionTranslateAi" id="changeRow">
                 <input (focus)="onInputFocus()" [(ngModel)]="outputTranslate" type="text">
                 <img (click)="sendReplacement()" *ngIf="inputOcr && outputTranslate" src="/assets/icons/35.svg" alt="">
+                <img (click)="backTranslateManual()" src="/assets/icons/37.svg" alt="">
             </div>
         </div>
     </div>

@@ -68,8 +68,21 @@ export class TableTranslateAndOcrComponent {
     });
   }
 
+  sendReplacement() {
+    this.dataService.requestReplacement(this.indexRect, this.inputOcr, this.outputTranslate);
+  }
+
   onInputFocus() {
     this.dataService.inputFocusTableTraslate(this.indexRect);
+  }
+
+  backOcrManual() {
+    this.isSelectOptionOcr = false;
+  }
+
+  backTranslateManual() {
+    this.isSelectOptionTranslateAi = false;
+    this.dataService.returnToPreviousState(this.indexRect);
   }
 
   selectManual1() {
@@ -78,10 +91,6 @@ export class TableTranslateAndOcrComponent {
 
   selectManual2() {
     this.isSelectOptionTranslateAi = true;
-  }
-
-  sendReplacement() {
-    this.dataService.requestReplacement(this.indexRect, this.inputOcr, this.outputTranslate);
   }
 
   animateBalls(): void {

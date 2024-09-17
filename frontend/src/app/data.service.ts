@@ -84,6 +84,7 @@ export class DataService {
             requestOcrRect: new Subject<{ indexRect: number, langInput: string }>(),
             requestOcrRectComplete: new Subject<{ ocrString: string }>(),
             requestReplacement: new Subject<{ indexRect: number, inputOcr: string, outputTranslate: string }>(),
+            returnToPreviousState: new Subject<{ indexRect: number }>(),
             inputFocusTableTraslate: new Subject<{ indexRect: number }>()
         }
     };
@@ -224,6 +225,10 @@ export class DataService {
 
     requestReplacement(indexRect: number, inputOcr: string, outputTranslate: string) {
         this.next(this.subjects.ocr.requestReplacement, { indexRect, inputOcr, outputTranslate });
+    }
+
+    returnToPreviousState(indexRect: number) {
+        this.next(this.subjects.ocr.returnToPreviousState, { indexRect });
     }
 
     inputFocusTableTraslate(indexRect: number) {

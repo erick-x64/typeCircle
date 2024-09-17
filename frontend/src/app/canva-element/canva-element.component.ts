@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild, ViewContainerRef, ComponentRef } from
 import { HttpClient } from '@angular/common/http';
 import { DataService } from '../data.service';
 import { fabric } from "fabric";
-import JSZip from 'jszip';
+import JSZip, { forEach } from 'jszip';
 import { saveAs } from 'file-saver';
 import { API_BASE_URL } from '../../config';
 import { LocalStorageService } from '../local-storage.service';
@@ -472,6 +472,11 @@ export class CanvaElementComponent {
 
     if (linkedBorderRect) {
       this.canvas.remove(linkedBorderRect);
+
+      // clean translationOfFiles
+      const indexRect = this.rects.indexOf(linkedBorderRect);
+      this.files.translationOfFiles[this.files.selectFile].splice(indexRect, 1);
+      this.saveChangesInLocal();
     }
 
     this.canvas.remove(rect);
@@ -623,6 +628,7 @@ export class CanvaElementComponent {
     this.subscribeToRequestOcrRect();
     this.subscribeToRequestReplacement();
     this.subscribeToInputFocusTableTraslate();
+    this.subscribeToReturnToPreviousState();
     this.manageKeyListeners(true);
     this.setControlsStyle();
   }
@@ -757,6 +763,12 @@ export class CanvaElementComponent {
   private subscribeToInputFocusTableTraslate() {
     this.dataService['subjects'].ocr.inputFocusTableTraslate.subscribe(data => {
       this.inputFocusTableTraslate(data.indexRect);
+    });
+  }
+
+  private subscribeToReturnToPreviousState() {
+    this.dataService['subjects'].ocr.returnToPreviousState.subscribe(data => {
+      this.returnToPreviousState(data.indexRect);
     });
   }
 
@@ -1300,7 +1312,7 @@ export class CanvaElementComponent {
       if (!this.textboxes[indexRect].get('data')) {
         this.createAndConfigureTextbox(indexRect, outputTranslate, center_x, center_y);
       } else {
-        this.updateAndCenterTextbox(indexRect, outputTranslate);
+        this.updateAndCenterTextbox(indexRect, outputTranslate, center_x, center_y);
       }
     } else {
       this.createAndConfigureTextbox(indexRect, outputTranslate, center_x, center_y);
@@ -1334,6 +1346,7 @@ export class CanvaElementComponent {
       });
 
       const borderPadding = 10;
+      
       const borderRect = new fabric.Rect({
         left: originalRect.left! - borderPadding,
         top: originalRect.top! - borderPadding,
@@ -1363,6 +1376,10 @@ export class CanvaElementComponent {
 
       this.canvas.renderAll();
     }
+  }
+
+  private returnToPreviousState(indexRect: number) {
+    this.returnToPreviousStateTextbox(indexRect);
   }
 
   private removeAreaSelect() {
@@ -1638,6 +1655,7 @@ export class CanvaElementComponent {
       mtr: false
     });
 
+    // recenter
     const offsetX = textbox.width! / 2;
     const offsetY = textbox.height! / 2;
     const textboxLeft = center_x - offsetX;
@@ -1653,8 +1671,43 @@ export class CanvaElementComponent {
     this.setupEventInTextBox(textbox);
   }
 
-  updateAndCenterTextbox(indexRect: number, outputTranslate: string) {
+  returnToPreviousStateTextbox(indexRect: number) {
+    this.textboxes.forEach(textbox => {
+      if (textbox.get("data")) {
+        if (textbox.get("data").linkedRectId == indexRect) {
+          this.canvas.remove(textbox);
+
+          const index = this.textboxes.indexOf(textbox);
+          if (index !== -1) {
+            this.textboxes.splice(index, 1);
+          }
+          this.sendBoxDelete(index);
+        }
+      }
+    });
+
+    this.rects[indexRect].set('fill', "rgba(108, 165, 250, 0.2)");
+    this.rects[indexRect].set('stroke', "rgba(108, 165, 250, 0.8)");
+    this.rects[indexRect].set('strokeWidth', 1.5);
+    this.rects[indexRect].set('selectable', true);
+
+    this.canvas.renderAll();
+
+    // clean translationOfFiles
+    this.files.translationOfFiles[this.files.selectFile].splice(indexRect, 1);
+    this.saveChangesInLocal();
+  }
+
+  updateAndCenterTextbox(indexRect: number, outputTranslate: string, center_x: number, center_y: number) {
     const textbox = this.textboxes[indexRect];
     textbox.set('text', outputTranslate);
+
+    // recenter
+    const offsetX = textbox.width! / 2;
+    const offsetY = textbox.height! / 2;
+    const textboxLeft = center_x - offsetX;
+    const textboxTop = center_y - offsetY;
+    textbox.set('left', textboxLeft);
+    textbox.set('top', textboxTop);
   }
 }
