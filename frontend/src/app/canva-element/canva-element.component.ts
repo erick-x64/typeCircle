@@ -834,7 +834,13 @@ export class CanvaElementComponent {
     }
   }
 
-  private resetCanvas(urlImage: File, debugMode: boolean) {
+  async resetCanvas(urlImage: File, debugMode: boolean) {
+    const indexProject = this.localStorageService.getSelectedProjectIndex();
+    const projects = await this.localStorageService.getProjects();    
+    const clonedProject = JSON.parse(JSON.stringify(projects[indexProject].canvaFile));
+    const getProject = clonedProject as Files;
+    this.files = getProject;
+
     this.sendBoxAllDelete();
     this.textboxes = [];
     this.boxesList = [];
@@ -1457,7 +1463,7 @@ export class CanvaElementComponent {
 
   async openProject() {
     const indexProject = this.localStorageService.getSelectedProjectIndex();
-    const projects = await this.localStorageService.getProjects();
+    const projects = await this.localStorageService.getProjects();    
     const clonedProject = JSON.parse(JSON.stringify(projects[indexProject].canvaFile));
     const getProject = clonedProject as Files;
 

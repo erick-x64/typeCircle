@@ -53,12 +53,10 @@ export class HomeComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.allProjectsSubject.subscribe((projects) => {
+    this.allProjectsSubject.subscribe((projects) => {      
       if (projects.length === 0) {
         this.animationNoImage();
         this.projectDisplay = [...this.allProjects];
-
-
       }
     });
   }
@@ -99,7 +97,6 @@ export class HomeComponent implements AfterViewInit {
       });
     }
   }
-
 
   // File Handling
   openImage() {
@@ -144,8 +141,10 @@ export class HomeComponent implements AfterViewInit {
   async onDeleteBoxRecent(index: number) {
     if (index > -1 && index < this.projectDisplay.length) {
       this.projectDisplay.splice(index, 1);
+      this.allProjects.splice(index, 1);
       this.allProjectsSubject.next(this.projectDisplay);
       this.localStorageService.removeProject(index);
+      this.saveService.clearArrayFiles();
     }
   }
 
