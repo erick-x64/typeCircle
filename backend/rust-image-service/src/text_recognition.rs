@@ -86,11 +86,9 @@ pub async fn recognize_text(text_data: web::Json<TextData>) -> Result<HttpRespon
 
 
 fn format_text(output: &str) -> String {
-    // Adiciona um espaço após cada vírgula que não tenha um espaço
     let re_comma = Regex::new(r",(\S)").unwrap();
     let formatted = re_comma.replace_all(output, ", $1");
 
-    // Transforma o texto em formato de frase
     let mut chars = formatted.chars();
     let formatted_sentence = chars
         .next()

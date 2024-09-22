@@ -1,8 +1,8 @@
-import { Component, ElementRef, ViewChild, ViewContainerRef, ComponentRef } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataService } from '../data.service';
 import { fabric } from "fabric";
-import JSZip, { forEach } from 'jszip';
+import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { API_BASE_URL } from '../../config';
 import { LocalStorageService } from '../local-storage.service';
@@ -206,7 +206,6 @@ export class CanvaElementComponent {
         this.canvas.zoomToPoint(lastZoomPoint, zoom);
         lastZoomPoint = null;
 
-        // Restaurar o estado original do viewportTransform
         if (originalViewportTransform) {
           this.canvas.viewportTransform = originalViewportTransform.slice(0);
           this.canvas.setZoom(originalZoom);
@@ -348,7 +347,7 @@ export class CanvaElementComponent {
           }
         });
 
-        this.canvas.renderAll(); // Atualiza o canvas
+        this.canvas.renderAll();
       }
 
       if (!isDrawing || !startPoint) return;
@@ -378,9 +377,22 @@ export class CanvaElementComponent {
       }
 
       if (currentRect) {
-        currentRect.set({ selectable: true });
+        // Check if the rectangle has dimensions smaller than 20px x 20px
+        const rectWidth = currentRect.width ?? 0;
+        const rectHeight = currentRect.height ?? 0;
+
+        if (rectWidth < 20 || rectHeight < 20) {
+          // Remove rectangle from screen and array if too small
+          this.canvas.remove(currentRect);
+          this.rects = this.rects.filter(rect => rect !== currentRect);
+          this.updateRects();
+        } else {
+          // If size is valid, make rectangle selectable
+          currentRect.set({ selectable: true });
+          this.saveCanvasState();
+        }
+
         currentRect = null;
-        this.saveCanvasState();
       }
     });
   }
@@ -836,7 +848,7 @@ export class CanvaElementComponent {
 
   async resetCanvas(urlImage: File, debugMode: boolean) {
     const indexProject = this.localStorageService.getSelectedProjectIndex();
-    const projects = await this.localStorageService.getProjects();    
+    const projects = await this.localStorageService.getProjects();
     const clonedProject = JSON.parse(JSON.stringify(projects[indexProject].canvaFile));
     const getProject = clonedProject as Files;
     this.files = getProject;
@@ -1314,12 +1326,16 @@ export class CanvaElementComponent {
     const center_x = x + w / 2;
     const center_y = y + h / 2;
 
-    if (this.textboxes[indexRect]) {
-      if (!this.textboxes[indexRect].get('data')) {
-        this.createAndConfigureTextbox(indexRect, outputTranslate, center_x, center_y);
-      } else {
-        this.updateAndCenterTextbox(indexRect, outputTranslate, center_x, center_y);
-      }
+    const linkedRectIdsArray = this.textboxes
+      .filter(item => item.data?.linkedRectId !== undefined)
+
+    if (linkedRectIdsArray.length > 0) {
+      linkedRectIdsArray.forEach(filteredItem => {
+        if (filteredItem.data.linkedRectId == indexRect) {
+          const originalIndex = this.textboxes.findIndex(item => item === filteredItem);
+          this.updateAndCenterTextbox(originalIndex, outputTranslate, center_x, center_y);
+        }
+      });
     } else {
       this.createAndConfigureTextbox(indexRect, outputTranslate, center_x, center_y);
     }
@@ -1352,7 +1368,7 @@ export class CanvaElementComponent {
       });
 
       const borderPadding = 10;
-      
+
       const borderRect = new fabric.Rect({
         left: originalRect.left! - borderPadding,
         top: originalRect.top! - borderPadding,
@@ -1463,7 +1479,7 @@ export class CanvaElementComponent {
 
   async openProject() {
     const indexProject = this.localStorageService.getSelectedProjectIndex();
-    const projects = await this.localStorageService.getProjects();    
+    const projects = await this.localStorageService.getProjects();
     const clonedProject = JSON.parse(JSON.stringify(projects[indexProject].canvaFile));
     const getProject = clonedProject as Files;
 
@@ -1704,8 +1720,8 @@ export class CanvaElementComponent {
     this.saveChangesInLocal();
   }
 
-  updateAndCenterTextbox(indexRect: number, outputTranslate: string, center_x: number, center_y: number) {
-    const textbox = this.textboxes[indexRect];
+  updateAndCenterTextbox(indexTextBox: number, outputTranslate: string, center_x: number, center_y: number) {
+    const textbox = this.textboxes[indexTextBox];
     textbox.set('text', outputTranslate);
 
     // recenter
@@ -1715,5 +1731,8 @@ export class CanvaElementComponent {
     const textboxTop = center_y - offsetY;
     textbox.set('left', textboxLeft);
     textbox.set('top', textboxTop);
+
+    // change text
+    this.sendBoxChange(indexTextBox, outputTranslate);
   }
 }

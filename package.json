@@ -53,7 +53,7 @@
     "postcss-combine-duplicated-selectors": "^10.0.3",
     "postcss-preset-env": "^9.6.0",
     "postcss-sorting": "^8.0.2",
-    "typescript": "~5.4.2",
+    "typescript": "5.5",
     "vite-tsconfig-paths": "^4.3.2"
   }
 }

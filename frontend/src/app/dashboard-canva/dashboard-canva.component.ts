@@ -40,7 +40,7 @@ export class DashboardCanvaComponent implements OnInit {
     this.selectEntry = idBox;
     const entry = this.arrayEntry[idBox];
     if (entry) {
-      entry.text = text;
+      this.arrayEntry[idBox] = { ...entry, text }; 
     }
   }
 
