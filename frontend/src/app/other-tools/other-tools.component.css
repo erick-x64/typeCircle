@@ -41,6 +41,8 @@
 
 .buttonsActions .button-action{
     background-color: #1B1B1B;
+    height: 44px;
+    padding: 16px 20px;
 }
 
 .button-action h1{
@@ -62,11 +64,6 @@
     padding: 14px 16px;
     transition: background 0.2s ease;
     width: 100%;
-}
-
-.buttonsActions .button-action{
-    height: 44px;
-    padding: 16px 20px;
 }
 
 #buttons_toolErase{

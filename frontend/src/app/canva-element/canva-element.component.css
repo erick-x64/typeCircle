@@ -1,6 +1,6 @@
 :host {
-    justify-self: center;
     align-self: center;
+    justify-self: center;
 }
 
 #myCanvas{

@@ -1,6 +1,6 @@
 :host {
-    width: 100%;
     height: 100%;
+    width: 100%;
 }
 
 #main {
@@ -15,9 +15,9 @@
     gap: 1px;
     height: 100%;
     justify-content: flex-start;
+    overflow: auto;
     padding: 0;
     width: 100%;
-    overflow: auto;
 }
 
 #boxFunctions {
@@ -105,8 +105,8 @@
     gap: 10px;
     height: 100%;
     justify-content: flex-start;
-    padding: 26px 20px;
     overflow: hidden;
+    padding: 26px 20px;
 }
 
 .content_element_boxFunctions .pass {
@@ -135,13 +135,13 @@
     align-items: start;
     align-self: stretch;
     background-color: #161616;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 10px;
     justify-content: center;
-    box-sizing: border-box;
+    overflow: hidden;
     padding: 0px 0px 40px 0px;
     position: relative;
     width: 100%;
-    overflow: hidden;
 }

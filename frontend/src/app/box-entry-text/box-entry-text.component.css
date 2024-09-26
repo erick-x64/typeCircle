@@ -22,13 +22,18 @@
 }
 
 .boxEntryText input{
-    font-family: BeepSemiBold;
-    font-size: 14px;
-    font-family: "BeepMedium";
     color: #c0c0c0;
+    font-family: "BeepMedium";
+    font-size: 14px;
     width: 100%;
 }
 
 .boxEntryText img {
     cursor: grab;
+}
+
+@media only screen and (max-height: 870px) {
+    .boxEntryText input{
+        font-size: 13px;
+    }
 }

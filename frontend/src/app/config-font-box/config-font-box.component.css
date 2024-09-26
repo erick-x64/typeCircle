@@ -2,18 +2,19 @@ h1 {
     font-size: 13px;
 }
 
+
 #configFontBox {
     align-items: stretch;
     align-self: stretch;
+    background-color: #292929;
+    border: solid 1px #292929;
+    border-radius: 5px;
     display: flex;
     flex-direction: column;
     flex-grow: 0;
     gap: 1px;
     justify-content: flex-start;
     padding: 0;
-    border-radius: 5px;
-    border: solid 1px #292929;
-    background-color: #292929;
 }
 
 #configFontBox select {
@@ -45,8 +46,8 @@ h1 {
 .button_configFont h1,
 .button_configFont input,
 .button_configFont {
-    font-family: BeepSemiBold;
     color: #c0c0c0;
+    font-family: BeepSemiBold;
 }
 
 .button_configFont {
@@ -58,21 +59,21 @@ h1 {
     align-items: center;
     align-self: stretch;
     background-color: #1b1b1b;
+    border: 0;
     display: flex;
     flex-direction: row;
     flex-grow: 1;
     gap: 10px;
     justify-content: flex-start;
     padding: 15px 18px;
-    border: 0;
 }
 
 .button_configAlingText {
-    display: flex;
     background-color: #151515;
     cursor: pointer;
-    justify-content: center;
+    display: flex;
     flex-grow: 1;
+    justify-content: center;
     padding: 15px;
     transition: background, border 0.08s ease;
     width: -moz-fit-content;
@@ -80,9 +81,9 @@ h1 {
 }
 
 .svg-row {
-    width: 17px;
-    height: 13px;
     background-color: #575757;
+    height: 13px;
+    width: 17px;
 }
 
 .button_configAlingText:hover {
@@ -131,4 +132,10 @@ h1 {
 
 #changeLineHeightFont {
     color: #575757;
+}
+
+@media only screen and (max-height: 870px) {
+    h1, select, input {
+        font-size: 12px;
+    }
 }

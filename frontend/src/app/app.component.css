@@ -1,6 +1,6 @@
 :host {
-    width: 100%;
     height: 100%;
+    width: 100%;
 }
 
 #home {
@@ -145,6 +145,29 @@ p {
 }
 
 @media only screen and (max-height: 870px) {
+    .hide-media #logoVersion,
+    .hide-media #boxMoreThings {
+        display: none;
+    }
+
+    .hide-media #actionsOptions {
+        background-color: #161616;
+        border-radius: 20px;
+        padding: 10px 14px;
+        width: -moz-fit-content;
+        width: fit-content;
+    }
+
+    .hide-media#headerHome {
+        display: grid;
+        justify-content: center;
+        left: 0;
+        position: fixed;
+        right: 0;
+        top: 8px;
+        z-index: 1;
+    }
+
     .content_element_boxFunctions {
         min-height: 200px;
     }
